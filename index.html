@@ -11,8 +11,81 @@
 <meta name="apple-mobile-web-app-title" content="木木接码">
 <title>木木接码 - V14.8 边距优化版</title>
 <style>
+  /* 新增验证页面样式 */
+  .auth-lock-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    padding: 20px;
+  }
+  .auth-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 350px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  .auth-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  .auth-input {
+    width: 100%;
+    height: 44px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0 12px;
+    font-size: 16px;
+    margin-bottom: 12px;
+    outline: none;
+  }
+  .auth-input:focus {
+    border-color: #007bff;
+  }
+  .auth-btn {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: 8px;
+    background: #007bff;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .auth-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+  }
+  .auth-error {
+    color: #dc3545;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+    min-height: 16px;
+  }
+  .auth-tip {
+    color: #888;
+    font-size: 11px;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  /* 原有样式 */
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-  /* 页面左右边距增加 2个字距 (约 32px) */
   body { background: #f0f2f5; padding: 8px 32px; max-width: 450px; margin: 0 auto; color: #333; font-size: 14px; }
   .container { background: #fff; border-radius: 8px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; z-index: 1; }
   
@@ -93,8 +166,20 @@
 </style>
 </head>
 <body>
+<!-- 新增验证界面 -->
+<div class="auth-lock-screen" id="authLockScreen">
+  <div class="auth-card">
+    <div class="auth-title">身份验证</div>
+    <input type="password" class="auth-input" id="authAccessPass" placeholder="请输入访问密码">
+    <input type="tel" class="auth-input" id="authUserPhone" placeholder="请输入绑定手机号">
+    <button class="auth-btn" id="authSubmitBtn" onclick="verifyAccessAuth()">验证身份</button>
+    <div class="auth-error" id="authErrorText"></div>
+    <div class="auth-tip">验证通过后即可使用全部功能</div>
+  </div>
+</div>
 
-<div class="container">
+<!-- 原有内容 -->
+<div class="container" id="mainContainer" style="display: none;">
   <div class="top-header-custom">
     <div class="display-box-custom">
       <input type="text" id="inputPhone" placeholder="未获取" onfocus="this.placeholder=''" onblur="if(this.value=='')this.placeholder='未获取'">
@@ -161,6 +246,15 @@
   <div class="modal-body config-panel">
     <h4 style="margin-bottom:10px; text-align:center;">系统配置</h4>
     
+    <!-- 新增验证配置项 -->
+    <div class="config-pinned">
+      <div style="font-weight:bold; font-size:13px; color:#dc3545; margin-bottom:4px;">🔒 访问权限设置</div>
+      <label>访问密码 (自定义)</label>
+      <input type="password" id="cfgAccessPass" placeholder="设置访问页面的密码">
+      <label>绑定手机号 (白名单)</label>
+      <input type="tel" id="cfgAllowPhones" placeholder="多个手机号用逗号分隔，如：13800138000,13900139000">
+    </div>
+
     <div class="config-pinned">
       <div style="font-weight:bold; font-size:13px; color:#007bff; margin-bottom:4px;">线路与项目设置</div>
       <label>选择线路</label>
@@ -223,6 +317,20 @@
 </div>
 
 <script>
+// ========== 新增验证配置 ==========
+const DEFAULT_ACCESS_CONFIG = {
+  accessPass: "your_default_password", // 默认访问密码（请立即修改）
+  allowPhones: "13800138000", // 默认允许的手机号（请替换为你的手机号）
+  failCount: 0, // 验证失败次数
+  lockTime: 0, // 锁定时间戳
+  lockDuration: 5 * 60 * 1000, // 锁定时长（5分钟）
+  maxFailCount: 3 // 最大失败次数
+};
+
+// 初始化访问配置
+let accessConfig = JSON.parse(localStorage.getItem("sms_access_config")) || DEFAULT_ACCESS_CONFIG;
+
+// ========== 原有配置 ==========
 const DEFAULT_TPL_A = "号码：[手机号] 请验证码登录，发送验证码之后请给我说一下，验证码5分钟有效，不用催，如果有问题，我会告诉你。";
 const DEFAULT_TPL_B = "老铁！登录后请及时确认收货# [验证码]";
 
@@ -236,7 +344,9 @@ let currentConfig = {
   loginPass: "wei376582706",
   authPass: "123456",
   tplA: DEFAULT_TPL_A,
-  tplB: DEFAULT_TPL_B
+  tplB: DEFAULT_TPL_B,
+  accessPass: accessConfig.accessPass,
+  allowPhones: accessConfig.allowPhones
 };
 
 let mgmtData = {};
@@ -244,11 +354,85 @@ let phoneOrder = [];
 let pollTimer = null;
 let currentPhone = "";
 
-window.onload = async () => {
+// ========== 新增验证函数 ==========
+function checkAuthLock() {
+  // 检查是否被锁定
+  if (accessConfig.lockTime > Date.now()) {
+    const remainTime = Math.ceil((accessConfig.lockTime - Date.now()) / 60000);
+    showAuthError(`验证失败次数过多，已锁定${remainTime}分钟`);
+    document.getElementById("authSubmitBtn").disabled = true;
+    return true;
+  }
+  // 重置锁定状态
+  accessConfig.failCount = 0;
+  accessConfig.lockTime = 0;
+  saveAccessConfig();
+  return false;
+}
+
+function verifyAccessAuth() {
+  // 检查锁定状态
+  if (checkAuthLock()) return;
+
+  const inputPass = document.getElementById("authAccessPass").value.trim();
+  const inputPhone = document.getElementById("authUserPhone").value.trim().replace(/\s/g, "");
+  
+  // 验证输入
+  if (!inputPass || !inputPhone) {
+    showAuthError("请输入完整的验证信息");
+    return;
+  }
+
+  // 获取允许的手机号列表
+  const allowPhones = (currentConfig.allowPhones || accessConfig.allowPhones).split(",").map(phone => phone.trim());
+  
+  // 验证密码和手机号
+  if (inputPass === (currentConfig.accessPass || accessConfig.accessPass) && allowPhones.includes(inputPhone)) {
+    // 验证通过
+    localStorage.setItem("sms_auth_status", "verified");
+    document.getElementById("authLockScreen").style.display = "none";
+    document.getElementById("mainContainer").style.display = "block";
+    // 初始化主程序
+    initMainApp();
+  } else {
+    // 验证失败
+    accessConfig.failCount++;
+    showAuthError(`验证失败（${accessConfig.failCount}/${DEFAULT_ACCESS_CONFIG.maxFailCount}）`);
+    
+    // 达到最大失败次数，锁定
+    if (accessConfig.failCount >= DEFAULT_ACCESS_CONFIG.maxFailCount) {
+      accessConfig.lockTime = Date.now() + DEFAULT_ACCESS_CONFIG.lockDuration;
+      showAuthError(`验证失败次数过多，已锁定5分钟`);
+      document.getElementById("authSubmitBtn").disabled = true;
+    }
+    saveAccessConfig();
+  }
+}
+
+function showAuthError(text) {
+  document.getElementById("authErrorText").innerText = text;
+  // 3秒后清空错误提示
+  setTimeout(() => {
+    if (document.getElementById("authErrorText").innerText === text) {
+      document.getElementById("authErrorText").innerText = "";
+    }
+  }, 3000);
+}
+
+function saveAccessConfig() {
+  localStorage.setItem("sms_access_config", JSON.stringify(accessConfig));
+}
+
+// ========== 初始化函数 ==========
+async function initMainApp() {
   const savedConfig = localStorage.getItem("sms_stable_config");
   if (savedConfig) {
     const parsed = JSON.parse(savedConfig);
     currentConfig = { ...currentConfig, ...parsed };
+    // 同步访问配置
+    accessConfig.accessPass = currentConfig.accessPass || accessConfig.accessPass;
+    accessConfig.allowPhones = currentConfig.allowPhones || accessConfig.allowPhones;
+    saveAccessConfig();
   }
   loadMgmtData();
   renderMgmtGrid();
@@ -258,8 +442,28 @@ window.onload = async () => {
   }, 1000);
   await silentLogin();
   getBalance();
+}
+
+// ========== 页面加载时验证 ==========
+window.onload = () => {
+  // 检查是否已验证过（有效期24小时）
+  const authStatus = localStorage.getItem("sms_auth_status");
+  const authTime = localStorage.getItem("sms_auth_time");
+  const now = Date.now();
+  
+  if (authStatus === "verified" && authTime && (now - parseInt(authTime)) < 24 * 60 * 60 * 1000) {
+    // 24小时内已验证，直接进入
+    document.getElementById("authLockScreen").style.display = "none";
+    document.getElementById("mainContainer").style.display = "block";
+    initMainApp();
+  } else {
+    // 需要重新验证
+    localStorage.removeItem("sms_auth_status");
+    checkAuthLock();
+  }
 };
 
+// ========== 原有函数 ==========
 async function silentLogin() {
   if (!currentConfig.user || !currentConfig.pass) return;
   const url = `https://${currentConfig.server}/sms/?api=login&user=${encodeURIComponent(currentConfig.user)}&pass=${encodeURIComponent(currentConfig.pass)}`;
@@ -486,6 +690,11 @@ function toggleConfigSection(id) {
 }
 
 function openConfig() {
+  // 加载访问权限配置
+  document.getElementById("cfgAccessPass").value = currentConfig.accessPass || accessConfig.accessPass;
+  document.getElementById("cfgAllowPhones").value = currentConfig.allowPhones || accessConfig.allowPhones;
+  
+  // 加载原有配置
   document.getElementById("cfgServer").value = currentConfig.server;
   document.getElementById("cfgSid").value = currentConfig.sid;
   document.getElementById("cfgLoginUser").value = currentConfig.loginUser;
@@ -496,6 +705,7 @@ function openConfig() {
   document.getElementById("cfgAuthPass").value = currentConfig.authPass;
   document.getElementById("cfgTplA").value = currentConfig.tplA || DEFAULT_TPL_A;
   document.getElementById("cfgTplB").value = currentConfig.tplB || DEFAULT_TPL_B;
+  
   const sections = document.querySelectorAll('.config-section');
   sections.forEach(sec => sec.classList.remove('active'));
   document.getElementById("configModal").style.display = "flex";
@@ -504,8 +714,32 @@ function openConfig() {
 function closeModal() { document.getElementById("configModal").style.display = "none"; }
 
 function saveConfig() {
+  // 验证访问密码
+  const newAccessPass = document.getElementById("cfgAccessPass").value.trim();
+  if (!newAccessPass) {
+    return alert("访问密码不能为空！");
+  }
+  
+  // 验证绑定手机号
+  const newAllowPhones = document.getElementById("cfgAllowPhones").value.trim();
+  if (!newAllowPhones) {
+    return alert("绑定手机号不能为空！");
+  }
+  
+  // 验证管理密码
   const newAuthPass = document.getElementById("cfgAuthPass").value;
-  if (!/^\d{6}$/.test(newAuthPass)) return alert("管理密码必须是6位数字！");
+  if (!/^\d{6}$/.test(newAuthPass)) {
+    return alert("管理密码必须是6位数字！");
+  }
+
+  // 保存访问权限配置
+  currentConfig.accessPass = newAccessPass;
+  currentConfig.allowPhones = newAllowPhones;
+  accessConfig.accessPass = newAccessPass;
+  accessConfig.allowPhones = newAllowPhones;
+  saveAccessConfig();
+
+  // 保存原有配置
   currentConfig.server = document.getElementById("cfgServer").value;
   currentConfig.sid = document.getElementById("cfgSid").value;
   currentConfig.user = document.getElementById("cfgUser").value;
@@ -516,8 +750,9 @@ function saveConfig() {
   currentConfig.authPass = newAuthPass;
   currentConfig.tplA = document.getElementById("cfgTplA").value;
   currentConfig.tplB = document.getElementById("cfgTplB").value;
+  
   localStorage.setItem("sms_stable_config", JSON.stringify(currentConfig));
-  alert("已保存配置");
+  alert("已保存配置（包括访问权限设置）");
   closeModal();
   getBalance();
 }
@@ -537,7 +772,11 @@ function handleServerChange() {
 }
 
 function exportData() {
-  const data = { config: currentConfig, order: phoneOrder };
+  const data = { 
+    config: currentConfig, 
+    order: phoneOrder,
+    accessConfig: accessConfig // 导出访问配置
+  };
   const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -552,7 +791,10 @@ function importData() {
     const data = JSON.parse(input);
     if (data.config) currentConfig = data.config;
     if (data.order) phoneOrder = data.order;
+    if (data.accessConfig) accessConfig = data.accessConfig;
+    
     localStorage.setItem("sms_stable_config", JSON.stringify(currentConfig));
+    saveAccessConfig();
     saveMgmtData();
     location.reload();
   } catch (err) { alert('导入失败'); }
