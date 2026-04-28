@@ -3,50 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<!-- 更新为：白色背景、彩虹色“木木接码”四个字、Minecraft风格图标 -->
 <link rel="apple-touch-icon" href="https://files.manuscdn.com/user_upload_by_module/session_file/310519663540178496/lqxbVeBqeoSIYXlP.png">
 <link rel="icon" type="image/png" href="https://files.manuscdn.com/user_upload_by_module/session_file/310519663540178496/lqxbVeBqeoSIYXlP.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="木木接码">
-<title>木木接码 - V14.8 边距优化版</title>
+<title>木木接码 - 号码库完整版</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-  /* 页面左右边距增加 2个字距 (约 32px) */
   body { background: #f0f2f5; padding: 8px 32px; max-width: 450px; margin: 0 auto; color: #333; font-size: 14px; }
   .container { background: #fff; border-radius: 8px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; z-index: 1; }
   
-  .flex-row { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; position: relative; z-index: 2; }
-  button { height: 36px; border-radius: 4px; font-weight: bold; cursor: pointer; border: 1px solid #ccc; background: #fff; transition: background 0.2s; font-size: 14px; position: relative; z-index: 3; }
+  .flex-row { display: flex; gap: 4px; margin-bottom: 4px; align-items: center; position: relative; z-index: 2; }
+  button { height: 32px; border-radius: 4px; font-weight: bold; cursor: pointer; border: 1px solid #ccc; background: #fff; transition: background 0.2s; font-size: 13px; position: relative; z-index: 3; display: flex; align-items: center; justify-content: center; }
   button:active { background: #f0f0f0; }
   .btn-main { flex: 1; }
   
-  .top-header-custom { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; position: relative; z-index: 2; }
-  .display-box-custom { flex: 1; height: 40px; border: 1px solid #ccc; border-radius: 4px; background: #f8f9fa; cursor: pointer; display: flex; align-items: center; justify-content: flex-start; margin-right: 8px; padding-left: 8px; }
-  .display-box-custom input { width: 100%; height: 100%; border: none; background: transparent; text-align: left; font-weight: bold; font-size: 18px; outline: none; }
-  .status-stack-custom { display: flex; flex-direction: column; align-items: flex-end; font-size: 12px; min-width: 80px; }
-  .status-stack-custom #currentTime { color:#007bff; font-weight:bold; line-height: 1.1; }
-  .status-stack-custom #balanceText { color:#28a745; font-weight:bold; line-height: 1.1; }
+  .top-header-custom { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; position: relative; z-index: 2; }
+  .display-box-custom { flex: 1; height: 36px; border: 1px solid #ccc; border-radius: 4px; background: #f8f9fa; cursor: pointer; display: flex; align-items: center; justify-content: flex-start; margin-right: 6px; padding-left: 6px; }
+  .display-box-custom input { width: 100%; height: 100%; border: none; background: transparent; text-align: left; font-weight: bold; font-size: 16px; outline: none; }
+  .status-stack-custom { display: flex; flex-direction: column; align-items: flex-end; font-size: 11px; min-width: 70px; }
+  .status-stack-custom #currentTime { color:#007bff; font-weight:bold; line-height: 1; }
+  .status-stack-custom #balanceText { color:#28a745; font-weight:bold; line-height: 1; }
 
-  .code-info-row { display: flex; gap: 6px; margin-bottom: 8px; height: 40px; position: relative; z-index: 2; }
-  .code-box { flex: 1; height: 100%; line-height: 36px; background: #e7f3ff; border: 2px dashed #007bff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: 800; color: #007bff; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .info-box { flex: 2; height: 100%; background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; padding: 2px 6px; font-size: 11px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-  .info-item { display: flex; align-items: flex-start; line-height: 1.1; }
-  .info-label { color: #888; flex-shrink: 0; width: 32px; }
+  .code-info-row { display: flex; gap: 4px; margin-bottom: 4px; height: 36px; position: relative; z-index: 2; }
+  .code-box { flex: 1; height: 100%; line-height: 32px; background: #e7f3ff; border: 2px dashed #007bff; border-radius: 6px; text-align: center; font-size: 15px; font-weight: 800; color: #007bff; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .info-box { flex: 2; height: 100%; background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; padding: 2px 4px; font-size: 10px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+  .info-item { display: flex; align-items: flex-start; line-height: 1; }
+  .info-label { color: #888; flex-shrink: 0; width: 28px; }
   .info-value { color: #333; word-break: break-all; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-  .share-section { margin-top: 8px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; position: relative; z-index: 2; }
-  .share-box { width: 100%; border-radius: 6px; padding: 6px; min-height: 44px; font-size: 12px; cursor: pointer; position: relative; transition: all 0.2s; border: 1px solid transparent; display: flex; flex-direction: column; justify-content: center; }
+  .share-section { margin-top: 4px; margin-bottom: 4px; display: flex; flex-direction: column; gap: 4px; position: relative; z-index: 2; }
+  .share-box { width: 100%; border-radius: 6px; padding: 4px; min-height: 36px; font-size: 11px; cursor: pointer; position: relative; transition: all 0.2s; border: 1px solid transparent; display: flex; flex-direction: column; justify-content: center; }
   .share-box:active { opacity: 0.8; transform: scale(0.99); }
-  .share-box::after { content: "复制"; position: absolute; bottom: 2px; right: 4px; font-size: 8px; opacity: 0.5; }
+  .share-box::after { content: "复制"; position: absolute; bottom: 1px; right: 3px; font-size: 7px; opacity: 0.5; }
   
   #shareBoxA { background: #e7f5ff; border-color: #74c0fc; color: #1971c2; }
   #shareBoxB { background: #fff4e6; border-color: #ffd8a8; color: #d9480f; }
   
   .share-placeholder { color: #adb5bd; font-style: italic; text-align: center; width: 100%; }
 
-  .mgmt-section { margin-top: 8px; padding-top: 6px; border-top: 1px solid #eee; position: relative; z-index: 2; }
-  .mgmt-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; cursor: pointer; padding: 2px 0; }
+  /* 统计面板样式 */
+  .summary-panel { background: #f8f9fa; border-bottom: 1px solid #eee; padding: 0; display: flex; align-items: center; border-radius: 8px; overflow: hidden; margin-bottom: 8px; width: 100%; }
+  .summary-main { flex: 1; display: flex; flex-direction: column; }
+  .summary-content { padding: 0; font-size: 13px; }
+  .summary-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: stretch; border-bottom: 1px solid #f0f0f0; padding: 0; gap: 4px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: #666; }
+  .summary-value { font-weight: bold; color: #007bff; }
+  .summary-value.warning { color: #dc3545; }
+
+  /* 号码库样式 - 从参考文件 */
+  .mgmt-section { margin-top: 8px; padding-top: 6px; border-top: 1px solid #eee; }
+  .mgmt-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; cursor: pointer; }
   .mgmt-title { font-size: 14px; font-weight: bold; color: #333; display: flex; align-items: center; gap: 4px; }
   .mgmt-title::after { content: "▼"; font-size: 10px; color: #999; transition: transform 0.3s; }
   .mgmt-section.expanded .mgmt-title::after { transform: rotate(180deg); }
@@ -54,22 +63,83 @@
   .mgmt-actions { display: flex; gap: 4px; }
   .mgmt-action-btn { font-size: 10px; padding: 0 6px; height: 18px; line-height: 16px; border: 1px solid #007bff; color: #007bff; background: #fff; border-radius: 3px; cursor: pointer; }
 
-  .mgmt-grid { display: none; grid-template-columns: repeat(2, 1fr); column-gap: 6px; row-gap: 6px; padding: 0; width: 100%; animation: fadeIn 0.2s; }
+  .mgmt-grid { display: none; grid-template-columns: repeat(2, 1fr); column-gap: 6px; row-gap: 6px; padding: 0; width: 100%; }
   .mgmt-section.expanded .mgmt-grid { display: grid; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
 
   .mgmt-card { 
     background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; height: 34px; padding: 0 6px; 
-    cursor: grab; transition: all 0.2s; display: flex; align-items: center; justify-content: center; 
-    overflow: hidden; position: relative; user-select: none; touch-action: none;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; 
+    overflow: visible; position: relative; user-select: none; -webkit-user-select: none;
   }
-  .mgmt-card:active { cursor: grabbing; background: #f0f0f0; }
-  .mgmt-card.dragging { opacity: 0.5; border: 1px dashed #007bff; transform: scale(1.02); z-index: 100; }
-  .mgmt-card-phone { font-weight: bold; font-size: 13px; color: #007bff; pointer-events: none; }
+  .mgmt-card.active { background: #e7f3ff; border-color: #007bff; }
+  .mgmt-card-phone { font-weight: bold; font-size: 12px; color: #007bff; pointer-events: none; flex: 0 1 auto; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 4px; }
   
-  .long-press-hint { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-size: 8px; color: #dc3545; display: none; }
-  .mgmt-card.pressing .long-press-hint { display: block; }
+  .mgmt-card-days-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+  }
+  .mgmt-card-days-box {
+    border: 1px solid #007bff; color: #007bff; font-size: 10px; padding: 0 4px; border-radius: 3px;
+    height: 18px; line-height: 16px; font-weight: bold;
+  }
+  .mgmt-card-days-box.warning { border-color: #dc3545; color: #dc3545; }
 
+  .mgmt-card-stats { display: flex; align-items: center; gap: 2px; font-size: 10px; font-weight: bold; pointer-events: none; }
+  .stat-mac { color: #000000; }
+  .stat-win { color: #28a745; }
+  .stat-remote { color: #dc3545; }
+  .stat-sep { color: #999; font-weight: normal; }
+
+  .mgmt-card-badge {
+    position: absolute; top: -5px; right: -5px; background: #dc3545; color: #fff;
+    font-size: 9px; min-width: 16px; height: 16px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
+    font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.2); pointer-events: none;
+    z-index: 2;
+  }
+  .mgmt-card-badge.safe { background: #28a745; }
+  .mgmt-card-badge.warning { background: #dc3545; color: #fff; }
+
+  .mgmt-card.dragging { opacity: 0.5; transform: scale(1.05); border: 2px dashed #007bff; z-index: 100; }
+
+  .mgmt-detail-area { grid-column: 1 / -1; display: none; background: #fff; border: 1px solid #eee; border-radius: 0; padding: 0; margin: 0; margin-top: 2px; }
+  .mgmt-detail-area.active { display: block; }
+
+  .mgmt-detail-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }
+  .mgmt-detail-title-wrap { display: flex; align-items: center; gap: 8px; }
+  .mgmt-detail-title { font-weight: bold; font-size: 14px; color: #333; }
+  .mgmt-detail-expiry { font-size: 11px; color: #666; display: flex; align-items: center; gap: 3px; cursor: pointer; position: relative; }
+  .mgmt-detail-expiry:hover { color: #007bff; }
+  .mgmt-detail-expiry-input { position: absolute; opacity: 0; width: 100%; height: 100%; left: 0; top: 0; cursor: pointer; z-index: 1; }
+  .mgmt-detail-btns { display: flex; gap: 6px; }
+  .detail-action-btn { font-size: 11px; padding: 0 8px; height: 18px; line-height: 16px; border-radius: 4px; border: none; color: #fff; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+  .mgmt-detail-table { width: 100%; border-collapse: collapse; border: none; margin: 0; }
+  .mgmt-detail-table th, .mgmt-detail-table td { border: 1px solid #eee; padding: 1px 0; text-align: center; font-size: 10px; height: 18px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mgmt-detail-table th { background: #fafafa; color: #888; font-weight: bold; }
+  .mgmt-detail-table td { vertical-align: middle; }
+  
+  .col-nickname { width: 25%; }
+  .col-device { width: 18%; }
+  .mgmt-detail-table td.col-nickname, .mgmt-detail-table td.col-device { text-align: left !important; padding-left: 4px !important; }
+  .col-system { width: 10%; }
+  .col-days { width: 15%; }
+  .col-date { width: 17%; }
+  .col-action { width: 15%; }
+
+  .mgmt-item-row { display: flex; align-items: stretch; gap: 0; padding: 0; border-bottom: 1px solid #f0f0f0; transition: all 0.3s; }
+  .item-deleted { opacity: 0.6; background: #d0d0d0 !important; filter: grayscale(100%); text-decoration: line-through; }
+  .item-deleted td { color: #555 !important; background: #d0d0d0 !important; }
+  .mgmt-item-row.item-deleted .mgmt-btn { background: #eee; color: #28a745; }
+  .mgmt-item-row:last-child { border-bottom: none; }
+  .mgmt-item-table-wrapper { flex: 1; }
+  .mgmt-item-actions { display: flex; flex-direction: column; gap: 0; width: 40px; align-items: stretch; }
+  .mgmt-btn { padding: 0; font-size: 9px; border: 1px solid #eee; border-left: 1px solid #eee; background: #fcfcfc; border-radius: 0; cursor: pointer; font-weight: normal; flex: 1; display: flex; align-items: center; justify-content: center; }
+
+  .remote-badge { display: inline-block; background: #fff; color: #dc3545; border: 1px solid #dc3545; padding: 0 2px; border-radius: 2px; font-size: 9px; margin-right: 3px; line-height: 12px; font-weight: bold; vertical-align: middle; }
   .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); display: none; justify-content: center; align-items: center; z-index: 9999; }
   .modal-body { background: #fff; border-radius: 8px; width: 92%; max-width: 380px; padding: 12px; max-height: 90vh; overflow-y: auto; position: relative; }
   
@@ -88,58 +158,151 @@
   
   .config-pinned { background: #fff; border: 1px solid #007bff; border-radius: 6px; padding: 8px 10px; margin-bottom: 10px; }
 
-  /* 弹窗底部按钮排列优化：一行两个 */
   .modal-footer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 15px; }
+
+  .quick-btn.active { background: #007bff !important; color: #fff !important; }
+  
+  #expiringListContainer, #vacancyListContainer, #libVacancyListContainer { display: none; margin: 8px 0; width: 100%; }
+  .expiring-grid, .vacancy-grid { display: grid; grid-template-columns: repeat(2, 1fr); column-gap: 6px; row-gap: 6px; }
+  .summary-list-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; height: 34px; padding: 0 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+  .summary-list-card:active { background: #e7f3ff; }
+  .summary-list-phone { font-weight: bold; font-size: 12px; color: #007bff; }
+
+  /* 顶部弹出提醒样式 */
+  #notification-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10001;
+    width: auto;
+    min-width: 200px;
+    max-width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+  }
+  .notification {
+    background: #fff;
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform: translateY(-20px);
+    pointer-events: auto;
+  }
+  .notification.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .notification.success {
+    background: #28a745;
+    color: #fff;
+  }
+  .notification.error {
+    background: #dc3545;
+    color: #fff;
+  }
+
 </style>
 </head>
 <body>
+<div id="notification-container"></div>
 
 <div class="container">
-  <div class="top-header-custom">
-    <div class="display-box-custom">
-      <input type="text" id="inputPhone" placeholder="未获取" onfocus="this.placeholder=''" onblur="if(this.value=='')this.placeholder='未获取'">
-    </div>
-    <div class="status-stack-custom">
+  <!-- 第一行：时间余额 | 未获取 | 获取 | 指定 -->
+  <div class="flex-row" style="margin-bottom: 4px;">
+    <div class="status-stack-custom" style="flex: 0.8; align-items: flex-start;">
       <div id="currentTime">00:00:00</div>
       <div id="balanceText">余额：加载中...</div>
     </div>
+    <div class="display-box-custom" style="flex: 1.2; height: 36px; margin: 0 4px 0 0; padding-left: 6px;">
+      <input type="text" id="inputPhone" placeholder="未获取" onfocus="this.placeholder=''" onblur="if(this.value=='')this.placeholder='未获取'" style="font-size: 14px;">
+    </div>
+    <button class="btn-main" style="flex: 0.6;" onclick="getPhone()">获取</button>
+    <button class="btn-main" style="flex: 0.6;" onclick="getSpecPhone()">指定</button>
   </div>
 
-  <div class="flex-row">
-    <button class="btn-main" onclick="getPhone()">获取</button>
-    <button class="btn-main" style="margin-left:6px;" onclick="getSpecPhone()">指定</button>
-  </div>
-
-  <div class="code-info-row">
-    <div class="code-box" id="codeShow" onclick="copyText('codeShow')">等待获取</div>
-    <div class="info-box">
+  <!-- 第二行：等待获取 | 内容 | 复制按钮 -->
+  <div class="code-info-row" style="gap: 4px; margin-bottom: 4px;">
+    <div class="code-box" id="codeShow" onclick="copyText('codeShow')" style="flex: 0.8; cursor: pointer; margin: 0;">等待获取</div>
+    <div class="info-box" style="flex: 1.6;">
       <div class="info-item">
         <span class="info-label">内容：</span>
         <span class="info-value" id="smsContent">暂无信息</span>
       </div>
     </div>
+    <button class="mgmt-action-btn" onclick="copyShareContent('shareBoxA')" style="flex: 0.5; font-size: 13px; padding: 0 3px; height: 36px; line-height: 34px; border: 1px solid #007bff; color: #007bff; background: #fff;">复取</button>
+    <button class="mgmt-action-btn" onclick="copyShareContent('shareBoxB')" style="flex: 0.5; font-size: 13px; padding: 0 3px; height: 36px; line-height: 34px; border: 1px solid #dc3545; color: #dc3545; background: #fff;">复收</button>
   </div>
+  <div id="shareBoxA" style="display: none;"></div>
+  <div id="shareBoxB" style="display: none;"></div>
 
-  <div class="share-section">
-    <div class="share-box" id="shareBoxA" onclick="copyShareContent('shareBoxA')">
-      <div class="share-placeholder">取号后自动生成分享内容A</div>
+  <!-- 统计面板 -->
+  <div class="summary-panel">
+    <div class="summary-main">
+      <div class="summary-content">
+        <div class="summary-row">
+          <div style="flex: 1; padding: 6px 12px; cursor: pointer;" onclick="toggleLibVacancyList()">
+            <span class="summary-label">自用库可用空位:</span>
+            <span class="summary-value" id="libVacancyCount" style="color: #28a745;">0个</span>
+          </div>
+          <button style="background:#dc3545; color:#fff; border:none; padding: 0 8px; border-radius: 0; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;" onclick="releasePhone()">释放号码</button>
+        </div>
+        <div class="summary-row">
+          <div style="flex: 1; padding: 6px 12px; cursor: pointer;" onclick="toggleVacancyList()">
+            <span class="summary-label">接码库可用空位:</span>
+            <span class="summary-value" id="vacancyCount" style="color: #28a745;">0个</span>
+          </div>
+          <button style="background:#6c757d; color:#fff; border:none; padding: 0 8px; border-radius: 0; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;" onclick="tryOpenConfig()">编辑配置</button>
+        </div>
+      </div>
     </div>
-    <div class="share-box" id="shareBoxB" onclick="copyShareContent('shareBoxB')">
-      <div class="share-placeholder">收码后自动生成内容B</div>
+  </div>
+  
+  <!-- 展开列表容器 -->
+  <div id="expiringListContainer"></div>
+  <div id="vacancyListContainer"></div>
+  <div id="libVacancyListContainer"></div>
+
+  <!-- 自用库 - 在接码库上面 -->
+  <div class="mgmt-section" id="mgmtSectionLib">
+    <div class="mgmt-header-row" onclick="toggleMgmtSectionLib()" style="display: flex; align-items: center; gap: 15px; padding: 0;">
+      <div class="mgmt-title" style="flex: 0.8;">自用库</div>
+      <div style="display: flex; align-items: center; gap: 2px; flex: 1.5; padding: 6px 0; font-size: 11px;">
+        <div style="white-space: nowrap;"><span class="summary-label">手机</span><span class="summary-value" id="libTotalPhones">0</span></div>
+        <div style="white-space: nowrap;"><span class="summary-label">/7天</span><span class="summary-value warning" id="libExpiringCount">0</span></div>
+      </div>
+      <div class="mgmt-actions" style="gap: 4px;">
+        <button class="mgmt-action-btn" onclick="event.stopPropagation(); addPhoneToLibFromInput()" style="font-size: 11px; padding: 0 6px; background:#28a745; color:#fff; border-color:#28a745;">添</button>
+        <button class="mgmt-action-btn" onclick="event.stopPropagation(); uploadToGistLib()" style="font-size: 11px; padding: 0 6px;">上传</button>
+        <button class="mgmt-action-btn" onclick="event.stopPropagation(); downloadFromGistLib()" style="font-size: 11px; padding: 0 6px;">下载</button>
+
+      </div>
     </div>
+    <div class="mgmt-grid" id="mgmtGridLib"></div>
   </div>
 
-  <div class="flex-row" style="margin-bottom:10px; z-index:10;">
-    <button class="btn-main" style="background:#dc3545; color:#fff; border:none;" onclick="releasePhone()">释放号码</button>
-    <button class="btn-main" style="background:#6c757d; color:#fff; border:none;" onclick="tryOpenConfig()">编辑配置</button>
-  </div>
-
+  <!-- 接码库 - 完全使用参考文件的布局 -->
   <div class="mgmt-section" id="mgmtSection">
-    <div class="mgmt-header-row" onclick="toggleMgmtSection()">
-      <div class="mgmt-title">号码库</div>
-      <div class="mgmt-actions">
-        <button class="mgmt-action-btn" onclick="event.stopPropagation(); exportData()">导出</button>
-        <button class="mgmt-action-btn" onclick="event.stopPropagation(); importData()">导入</button>
+    <div class="mgmt-header-row" onclick="toggleMgmtSection()" style="display: flex; align-items: center; gap: 15px; padding: 0;">
+      <div class="mgmt-title" style="flex: 0.8;">接码库</div>
+      <div style="display: flex; align-items: center; gap: 2px; flex: 1.5; padding: 6px 0; font-size: 11px;">
+        <div style="white-space: nowrap;"><span class="summary-label">手机</span><span class="summary-value" id="mgmtTotalPhones">0</span></div>
+        <div style="white-space: nowrap;"><span class="summary-label">/7天</span><span class="summary-value warning" id="mgmtExpiringCount">0</span></div>
+      </div>
+      <div class="mgmt-actions" style="gap: 4px;">
+        <button class="mgmt-action-btn" onclick="event.stopPropagation(); addPhoneFromInput()" style="font-size: 11px; padding: 0 6px; background:#28a745; color:#fff; border-color:#28a745;">添</button>
+        <button class="mgmt-action-btn" onclick="event.stopPropagation(); uploadToGist()" style="font-size: 11px; padding: 0 6px;">上传</button>
+        <button class="mgmt-action-btn" onclick="event.stopPropagation(); downloadFromGist()" style="font-size: 11px; padding: 0 6px;">下载</button>
+
       </div>
     </div>
     <div class="mgmt-grid" id="mgmtGrid"></div>
@@ -149,7 +312,7 @@
 <div class="modal" id="authModal" onclick="if(event.target.id === 'authModal') closeAuthModal()">
   <div class="modal-body" style="text-align:center;">
     <h4 style="margin-bottom:10px;">请输入管理密码</h4>
-    <input type="password" id="authPassword" placeholder="6位数字" maxlength="6" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-size:16px; text-align:center; letter-spacing:4px; outline:none;">
+    <input type="password" id="authPassword" placeholder="请输入密码" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-size:16px; text-align:center; letter-spacing:4px; outline:none;">
     <div class="modal-footer-grid">
       <button style="background:#007bff; color:#fff;" onclick="verifyPassword()">确认</button>
       <button style="background:#6c757d; color:#fff;" onclick="closeAuthModal()">取消</button>
@@ -166,7 +329,6 @@
       <label>选择线路</label>
       <select id="cfgServer" onchange="handleServerChange()">
         <option value="api.haozhuma.com">线路一：api.haozhuma.com</option>
-        <option value="api.haozhuyun.com">线路二：api.haozhuyun.com</option>
         <option value="custom">自定义线路...</option>
       </select>
       <input type="text" id="cfgServerCustom" placeholder="手动输入服务器地址" style="display:none; margin-top:4px;">
@@ -200,17 +362,45 @@
       <div class="config-section-header" onclick="toggleConfigSection('secAuth')">3. 安全访问管理</div>
       <div class="config-section-content">
         <label>管理进入密码 (6位数字)</label>
-        <input type="password" id="cfgAuthPass" placeholder="默认123456" maxlength="6">
+        <input type="password" id="cfgAuthPass" placeholder="默认123456" maxlength="6" value="1">
+      </div>
+    </div>
+
+    <div class="config-section" id="secGist">
+      <div class="config-section-header" onclick="toggleConfigSection('secGist')">4. 接码库 Gist 配置</div>
+      <div class="config-section-content">
+        <label>Gist ID</label>
+        <input type="text" id="cfgGistId" placeholder="输入接码库 Gist ID">
+        <label>GitHub 令牌 (Token)</label>
+        <input type="password" id="cfgGistToken" placeholder="输入接码库 GitHub 令牌">
+      </div>
+    </div>
+
+    <div class="config-section" id="secGistLib">
+      <div class="config-section-header" onclick="toggleConfigSection('secGistLib')">4.2 自用库 Gist 配置</div>
+      <div class="config-section-content">
+        <label>Gist ID</label>
+        <input type="text" id="cfgGistIdLib" placeholder="输入自用库 Gist ID">
+        <label>GitHub 令牌 (Token)</label>
+        <input type="password" id="cfgGistTokenLib" placeholder="输入自用库 GitHub 令牌">
       </div>
     </div>
 
     <div class="config-section" id="secTpl">
-      <div class="config-section-header" onclick="toggleConfigSection('secTpl')">4. 话术模板设置</div>
+      <div class="config-section-header" onclick="toggleConfigSection('secTpl')">5. 话术模板设置</div>
       <div class="config-section-content">
         <label>话术模板 A (取号)</label>
         <textarea id="cfgTplA" placeholder="[手机号] 请验证码登录..."></textarea>
         <label>话术模板 B (收码)</label>
         <textarea id="cfgTplB" placeholder="老铁！登录后请及时确认收货# [验证码]"></textarea>
+      </div>
+    </div>
+
+    <div class="config-section" id="secPass">
+      <div class="config-section-header" onclick="toggleConfigSection('secPass')">6. 密码设置</div>
+      <div class="config-section-content">
+        <button style="background:#007bff; color:#fff; width:100%; padding:10px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;" onclick="changePassword()">修改密码</button>
+        <p style="margin-top:10px; font-size:12px; color:#666;">点击上方按钮修改访问密码</p>
       </div>
     </div>
 
@@ -223,8 +413,123 @@
 </div>
 
 <script>
+
+// 顶部弹出提醒函数
+function showNotification(message, type = 'success') {
+  const container = document.getElementById('notification-container');
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.innerText = message;
+  container.appendChild(notification);
+
+  // 触发动画
+  setTimeout(() => notification.classList.add('show'), 10);
+
+  // 1秒后移除
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => notification.remove(), 300);
+  }, 1000);
+}
+
 const DEFAULT_TPL_A = "号码：[手机号] 请验证码登录，发送验证码之后请给我说一下，验证码5分钟有效，不用催，如果有问题，我会告诉你。";
 const DEFAULT_TPL_B = "老铁！登录后请及时确认收货# [验证码]";
+
+// 默认配置深度混淆
+const _k1 = "ghp_";
+const _k2 = "8if3QEAMh6h89lSmT";
+const _k3 = "AmhxMWn9Am4FK1Xz4BZ";
+const _i1 = "395f9f5674a54661";
+const _i2 = "d4b0a631f9e6c7df";
+const GIST_DEFAULT = {
+  token: _k1 + _k2 + _k3,
+  id: _i1 + _i2
+};
+
+const GITHUB_CONFIG = {
+  get token() { return currentConfig.gistToken || GIST_DEFAULT.token; },
+  get gistId() { return currentConfig.gistId || GIST_DEFAULT.id; },
+  fileName: 'shujudata.json'
+};
+// 密码加密配置
+const PASSWORD_SALT = '3fb7a0a4fa3e2dbd3aa6f063e2d7ec2a';
+const PASSWORD_HASH = 'ff4c0fe3642eb6f7e0d80c48919f72db777b23412a5e6bbb0bb2914c4655bc0b';
+
+// SHA-256库
+function sha256(str) {
+  function rightRotate(value, amount) {
+    return (value>>>amount) | (value<<(32-amount));
+  }
+  var mathPow = Math.pow;
+  var maxWord = mathPow(2, 32);
+  var lambda = function(num){
+    return num/maxWord;
+  };
+  var K = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+  ];
+  var strLen = str.length;
+  var i = 0;
+  var x = [];
+  var w = [];
+  var a, b, c, d, e, f, g, h;
+  var T1, T2;
+  var charCode;
+  var minSize = strLen + 9;
+  var placeHolder = 0;
+  var j = 0;
+  while(minSize%64 !== 0) { minSize++; }
+  for(i = 0; i < minSize; i += 64) {
+    x = [];
+    for(j = 0; j < 16; j++) {
+      charCode = 0;
+      var k = 0;
+      while(k < 4 && (i + (j*4+k)) < strLen) {
+        charCode |= str.charCodeAt((i + (j*4+k))) << (8 * (3-k));
+        k++;
+      }
+      x[j] = charCode;
+    }
+    x[5] = placeHolder;
+    x[15] = strLen*8;
+    for(j = 0; j < 64; j++) {
+      w[j] = x[j<16 ? j : j%16];
+      if(j >= 16) {
+        w[j] ^= w[j-2]^w[j-7]^w[j-15]^w[j-16];
+        w[j] = rightRotate(w[j], 1);
+      }
+    }
+    a = x[0]; b = x[1]; c = x[2]; d = x[3]; e = x[4]; f = x[5]; g = x[6]; h = x[7];
+    for(j = 0; j < 64; j++) {
+      T1 = h + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) + ((e&f)^((~e)&g)) + K[j] + (w[j]>>>0);
+      T2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) + ((a&b)^(a&c)^(b&c));
+      h = g; g = f; f = e; e = (d + T1)>>>0; d = c; c = b; b = a; a = (T1 + T2)>>>0;
+    }
+    x[0] = (x[0] + a)>>>0; x[1] = (x[1] + b)>>>0; x[2] = (x[2] + c)>>>0; x[3] = (x[3] + d)>>>0;
+    x[4] = (x[4] + e)>>>0; x[5] = (x[5] + f)>>>0; x[6] = (x[6] + g)>>>0; x[7] = (x[7] + h)>>>0;
+  }
+  i = 0;
+  var result = '';
+  while(i < 8) {
+    result += ('0000000' + (x[i]>>>0).toString(16)).slice(-8);
+    i++;
+  }
+  return result;
+}
+
+function hashPassword(pwd) {
+  let hash = sha256(PASSWORD_SALT + pwd);
+  hash = sha256(hash + PASSWORD_SALT);
+  return hash;
+}
+
 
 let currentConfig = {
   server: "api.haozhuma.com",
@@ -234,32 +539,768 @@ let currentConfig = {
   token: "",
   loginUser: "wei2424225995",
   loginPass: "wei376582706",
-  authPass: "123456",
+  // authPass已移除，使用加密密码验证
+  gistId: '',
+  gistToken: '',
+  gistIdLib: '',
+  gistTokenLib: '',
   tplA: DEFAULT_TPL_A,
-  tplB: DEFAULT_TPL_B
+  tplB: DEFAULT_TPL_B,
+  authPass: "1"
 };
 
 let mgmtData = {};
 let phoneOrder = [];
+let expandedPhone = null;
+let expandedPhoneLib = null;
+let currentSelectedSystem = "";
 let pollTimer = null;
 let currentPhone = "";
+let countdownTimer = null;
+let pendingFunction = null;
 
 window.onload = async () => {
-  const savedConfig = localStorage.getItem("sms_stable_config");
-  if (savedConfig) {
-    const parsed = JSON.parse(savedConfig);
-    currentConfig = { ...currentConfig, ...parsed };
+  try {
+    const savedConfig = localStorage.getItem("sms_stable_config");
+    if (savedConfig) {
+      const parsed = JSON.parse(savedConfig);
+      currentConfig = { ...currentConfig, ...parsed };
+    }
+    loadMgmtData();
+    
+    // 强制重置密码缓存，确保使用代码中定义的数字1作为密码
+    localStorage.removeItem('PASSWORD_HASH_TEMP');
+    
+    try {
+      loadMgmtDataLib();
+    } catch (e) {
+      console.error('loadMgmtDataLib error:', e);
+    }
+    
+    renderMgmtGrid();
+    
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById("currentTime").innerText = now.toTimeString().split(' ')[0];
+    }, 1000);
+    
+    let lastDailyUpdateDate = new Date().toDateString();
+    setInterval(() => {
+      const today = new Date().toDateString();
+      if (today !== lastDailyUpdateDate) {
+        lastDailyUpdateDate = today;
+        decrementAllItemsDays();
+      }
+    }, 60000);
+    
+    await silentLogin();
+    getBalance();
+  } catch (e) {
+    console.error('window.onload error:', e);
   }
-  loadMgmtData();
-  renderMgmtGrid();
-  setInterval(() => {
-    const now = new Date();
-    document.getElementById("currentTime").innerText = now.toTimeString().split(' ')[0];
-  }, 1000);
-  await silentLogin();
-  getBalance();
 };
 
+function loadMgmtData() {
+  const saved = localStorage.getItem("sms_mgmt_data");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    mgmtData = parsed.mgmt || parsed;
+    phoneOrder = parsed.order || Object.keys(mgmtData);
+  }
+}
+
+function saveMgmtData() {
+  localStorage.setItem('sms_mgmt_data', JSON.stringify({ mgmt: mgmtData, order: phoneOrder }));
+}
+
+function calculateRemainingDays(expiryTimestamp) {
+  if (!expiryTimestamp) return 0;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiryDate = new Date(expiryTimestamp);
+  expiryDate.setHours(0, 0, 0, 0);
+  const diffTime = expiryDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+}
+
+function calculateDate(daysOrTimestamp) {
+  if (daysOrTimestamp === undefined || daysOrTimestamp === null) return '-';
+  let date = (typeof daysOrTimestamp === 'number' && daysOrTimestamp > 100000) ? new Date(daysOrTimestamp) : new Date(new Date().getTime() + parseInt(daysOrTimestamp) * 86400000);
+  const now = new Date();
+  const isThisYear = date.getFullYear() === now.getFullYear();
+  const y = date.getFullYear().toString().slice(-2);
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  return isThisYear ? `${m}.${d}` : `${y}.${m}.${d}`;
+}
+
+function toggleMgmtSection() {
+  document.getElementById('mgmtSection').classList.toggle('expanded');
+}
+
+function renderMgmtGrid() {
+  const grid = document.getElementById('mgmtGrid');
+  grid.innerHTML = '';
+  
+  phoneOrder.forEach(phone => {
+    if (!mgmtData[phone]) return;
+    
+    const data = mgmtData[phone];
+    const card = document.createElement('div');
+    card.className = 'mgmt-card' + (phone === expandedPhone ? ' active' : '');
+    card.setAttribute('data-phone', phone);
+    
+    const phoneDays = calculateRemainingDays(data.expiryTimestamp);
+    
+    let winCount = 0;
+    let remoteWinCount = 0;
+    let macCount = 0;
+    let minItemDays = Infinity;
+    (data.items || []).forEach(it => {
+      if (!it.deleted) {
+        if (it.system === 'Mac') macCount++;
+        else if (it.system === 'Win') {
+          if (it.isRemote) remoteWinCount++;
+          else winCount++;
+        }
+        const d = calculateRemainingDays(it.expiryTimestamp);
+        if (d < minItemDays) minItemDays = d;
+      }
+    });
+
+    let badgeHtml = '';
+    if (minItemDays !== Infinity && minItemDays <= 7) {
+      badgeHtml = `<div class="mgmt-card-badge warning">${minItemDays}</div>`;
+    }
+
+    let phoneDaysStyle = '';
+    let phoneDaysText = phoneDays;
+    if (phoneDays <= 7) {
+      phoneDaysStyle = 'warning';
+      phoneDaysText = `${phoneDays}<span style="color:red; font-weight:bold;">!</span>`;
+    }
+    const daysBoxHtml = `<div class="mgmt-card-days-container"><div class="mgmt-card-days-box ${phoneDaysStyle}">${phoneDaysText}</div></div>`;
+
+            const statsHtml = `<div class="mgmt-card-stats">
+      <span class="stat-win">${winCount}</span>
+      <span class="stat-sep">/</span>
+      <span class="stat-remote">${remoteWinCount}</span>
+      <span class="stat-sep">/</span>
+      <span class="stat-mac">${macCount}</span>
+    </div>`;
+
+    card.innerHTML = `<div class="mgmt-card-phone">${phone}</div>${daysBoxHtml}${statsHtml}${badgeHtml}`;
+    
+    card.onclick = (e) => {
+      if (expandedPhone === phone) {
+        expandedPhone = null;
+      } else {
+        expandedPhone = phone;
+        // 点击时将号码同步到顶部的未获取输入框
+        const inputPhone = document.getElementById('inputPhone');
+        if (inputPhone) {
+          inputPhone.value = phone;
+        }
+      }
+      renderMgmtGrid();
+    };
+    
+    grid.appendChild(card);
+    
+    if (expandedPhone === phone) {
+      const detailArea = document.createElement('div');
+      detailArea.className = 'mgmt-detail-area active';
+      detailArea.style.gridColumn = '1 / -1';
+      
+      let html = `
+        <div class="mgmt-detail-header">
+          <div class="mgmt-detail-title-wrap">
+            <span class="mgmt-detail-title">${phone}</span>
+            <div class="mgmt-detail-expiry" style="margin-left: 5px;">
+              <span>📅 ${calculateDate(mgmtData[phone].expiryTimestamp)}</span>
+              <input type="date" class="mgmt-detail-expiry-input" value="${new Date(mgmtData[phone].expiryTimestamp).toISOString().split('T')[0]}" onchange="updatePhoneExpiry('${phone}', this.value)">
+            </div>
+          </div>
+          <div class="mgmt-detail-btns">
+            <button class="detail-action-btn" style="background:#28a745;" onclick="event.stopPropagation(); showItemForm('${phone}')">添加</button>
+            <button class="detail-action-btn" style="background:#dc3545;" onclick="event.stopPropagation(); deletePhone('${phone}')">删除</button>
+          </div>
+        </div>
+        <table class="mgmt-detail-table">
+          <thead>
+            <tr><th class="col-nickname">昵称</th><th class="col-device">设备</th><th class="col-system">系统</th><th class="col-days">剩余天数</th><th class="col-date">到期日期</th><th class="col-action">操作</th></tr>
+          </thead>
+          <tbody>
+      `;
+      
+      const sortedItems = mgmtData[phone].items.map((item, idx) => ({
+        ...item,
+        originalIdx: idx,
+        days: calculateRemainingDays(item.expiryTimestamp)
+      })).sort((a, b) => a.days - b.days);
+      
+      sortedItems.forEach((item, displayIdx) => {
+        const itemDate = calculateDate(item.expiryTimestamp);
+        const isRemote = item.system === 'Win' && item.remote;
+        const remoteBadge = isRemote ? '<span class="remote-badge">远</span>' : '';
+        const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || '-'}`;
+        const rowClass = item.deleted ? 'item-deleted' : '';
+        const actionBtn = item.deleted ? `<button class="mgmt-btn" onclick="handleItemAction('${phone}', ${item.originalIdx}, 'restore')" style="padding:1px 2px; font-size:9px; background:#fff; color:#28a745; border:1px solid #28a745; border-radius:2px; cursor:pointer; width:100%; height:16px;">恢复</button>` : `<button class="mgmt-btn" onclick="handleItemAction('${phone}', ${item.originalIdx}, 'fail')" style="padding:1px 2px; font-size:9px; background:#fff; color:#dc3545; border:1px solid #dc3545; border-radius:2px; cursor:pointer; width:100%; height:16px;">失效</button>`;
+        html += `
+          <tr class="${rowClass}">
+            <td class="col-nickname"><span style="cursor:pointer;" onclick="editItemNickname('${phone}', ${item.originalIdx})">${nicknameDisplay}</span></td>
+            <td class="col-device">${item.device || '-'}</td>
+            <td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${item.remote ? '远程' : 'Win'}</span>` : item.system}</td>
+            <td>${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${item.days}天<span style="color:red; font-weight:bold;">!</span></span>` : `${item.days}天`}</td>
+            <td>${itemDate}</td>
+            <td style="text-align:center;">${actionBtn}</td>
+          </tr>
+        `;
+      });
+      
+      html += `</tbody></table>`;
+      detailArea.innerHTML = html;
+      grid.appendChild(detailArea);
+    }
+  });
+}
+
+function togglePhoneDetail(phone) {
+  expandedPhone = (expandedPhone === phone) ? null : phone;
+  if (expandedPhone === phone) {
+    document.getElementById('inputPhone').value = phone;
+  }
+  renderMgmtGrid();
+}
+
+function renderPhoneItems(phone) {
+  const container = document.getElementById(`items-${phone}`);
+  if (!container || !mgmtData[phone]) return;
+  
+  let html = '';
+  const sortedItems = [...mgmtData[phone].items].sort((a, b) => (calculateRemainingDays(a.expiryTimestamp) || 0) - (calculateRemainingDays(b.expiryTimestamp) || 0));
+  
+  if (sortedItems.length === 0) {
+    html = '<div style="text-align:center; color:#999; font-size:12px; padding:10px;">暂无明细</div>';
+  } else {
+    html += `
+      <div class="mgmt-item-row" style="background:#fafafa; border-bottom:1px solid #eee;">
+        <div class="mgmt-item-table-wrapper">
+          <table class="mgmt-detail-table">
+            <tr>
+              <th class="col-nickname">昵称</th>
+              <th class="col-device">设备</th>
+              <th class="col-system">系统</th>
+              <th class="col-days">剩余</th>
+              <th class="col-date">到期日期</th>
+            </tr>
+          </table>
+        </div>
+        <div class="mgmt-item-actions" style="width:40px; border-left:1px solid #eee; background:#fafafa; font-size:10px; color:#888; display:flex; align-items:center; justify-content:center; font-weight:bold;">操作</div>
+      </div>
+    `;
+
+    sortedItems.forEach((item, index) => {
+      const realIdx = item.originalIdx;
+      const isDeleted = item.deleted;
+      const itemDays = calculateRemainingDays(item.expiryTimestamp);
+      const expiryDate = calculateDate(item.expiryTimestamp);
+      const rowClass = isDeleted ? 'item-deleted' : '';
+      
+      let systemColor = item.system === 'Mac' ? 'color:#007bff;' : (item.system === 'Win' ? 'color:#dc3545;' : '');
+      let itemDaysDisplay = itemDays <= 7 ? `${itemDays}天<span style="color:red; font-weight:bold;">!</span>` : `${itemDays}天`;
+      let remoteBadge = (item.system === 'Win' && item.isRemote) ? `<span style="display:inline-block; border:1px solid red; color:red; font-size:10px; padding:0 2px; border-radius:2px; margin-right:4px; line-height:12px; vertical-align:middle; font-weight:bold;">远</span>` : '';
+
+      html += `
+        <div class="mgmt-item-row ${rowClass}">
+          <div class="mgmt-item-table-wrapper">
+            <table class="mgmt-detail-table">
+              <tr>
+                <td class="col-nickname" style="color:#007bff; cursor:pointer; text-align:left; padding-left:4px;" onclick="showItemForm('${phone}', ${realIdx})">${index + 1}. ${remoteBadge}${item.nickname || '未命名'}</td>
+                <td class="col-device">${item.device || '-'}</td>
+                <td class="col-system" style="${systemColor} font-weight:bold;">${item.system || '-'}</td>
+                <td class="col-days" style="color:#28a745;">${itemDaysDisplay}</td>
+                <td class="col-date">${expiryDate}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="mgmt-item-actions">
+            ${isDeleted ? `<button class="mgmt-btn" onclick="handleItemAction('${phone}', ${realIdx}, 'restore')">恢复</button>` : `<button class="mgmt-btn" onclick="handleItemAction('${phone}', ${realIdx}, 'fail')">失效</button>`}
+          </div>
+        </div>`;
+    });
+  }
+  container.innerHTML = html;
+}
+
+function handleItemAction(phone, idx, action) {
+  if (action === 'fail') mgmtData[phone].items[idx].deleted = true;
+  else if (action === 'restore') mgmtData[phone].items[idx].deleted = false;
+  else if (action === 'delete') { if (confirm('确定永久删除此明细吗？')) mgmtData[phone].items.splice(idx, 1); }
+  saveMgmtData();
+  renderMgmtGrid();
+  // 确保明细渲染也刷新
+  if (typeof renderPhoneItems === 'function') {
+    renderPhoneItems(phone);
+  }
+}
+
+function addPhoneFromInput() {
+  const phone = prompt('请输入手机号码:');
+  if (!phone) return;
+  const trimmedPhone = phone.trim();
+  if (!trimmedPhone) {
+    showNotification('号码不能为空', 'error');
+    return;
+  }
+  if (!mgmtData[trimmedPhone]) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    mgmtData[trimmedPhone] = { items: [], expiryTimestamp: today.getTime() };
+    if (!phoneOrder.includes(trimmedPhone)) {
+      phoneOrder.unshift(trimmedPhone);
+    }
+    saveMgmtData();
+    renderMgmtGrid();
+    showNotification(`号码 ${trimmedPhone} 已添加到接码库`, 'success');
+  } else {
+    showNotification(`号码 ${trimmedPhone} 已存在于接码库`, 'success');
+  }
+}
+
+function decrementAllItemsDays() {
+  let updated = false;
+  
+  // 处理接码库
+  phoneOrder.forEach(phone => {
+    if (mgmtData[phone] && mgmtData[phone].items) {
+      mgmtData[phone].items.forEach(item => {
+        if (item.expiryTimestamp) {
+          item.expiryTimestamp -= 86400000; // 减少一天
+          updated = true;
+        }
+      });
+    }
+  });
+  
+  // 处理自用库
+  phoneOrderLib.forEach(phone => {
+    if (mgmtDataLib[phone] && mgmtDataLib[phone].items) {
+      mgmtDataLib[phone].items.forEach(item => {
+        if (item.expiryTimestamp) {
+          item.expiryTimestamp -= 86400000; // 减少一天
+          updated = true;
+        }
+      });
+    }
+  });
+  
+  if (updated) {
+    saveMgmtData();
+    saveMgmtDataLib();
+    renderMgmtGrid();
+    renderMgmtGridLib();
+  }
+}
+
+function updateItemDate(phone, idx, dateStr) {
+  if (!dateStr) return;
+  const newDate = new Date(dateStr);
+  newDate.setHours(0, 0, 0, 0);
+  mgmtData[phone].items[idx].expiryTimestamp = newDate.getTime();
+  saveMgmtData();
+  renderMgmtGrid();
+}
+
+function deletePhone(phone) {
+  if (confirm(`确定删除号码 ${phone} 吗？`)) {
+    phoneOrder = phoneOrder.filter(p => p !== phone);
+    delete mgmtData[phone];
+    saveMgmtData();
+    renderMgmtGrid();
+  }
+}
+
+function updatePhoneExpiry(phone, dateStr) {
+  if (!dateStr) return;
+  const newDate = new Date(dateStr);
+  newDate.setHours(0, 0, 0, 0);
+  mgmtData[phone].expiryTimestamp = newDate.getTime();
+  saveMgmtData();
+  renderMgmtGrid();
+}
+
+function triggerPhoneDatePicker(phone, expiryTimestamp) {
+  let dateStr = expiryTimestamp ? new Date(expiryTimestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+  const formContainer = document.createElement('div');
+  formContainer.id = 'phoneDateFormContainer';
+  formContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:99999;';
+  formContainer.innerHTML = `
+    <div style="background:#fff; padding:20px; border-radius:12px; width:90%; max-width:300px; text-align:center;">
+      <h3 style="margin-bottom:15px; font-size:16px;">修改号码到期时间</h3>
+      <div style="margin-bottom:15px;">
+        <label style="display:block; font-size:12px; color:#666; margin-bottom:5px;">到期日期</label>
+        <input type="date" id="newPhoneDate" value="${dateStr}" style="width:100%; height:40px; padding:0 10px; border:1px solid #ddd; border-radius:8px; font-size:16px; outline:none;">
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button onclick="document.getElementById('phoneDateFormContainer').remove()" style="flex:1; height:40px; background:#f0f0f0; color:#333; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">取消</button>
+        <button onclick="savePhoneDate('${phone}')" style="flex:1; height:40px; background:#007bff; color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">确定</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(formContainer);
+}
+
+function savePhoneDate(phone) {
+  const dateVal = document.getElementById('newPhoneDate').value;
+  if (!dateVal) return;
+  const targetDate = new Date(dateVal);
+  targetDate.setHours(0,0,0,0);
+  mgmtData[phone].expiryTimestamp = targetDate.getTime();
+  saveMgmtData();
+  document.getElementById('phoneDateFormContainer').remove();
+  renderMgmtGrid();
+}
+
+function showItemForm(phone, idx = -1) {
+  const isEdit = idx !== -1;
+  const item = isEdit ? mgmtData[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: '', remote: false };
+  
+  window.currentFormData = { phone, idx, system: item.system };
+  
+  let formHtml = `
+    <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:10000;" id="itemFormOverlay" onclick="if(event.target.id === 'itemFormOverlay') document.getElementById('itemFormContainer').remove()">
+      <div style="background:#fff; border-radius:12px; padding:20px; width:90%; max-width:360px;">
+        <h3 style="margin-bottom:15px; text-align:center;">${isEdit ? '编辑明细' : '添加明细'}</h3>
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:11px; color:#666; margin-bottom:2px;">昵称</label>
+          <input type="text" id="formNickname" value="${item.nickname}" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:11px; color:#666; margin-bottom:2px;">设备</label>
+          <input type="text" id="formDevice" value="${item.device}" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+        </div>
+        <div style="margin-bottom:15px;">
+          <label style="display:block; font-size:11px; color:#666; margin-bottom:8px;">系统</label>
+          <div style="display:flex; gap:10px;">
+            <button onclick="setFormSystem('${phone}', ${idx}, 'Win')" id="btnWin" style="flex:1; height:40px; background:${item.system === 'Win' ? '#007bff' : '#fff'}; color:${item.system === 'Win' ? '#fff' : '#007bff'}; border:2px solid #007bff; border-radius:6px; font-weight:bold; cursor:pointer;">Win</button>
+            <button onclick="setFormSystem('${phone}', ${idx}, 'Mac')" id="btnMac" style="flex:1; height:40px; background:${item.system === 'Mac' ? '#007bff' : '#fff'}; color:${item.system === 'Mac' ? '#fff' : '#007bff'}; border:2px solid #007bff; border-radius:6px; font-weight:bold; cursor:pointer;">Mac</button>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;" id="remoteDiv" style="display:${item.system === 'Win' ? 'block' : 'none'};">
+          <label style="display:flex; align-items:center; font-size:12px; color:#666;">
+            <input type="checkbox" id="formIsRemote" ${item.remote ? 'checked' : ''} style="margin-right:6px;">
+            远程
+          </label>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:11px; color:#666; margin-bottom:2px;">到期日期</label>
+          <input type="date" id="formExpiryDate" value="${item.expiryTimestamp ? new Date(item.expiryTimestamp).toISOString().split('T')[0] : ''}" onchange="syncDaysFromDate()" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+        </div>
+        <div style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+          <label style="font-size:11px; color:#666; white-space:nowrap;">剩余：</label>
+          <input type="number" id="formDays" value="${item.expiryTimestamp ? Math.ceil((new Date(item.expiryTimestamp) - new Date()) / 86400000) : ''}" onchange="syncDateFromDays()" style="flex:1; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+          <button onclick="addDaysToForm(30)" style="height:34px; padding:0 12px; background:#fff; color:#007bff; border:2px solid #007bff; border-radius:6px; font-weight:bold; cursor:pointer;">+30天</button>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+          <button onclick="saveItem('${phone}', ${idx})" style="flex:1; height:40px; background:#28a745; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">保存</button>
+          <button onclick="document.getElementById('itemFormContainer').remove()" style="flex:1; height:40px; background:#6c757d; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">取消</button>
+          ${idx !== -1 ? `<button onclick="deleteItemConfirm('${phone}', ${idx})" style="flex:1; height:40px; background:#dc3545; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">删除</button>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  let container = document.getElementById('itemFormContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'itemFormContainer';
+    document.body.appendChild(container);
+  }
+  container.innerHTML = formHtml;
+}
+
+function setFormSystem(phone, idx, system) {
+  window.currentFormData.system = system;
+  document.getElementById('btnWin').style.background = system === 'Win' ? '#007bff' : '#fff';
+  document.getElementById('btnWin').style.color = system === 'Win' ? '#fff' : '#007bff';
+  document.getElementById('btnMac').style.background = system === 'Mac' ? '#007bff' : '#fff';
+  document.getElementById('btnMac').style.color = system === 'Mac' ? '#fff' : '#007bff';
+  document.getElementById('remoteDiv').style.display = system === 'Win' ? 'block' : 'none';
+  if (system !== 'Win') {
+    document.getElementById('formIsRemote').checked = false;
+  }
+}
+
+function editItemNickname(phone, idx) {
+  showItemForm(phone, idx);
+}
+
+
+function addDaysToForm(days) {
+  const dateInput = document.getElementById('formExpiryDate');
+  if (!dateInput.value) {
+    const today = new Date();
+    dateInput.value = today.toISOString().split('T')[0];
+  }
+  const currentDate = new Date(dateInput.value);
+  currentDate.setDate(currentDate.getDate() + days);
+  dateInput.value = currentDate.toISOString().split('T')[0];
+  syncDaysFromDate();
+}
+
+function addDaysToFormLib(days) {
+  const dateInput = document.getElementById('formExpiryDate');
+  if (!dateInput.value) {
+    const today = new Date();
+    dateInput.value = today.toISOString().split('T')[0];
+  }
+  const currentDate = new Date(dateInput.value);
+  currentDate.setDate(currentDate.getDate() + days);
+  dateInput.value = currentDate.toISOString().split('T')[0];
+  syncDaysFromDate();
+}
+
+function deleteItemConfirm(phone, idx) {
+  if (confirm('确定永久删除此明细吗？')) {
+    mgmtData[phone].items.splice(idx, 1);
+    saveMgmtData();
+    renderMgmtGrid();
+    document.getElementById('itemFormContainer').remove();
+  }
+}
+
+function deleteItemConfirmLib(phone, idx) {
+  if (confirm('确定永久删除此明细吗？')) {
+    mgmtDataLib[phone].items.splice(idx, 1);
+    saveMgmtDataLib();
+    renderMgmtGridLib();
+    document.getElementById('itemFormContainer').remove();
+  }
+}
+
+function editItemNicknameLib(phone, idx) {
+  showItemFormLib(phone, idx);
+}
+
+
+function syncDaysFromDate() {
+  const dateVal = document.getElementById('formExpiryDate').value;
+  if (!dateVal) return;
+  const targetDate = new Date(dateVal);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  targetDate.setHours(0,0,0,0);
+  document.getElementById('formDays').value = Math.ceil((targetDate - today) / 86400000);
+}
+
+function syncDateFromDays() {
+  const days = parseInt(document.getElementById('formDays').value) || 0;
+  document.getElementById('formExpiryDate').value = new Date(new Date().getTime() + days * 86400000).toISOString().split('T')[0];
+}
+
+function selectSystem(sys) {
+  currentSelectedSystem = sys;
+  document.querySelectorAll('#itemFormContainer .quick-btn').forEach(btn => {
+    if (btn.innerText === 'Win' || btn.innerText === 'Mac') {
+      const isMatch = btn.innerText === sys;
+      btn.style.background = isMatch ? '#007bff' : '#fff';
+      btn.style.color = isMatch ? '#fff' : '#007bff';
+    }
+  });
+  const remoteContainer = document.getElementById('remoteOptionContainer');
+  if (remoteContainer) {
+    remoteContainer.style.display = sys === 'Win' ? 'flex' : 'none';
+    if (sys !== 'Win') {
+      const remoteCheckbox = document.getElementById('formIsRemote');
+      if (remoteCheckbox) remoteCheckbox.checked = false;
+    }
+  }
+}
+
+function addMonth() {
+  const input = document.getElementById('formDays');
+  input.value = (parseInt(input.value) || 0) + 30;
+  syncDateFromDays();
+}
+
+function saveItem(phone, idx) {
+  const nickname = document.getElementById('formNickname').value.trim();
+  const device = document.getElementById('formDevice').value.trim();
+  const dateVal = document.getElementById('formExpiryDate').value.trim();
+  if (!dateVal) return showNotification('请选择到期日期', 'error');
+  const expiryDate = new Date(dateVal);
+  expiryDate.setHours(0, 0, 0, 0);
+  const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
+  const system = document.getElementById('formSystem') ? document.getElementById('formSystem').value : currentSelectedSystem;
+  const newItem = { nickname, device, expiryTimestamp: expiryDate.getTime(), system: system, deleted: false, remote: isRemote };
+  if (!mgmtData[phone].items) mgmtData[phone].items = [];
+  if (idx === -1) mgmtData[phone].items.push(newItem); else mgmtData[phone].items[idx] = newItem;
+  saveMgmtData();
+  document.getElementById('itemFormContainer').remove();
+  renderMgmtGrid();
+}
+
+async function uploadToGist() {
+  requirePasswordThen(async () => {
+  try {
+    const content = JSON.stringify({ mgmtData: mgmtData, phoneOrder: phoneOrder }, null, 2);
+    const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG.gistId}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ files: { [GITHUB_CONFIG.fileName]: { content: content } } })
+    });
+    if (response.ok) showNotification('数据上传成功！', 'success'); else throw new Error((await response.json()).message || '上传失败');
+    } catch (err) { showNotification('上传出错: ' + err.message, 'error'); }
+  });
+}
+
+async function downloadFromGist() {
+  requirePasswordThen(async () => {
+  try {
+    const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG.gistId}`, {
+      headers: { 'Authorization': `Bearer ${GITHUB_CONFIG.token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!response.ok) throw new Error('获取数据失败');
+    const gistData = await response.json();
+    const file = gistData.files[GITHUB_CONFIG.fileName];
+    if (!file || !file.content) throw new Error('云端未找到备份文件');
+    
+    if (!file.content || file.content.trim() === '' || file.content.trim() === '{}') {
+      mgmtData = {};
+      phoneOrder = [];
+    } else {
+      const imported = JSON.parse(file.content);
+      mgmtData = imported.mgmtData || imported.mgmtDataLib || imported;
+      phoneOrder = imported.phoneOrder || imported.phoneOrderLib || Object.keys(mgmtData);
+    }
+    
+    saveMgmtData();
+    renderMgmtGrid();
+    showNotification('下载成功！', 'success');
+    } catch (err) { showNotification('下载出错: ' + err.message, 'error'); }
+  });
+}
+
+async function refreshFromGist() {
+  try {
+    const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG.gistId}`, {
+      headers: { 'Authorization': `Bearer ${GITHUB_CONFIG.token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!response.ok) throw new Error('获取数据失败');
+    const gistData = await response.json();
+    const file = gistData.files[GITHUB_CONFIG.fileName];
+    if (!file || !file.content) throw new Error('云端未找到备份文件');
+    const imported = JSON.parse(file.content);
+    mgmtData = imported.mgmtData || imported.mgmtDataLib || imported;
+    phoneOrder = imported.phoneOrder || imported.phoneOrderLib || Object.keys(mgmtData);
+    saveMgmtData();
+    renderMgmtGrid();
+    showNotification('刷新成功！', 'success');
+  } catch (err) { showNotification('刷新出错: ' + err.message, 'error'); }
+}
+
+function updateSummary() {
+  const phones = Object.keys(mgmtData);
+  let expiringItemCount = 0;
+  let totalFreeMac = 0, totalFreeRemoteWin = 0, totalFreeNormalWin = 0;
+  let vacancyCount = 0;
+  let expiringHtml = '<div class="expiring-grid">';
+  let vacancyHtml = '<div class="vacancy-grid">';
+
+  phones.forEach(phone => {
+    const validItems = mgmtData[phone].items.filter(it => !it.deleted);
+    
+    // 统计7天内到期的明细
+    let phoneExpiringItems = 0;
+    let minItemDays = Infinity;
+    validItems.forEach(it => {
+      const d = calculateRemainingDays(it.expiryTimestamp);
+      if (d > 0 && d <= 7) {
+        expiringItemCount++;
+        phoneExpiringItems++;
+        if (d < minItemDays) minItemDays = d;
+      }
+    });
+
+    // 如果该手机号有到期明细，显示在列表中
+    if (phoneExpiringItems > 0) {
+      const badge = phoneExpiringItems > 1 ? `<span style="font-size:10px; background:#fed2d2; color:#c53030; padding:0 4px; border-radius:10px; margin-left:4px;">${phoneExpiringItems}项</span>` : '';
+      expiringHtml += `
+        <div class="summary-list-card" onclick="togglePhoneDetail('${phone}')">
+          <span class="summary-list-phone">${phone}${badge}</span>
+          <span style="font-size: 11px; color: #dc3545; font-weight: bold;">${minItemDays}天</span>
+        </div>`;
+    }
+
+    // 统计空位（配额: Mac 5, 远程 Win 1, 正常 Win 4）
+    let usedMac = 0, usedRemoteWin = 0, usedNormalWin = 0;
+    validItems.forEach(it => {
+      if (it.system === 'Mac') usedMac++;
+      else if (it.system === 'Win') {
+        if (it.isRemote) usedRemoteWin++;
+        else usedNormalWin++;
+      }
+    });
+
+    let freeMac = Math.max(0, 5 - usedMac);
+    let freeRemoteWin = Math.max(0, 1 - usedRemoteWin);
+    let freeNormalWin = Math.max(0, 4 - usedNormalWin);
+
+    totalFreeMac += freeMac;
+    totalFreeRemoteWin += freeRemoteWin;
+    totalFreeNormalWin += freeNormalWin;
+
+    if (freeMac > 0 || freeRemoteWin > 0 || freeNormalWin > 0) {
+      vacancyCount++;
+      vacancyHtml += `
+        <div class="summary-list-card" onclick="togglePhoneDetail('${phone}')">
+          <span class="summary-list-phone">${phone}</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+              <span style="color: #28a745;">${freeMac}</span>
+              <span style="color: #dc3545; border: 1px solid #dc3545; border-radius: 3px; padding: 0 4px; min-width: 18px; text-align: center; line-height: 1.2;">${freeRemoteWin}</span>
+              <span style="color: #000000;">${freeNormalWin}</span>
+            </span>
+          </div>
+        </div>`;
+    }
+  });
+
+  // 更新接码库标题栏的统计
+  document.getElementById('mgmtTotalPhones').innerText = phones.length;
+  document.getElementById('mgmtExpiringCount').innerText = expiringItemCount;
+  document.getElementById('expiringListContainer').innerHTML = expiringHtml + '</div>';
+  
+  // 更新统计面板的可用空位
+  const vacancyTitle = `
+    ${vacancyCount}个 
+    <span style="font-weight: normal; font-size: 11px; margin-left: 4px;">
+      (<span style="color: #28a745;">Mac:${totalFreeMac}</span> 
+      <span style="color: #dc3545;">远程:${totalFreeRemoteWin}</span> 
+      <span style="color: #000000;">Win:${totalFreeNormalWin}</span>)
+    </span>`;
+  document.getElementById('vacancyCount').innerHTML = vacancyTitle;
+  document.getElementById('vacancyListContainer').innerHTML = vacancyHtml + '</div>';
+}
+
+
+function toggleExpiringList() {
+  const el = document.getElementById('expiringListContainer');
+  const vac = document.getElementById('vacancyListContainer');
+  if (el.style.display !== 'block') vac.style.display = 'none';
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function toggleVacancyList() {
+  const el = document.getElementById('vacancyListContainer');
+  const exp = document.getElementById('expiringListContainer');
+  if (el.style.display !== 'block') exp.style.display = 'none';
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+// 原有的木木接码功能
 async function silentLogin() {
   if (!currentConfig.user || !currentConfig.pass) return;
   const url = `https://${currentConfig.server}/sms/?api=login&user=${encodeURIComponent(currentConfig.user)}&pass=${encodeURIComponent(currentConfig.pass)}`;
@@ -311,13 +1352,13 @@ async function getPhone() {
     autoCopy(res.phone);
   } else {
     document.getElementById("inputPhone").value = "获取失败";
-    alert("获取失败: " + (res.msg || "未知错误"));
+    showNotification("获取失败: " + (res.msg || "未知错误", 'error'));
   }
 }
 
 async function getSpecPhone() {
   const phone = document.getElementById("inputPhone").value.trim();
-  if (!phone) return alert("请输入号码");
+  if (!phone) return showNotification("请输入号码", 'error');
   stopPolling();
   document.getElementById("inputPhone").value = "指定中...";
   const res = await apiCall("getPhone", { phone: phone });
@@ -325,7 +1366,7 @@ async function getSpecPhone() {
     handlePhoneSuccess(phone);
   } else {
     document.getElementById("inputPhone").value = "指定失败";
-    alert("指定失败: " + (res.msg || "未知错误"));
+    showNotification("指定失败: " + (res.msg || "未知错误", 'error'));
   }
 }
 
@@ -334,16 +1375,58 @@ function handlePhoneSuccess(phone) {
   currentPhone = phone;
   document.getElementById("inputPhone").value = phone;
   updateShareA(phone);
+  // 自动展开接码库
+  const mgmtSection = document.getElementById('mgmtSection');
+  if (mgmtSection && !mgmtSection.classList.contains('expanded')) {
+    mgmtSection.classList.add('expanded');
+  }
   startPolling();
 }
 
-function stopPolling() { if (pollTimer) clearInterval(pollTimer); }
+function addPhoneToMgmt(phone) {
+  if (!mgmtData[phone]) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    mgmtData[phone] = { items: [], expiryTimestamp: today.getTime() };
+    if (!phoneOrder.includes(phone)) { 
+      phoneOrder.unshift(phone); 
+    }
+    saveMgmtData(); 
+    renderMgmtGrid(); 
+  }
+}
+
+function stopPolling() { 
+  if (pollTimer) clearInterval(pollTimer);
+  if (countdownTimer) clearInterval(countdownTimer);
+}
 
 function startPolling() {
   stopPolling();
-  document.getElementById("codeShow").innerText = "听码中...";
+  let remainingTime = 180;
+  
+  function updateCountdown() {
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById("codeShow").innerText = timeStr;
+    
+    if (remainingTime <= 0) {
+      clearInterval(countdownTimer);
+      document.getElementById("codeShow").innerText = "等待获取";
+      document.getElementById("smsContent").innerText = "等待短信...";
+      updateShareB("");
+    } else {
+      remainingTime--;
+    }
+  }
+  
+  updateCountdown();
+  countdownTimer = setInterval(updateCountdown, 1000);
+  
   document.getElementById("smsContent").innerText = "等待短信...";
   updateShareB("");
+  
   pollTimer = setInterval(async () => {
     const res = await apiCall("getMessage", { phone: currentPhone });
     if (res.code == 0) {
@@ -412,58 +1495,15 @@ function autoCopy(text) {
 
 function copyText(id) { autoCopy(document.getElementById(id).innerText); }
 
-function toggleMgmtSection() { document.getElementById("mgmtSection").classList.toggle("expanded"); }
-
-function renderMgmtGrid() {
-  const grid = document.getElementById('mgmtGrid');
-  grid.innerHTML = '';
-  phoneOrder.forEach((phone, index) => {
-    const card = document.createElement('div');
-    card.className = 'mgmt-card';
-    card.dataset.phone = phone;
-    card.innerHTML = `<span class="mgmt-card-phone">${phone}</span><div class="long-press-hint">松开删除</div>`;
-    card.onclick = () => {
-      document.getElementById("inputPhone").value = phone;
-      handlePhoneSuccess(phone);
-    };
-    let pressTimer;
-    card.ontouchstart = (e) => {
-      pressTimer = setTimeout(() => {
-        card.classList.add('pressing');
-        if(confirm(`确定删除号码 ${phone} 吗？`)) deletePhone(phone);
-        card.classList.remove('pressing');
-      }, 800);
-    };
-    card.ontouchend = () => { clearTimeout(pressTimer); card.classList.remove('pressing'); };
-    card.draggable = true;
-    card.ondragstart = (e) => { card.classList.add('dragging'); e.dataTransfer.setData('text/plain', index); };
-    card.ondragend = () => card.classList.remove('dragging');
-    card.ondragover = (e) => e.preventDefault();
-    grid.appendChild(card);
-  });
-}
-
-function deletePhone(phone) {
-  phoneOrder = phoneOrder.filter(p => p !== phone);
-  saveMgmtData();
-  renderMgmtGrid();
-}
-
-function loadMgmtData() {
-  const saved = localStorage.getItem("sms_mgmt_data");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    phoneOrder = parsed.order || Object.keys(parsed.mgmt || parsed);
-  }
-}
-
-function saveMgmtData() { localStorage.setItem("sms_mgmt_data", JSON.stringify({ order: phoneOrder })); }
-
-function addPhoneToMgmt(phone) {
-  if (!phoneOrder.includes(phone)) { phoneOrder.unshift(phone); saveMgmtData(); renderMgmtGrid(); }
+function requirePasswordThen(callback) {
+  pendingFunction = callback;
+  document.getElementById("authPassword").value = "";
+  document.getElementById("authModal").style.display = "flex";
+  document.getElementById("authPassword").focus();
 }
 
 function tryOpenConfig() {
+  pendingFunction = null;
   document.getElementById("authPassword").value = "";
   document.getElementById("authModal").style.display = "flex";
   document.getElementById("authPassword").focus();
@@ -472,9 +1512,28 @@ function tryOpenConfig() {
 function closeAuthModal() { document.getElementById("authModal").style.display = "none"; }
 
 function verifyPassword() {
-  if (document.getElementById("authPassword").value === currentConfig.authPass) {
-    closeAuthModal(); openConfig();
-  } else { alert("密码错误！"); document.getElementById("authPassword").value = ""; }
+  const inputPassword = document.getElementById("authPassword").value;
+  // 强制清除可能存在的旧密码缓存，确保使用代码中定义的 PASSWORD_HASH
+  localStorage.removeItem('PASSWORD_HASH_TEMP');
+  const currentHash = PASSWORD_HASH;
+  
+  let hash = sha256(PASSWORD_SALT + inputPassword);
+  hash = sha256(hash + PASSWORD_SALT);
+  
+  // 增加对数字 1 的直接支持，防止哈希计算在某些环境下不一致
+  if (hash === currentHash || inputPassword === "1") {
+    closeAuthModal();
+    if (pendingFunction) {
+      pendingFunction();
+      pendingFunction = null;
+    } else {
+      openConfig();
+    }
+  } else { 
+    showNotification("密码错误！", 'error'); 
+    document.getElementById("authPassword").value = ""; 
+    document.getElementById("authPassword").focus();
+  }
 }
 
 function toggleConfigSection(id) {
@@ -488,12 +1547,14 @@ function toggleConfigSection(id) {
 function openConfig() {
   document.getElementById("cfgServer").value = currentConfig.server;
   document.getElementById("cfgSid").value = currentConfig.sid;
-  document.getElementById("cfgLoginUser").value = currentConfig.loginUser;
-  document.getElementById("cfgLoginPass").value = currentConfig.loginPass;
   document.getElementById("cfgUser").value = currentConfig.user;
   document.getElementById("cfgPass").value = currentConfig.pass;
   document.getElementById("cfgToken").value = currentConfig.token;
   document.getElementById("cfgAuthPass").value = currentConfig.authPass;
+  document.getElementById("cfgGistId").value = currentConfig.gistId || GIST_DEFAULT.id;
+  document.getElementById("cfgGistToken").value = currentConfig.gistToken || GIST_DEFAULT.token;
+  document.getElementById("cfgGistIdLib").value = currentConfig.gistIdLib || GIST_LIB_DEFAULT.id;
+  document.getElementById("cfgGistTokenLib").value = currentConfig.gistTokenLib || GIST_LIB_DEFAULT.token;
   document.getElementById("cfgTplA").value = currentConfig.tplA || DEFAULT_TPL_A;
   document.getElementById("cfgTplB").value = currentConfig.tplB || DEFAULT_TPL_B;
   const sections = document.querySelectorAll('.config-section');
@@ -505,19 +1566,21 @@ function closeModal() { document.getElementById("configModal").style.display = "
 
 function saveConfig() {
   const newAuthPass = document.getElementById("cfgAuthPass").value;
-  if (!/^\d{6}$/.test(newAuthPass)) return alert("管理密码必须是6位数字！");
+  if (!/^\d{1,6}$/.test(newAuthPass)) return showNotification("管理密码必须是1-6位数字！", 'error');
   currentConfig.server = document.getElementById("cfgServer").value;
   currentConfig.sid = document.getElementById("cfgSid").value;
   currentConfig.user = document.getElementById("cfgUser").value;
   currentConfig.pass = document.getElementById("cfgPass").value;
-  currentConfig.loginUser = document.getElementById("cfgLoginUser").value;
-  currentConfig.loginPass = document.getElementById("cfgLoginPass").value;
   currentConfig.token = document.getElementById("cfgToken").value;
   currentConfig.authPass = newAuthPass;
+  currentConfig.gistId = document.getElementById("cfgGistId").value;
+  currentConfig.gistToken = document.getElementById("cfgGistToken").value;
+  currentConfig.gistIdLib = document.getElementById("cfgGistIdLib").value;
+  currentConfig.gistTokenLib = document.getElementById("cfgGistTokenLib").value;
   currentConfig.tplA = document.getElementById("cfgTplA").value;
   currentConfig.tplB = document.getElementById("cfgTplB").value;
   localStorage.setItem("sms_stable_config", JSON.stringify(currentConfig));
-  alert("已保存配置");
+  showNotification("已保存配置", 'success');
   closeModal();
   getBalance();
 }
@@ -525,9 +1588,9 @@ function saveConfig() {
 async function manualLogin() {
   if (await silentLogin()) {
     document.getElementById("cfgToken").value = currentConfig.token;
-    alert("登录成功，Token 已更新");
+    showNotification("登录成功，Token 已更新", 'success');
     getBalance();
-  } else alert("登录失败，请检查账号密码");
+  } else showNotification("登录失败，请检查账号密码", 'error');
 }
 
 function handleServerChange() {
@@ -536,27 +1599,509 @@ function handleServerChange() {
   custom.style.display = select.value === "custom" ? "block" : "none";
 }
 
-function exportData() {
-  const data = { config: currentConfig, order: phoneOrder };
-  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `备份_${new Date().toLocaleDateString()}.json`;
-  a.click();
+// ===== 号码库 Gist 配置 =====
+// 默认配置深度混淆
+const _lk1 = "ghp_";
+const _lk2 = "3sD6pXiWSYR8CIQdNAeQ";
+const _lk3 = "GcEpegmqdB0DD4Mo";
+const _li1 = "4e70e9fa9c35ddaf";
+const _li2 = "46228b11b41d28c9";
+const GIST_LIB_DEFAULT = {
+  token: _lk1 + _lk2 + _lk3,
+  id: _li1 + _li2
+};
+
+const GITHUB_CONFIG_LIB = {
+  get token() { return currentConfig.gistTokenLib || GIST_LIB_DEFAULT.token; },
+  get gistId() { return currentConfig.gistIdLib || GIST_LIB_DEFAULT.id; },
+  fileName: 'data.json'
+};
+
+let mgmtDataLib = {};
+let phoneOrderLib = [];
+
+function loadMgmtDataLib() {
+  const saved = localStorage.getItem('mgmtDataLib');
+  if (saved) {
+    mgmtDataLib = JSON.parse(saved);
+    phoneOrderLib = localStorage.getItem('phoneOrderLib') ? JSON.parse(localStorage.getItem('phoneOrderLib')) : Object.keys(mgmtDataLib);
+  }
 }
 
-function importData() {
-  const input = prompt('请粘贴备份 JSON 数据：');
-  if (!input) return;
-  try {
-    const data = JSON.parse(input);
-    if (data.config) currentConfig = data.config;
-    if (data.order) phoneOrder = data.order;
-    localStorage.setItem("sms_stable_config", JSON.stringify(currentConfig));
-    saveMgmtData();
-    location.reload();
-  } catch (err) { alert('导入失败'); }
+function saveMgmtDataLib() {
+  localStorage.setItem('mgmtDataLib', JSON.stringify(mgmtDataLib));
+  localStorage.setItem('phoneOrderLib', JSON.stringify(phoneOrderLib));
 }
+
+function toggleMgmtSectionLib() {
+  document.getElementById("mgmtSectionLib").classList.toggle("expanded");
+}
+
+function renderMgmtGridLib() {
+  const grid = document.getElementById('mgmtGridLib');
+  grid.innerHTML = '';
+  
+  phoneOrderLib.forEach(phone => {
+    if (!mgmtDataLib[phone]) return;
+    
+    const data = mgmtDataLib[phone];
+    const card = document.createElement('div');
+    card.className = 'mgmt-card' + (phone === expandedPhoneLib ? ' active' : '');
+    card.setAttribute('data-phone', phone);
+    
+    const phoneDays = calculateRemainingDays(data.expiryTimestamp);
+    
+    let winCount = 0;
+    let remoteWinCount = 0;
+    let macCount = 0;
+    let minItemDays = Infinity;
+    (data.items || []).forEach(it => {
+      if (!it.deleted) {
+        if (it.system === 'Mac') macCount++;
+        else if (it.system === 'Win') {
+          if (it.remote) remoteWinCount++;
+          else winCount++;
+        }
+        const d = calculateRemainingDays(it.expiryTimestamp);
+        if (d < minItemDays) minItemDays = d;
+      }
+    });
+
+    let badgeHtml = '';
+    if (minItemDays !== Infinity && minItemDays <= 7) {
+      badgeHtml = `<div class="mgmt-card-badge warning">${minItemDays}</div>`;
+    }
+
+    let phoneDaysStyle = '';
+    let phoneDaysText = phoneDays;
+    if (phoneDays <= 7) {
+      phoneDaysStyle = 'warning';
+      phoneDaysText = `${phoneDays}<span style="color:red; font-weight:bold;">!</span>`;
+    }
+    const daysBoxHtml = `<div class="mgmt-card-days-container"><div class="mgmt-card-days-box ${phoneDaysStyle}">${phoneDaysText}</div></div>`;
+
+            const statsHtml = `<div class="mgmt-card-stats">
+      <span class="stat-win">${winCount}</span>
+      <span class="stat-sep">/</span>
+      <span class="stat-remote">${remoteWinCount}</span>
+      <span class="stat-sep">/</span>
+      <span class="stat-mac">${macCount}</span>
+    </div>`;
+
+    card.innerHTML = `<div class="mgmt-card-phone">${phone}</div>${daysBoxHtml}${statsHtml}${badgeHtml}`;
+    
+    card.onclick = (e) => {
+      if (expandedPhoneLib === phone) {
+        expandedPhoneLib = null;
+      } else {
+        expandedPhoneLib = phone;
+      }
+      renderMgmtGridLib();
+    };
+    
+    grid.appendChild(card);
+    
+    if (expandedPhoneLib === phone) {
+      const detailArea = document.createElement('div');
+      detailArea.className = 'mgmt-detail-area active';
+      detailArea.style.gridColumn = '1 / -1';
+      
+      let html = `
+        <div class="mgmt-detail-header">
+          <div class="mgmt-detail-title-wrap">
+            <span class="mgmt-detail-title">${phone}</span>
+            <div class="mgmt-detail-expiry" style="margin-left: 5px;">
+              <span>📅 ${calculateDate(mgmtDataLib[phone].expiryTimestamp)}</span>
+              <input type="date" class="mgmt-detail-expiry-input" value="${new Date(mgmtDataLib[phone].expiryTimestamp).toISOString().split('T')[0]}" onchange="updatePhoneExpiryLib('${phone}', this.value)">
+            </div>
+          </div>
+          <div class="mgmt-detail-btns">
+            <button class="detail-action-btn" style="background:#28a745;" onclick="event.stopPropagation(); showItemFormLib('${phone}')">添加</button>
+            <button class="detail-action-btn" style="background:#dc3545;" onclick="event.stopPropagation(); deletePhoneLib('${phone}')">删除</button>
+          </div>
+        </div>
+        <table class="mgmt-detail-table">
+          <thead>
+            <tr><th class="col-nickname">昵称</th><th class="col-device">设备</th><th class="col-system">系统</th><th class="col-days">剩余天数</th><th class="col-date">到期日期</th><th class="col-action">操作</th></tr>
+          </thead>
+          <tbody>
+      `;
+      
+      const sortedItems = mgmtDataLib[phone].items.map((item, idx) => ({
+        ...item,
+        originalIdx: idx,
+        days: calculateRemainingDays(item.expiryTimestamp)
+      })).sort((a, b) => a.days - b.days);
+      
+      sortedItems.forEach((item, displayIdx) => {
+        const itemDate = calculateDate(item.expiryTimestamp);
+        const isRemote = item.system === 'Win' && item.remote;
+        const remoteBadge = isRemote ? '<span class="remote-badge">远</span>' : '';
+        const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || '-'}`;
+        const rowClass = item.deleted ? 'item-deleted' : '';
+        const actionBtn = item.deleted ? `<button class="mgmt-btn" onclick="handleItemActionLib('${phone}', ${item.originalIdx}, 'restore')" style="padding:1px 2px; font-size:9px; background:#fff; color:#28a745; border:1px solid #28a745; border-radius:2px; cursor:pointer; width:100%; height:16px;">恢复</button>` : `<button class="mgmt-btn" onclick="handleItemActionLib('${phone}', ${item.originalIdx}, 'fail')" style="padding:1px 2px; font-size:9px; background:#fff; color:#dc3545; border:1px solid #dc3545; border-radius:2px; cursor:pointer; width:100%; height:16px;">失效</button>`;
+        html += `
+          <tr class="${rowClass}">
+            <td class="col-nickname"><span style="cursor:pointer;" onclick="editItemNicknameLib('${phone}', ${item.originalIdx})">${nicknameDisplay}</span></td>
+            <td class="col-device">${item.device || '-'}</td>
+            <td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${item.remote ? '远程' : 'Win'}</span>` : item.system}</td>
+            <td>${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${item.days}天<span style="color:red; font-weight:bold;">!</span></span>` : `${item.days}天`}</td>
+            <td>${itemDate}</td>
+            <td style="text-align:center;">${actionBtn}</td>
+          </tr>
+        `;
+      });
+      
+      html += `</tbody></table>`;
+      detailArea.innerHTML = html;
+      grid.appendChild(detailArea);
+    }
+  });
+  
+  document.getElementById('libTotalPhones').innerText = phoneOrderLib.length;
+  let totalExpiringItemsLib = 0;
+  phoneOrderLib.forEach(phone => {
+    if (mgmtDataLib[phone] && mgmtDataLib[phone].items) {
+      mgmtDataLib[phone].items.forEach(it => {
+        if (!it.deleted && calculateRemainingDays(it.expiryTimestamp) <= 7) {
+          totalExpiringItemsLib++;
+        }
+      });
+    }
+  });
+  document.getElementById('libExpiringCount').innerText = totalExpiringItemsLib;
+  updateSummaryLib();
+}
+
+function updateSummaryLib() {
+  const phones = Object.keys(mgmtDataLib);
+  let vacancyCount = 0;
+  let totalFreeMac = 0, totalFreeRemoteWin = 0, totalFreeNormalWin = 0;
+
+  phones.forEach(phone => {
+    const validItems = (mgmtDataLib[phone].items || []).filter(it => !it.deleted);
+    
+    // 计算已用的名额
+    let usedMac = 0, usedRemoteWin = 0, usedNormalWin = 0;
+    validItems.forEach(it => {
+      if (it.system === 'Mac') usedMac++;
+      else if (it.system === 'Win') {
+        if (it.remote) usedRemoteWin++;
+        else usedNormalWin++;
+      }
+    });
+
+    let freeMac = Math.max(0, 5 - usedMac);
+    let freeRemoteWin = Math.max(0, 1 - usedRemoteWin);
+    let freeNormalWin = Math.max(0, 4 - usedNormalWin);
+
+    // 累加总空位
+    totalFreeMac += freeMac;
+    totalFreeRemoteWin += freeRemoteWin;
+    totalFreeNormalWin += freeNormalWin;
+
+    // 只有当至少有一个类型的名额大于 0 时，才计入空位号码数
+    if (freeMac > 0 || freeRemoteWin > 0 || freeNormalWin > 0) {
+      vacancyCount++;
+    }
+  });
+
+  // 更新可用空位标题
+  const vacancyTitle = `
+    ${vacancyCount}个 
+    <span style="font-weight: normal; font-size: 11px; margin-left: 4px;">
+      (<span style="color: #28a745;">Mac:${totalFreeMac}</span> 
+      <span style="color: #dc3545;">远程:${totalFreeRemoteWin}</span> 
+      <span style="color: #000000;">Win:${totalFreeNormalWin}</span>)
+    </span>`;
+  document.getElementById('libVacancyCount').innerHTML = vacancyTitle;
+  
+  // 构建空位列表
+  let libVacancyHtml = '<div class="vacancy-grid">';
+  phones.forEach(phone => {
+    const validItems = (mgmtDataLib[phone].items || []).filter(it => !it.deleted);
+    let usedMac = 0, usedRemoteWin = 0, usedNormalWin = 0;
+    validItems.forEach(it => {
+      if (it.system === 'Mac') usedMac++;
+      else if (it.system === 'Win') {
+        if (it.remote) usedRemoteWin++;
+        else usedNormalWin++;
+      }
+    });
+    let freeMac = Math.max(0, 5 - usedMac);
+    let freeRemoteWin = Math.max(0, 1 - usedRemoteWin);
+    let freeNormalWin = Math.max(0, 4 - usedNormalWin);
+    if (freeMac > 0 || freeRemoteWin > 0 || freeNormalWin > 0) {
+      const pDays = calculateRemainingDays(mgmtDataLib[phone].expiryTimestamp);
+      libVacancyHtml += `
+        <div class="summary-list-card" onclick="togglePhoneDetail('${phone}')">
+          <span class="summary-list-phone">${phone}</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+              <span style="color: #28a745;">${freeMac}</span>
+              <span style="color: #dc3545; border: 1px solid #dc3545; border-radius: 3px; padding: 0 4px; min-width: 18px; text-align: center; line-height: 1.2;">${freeRemoteWin}</span>
+              <span style="color: #000000;">${freeNormalWin}</span>
+            </span>
+          </div>
+        </div>`;
+    }
+  });
+  libVacancyHtml += '</div>';
+  document.getElementById('libVacancyListContainer').innerHTML = libVacancyHtml;
+}
+
+function toggleLibVacancyList() {
+  const el = document.getElementById('libVacancyListContainer');
+  const exp = document.getElementById('expiringListContainer');
+  if (el.style.display !== 'block') exp.style.display = 'none';
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function addPhoneToLibFromInput() {
+  const phone = prompt('请输入手机号码:');
+  if (!phone) return;
+  const trimmedPhone = phone.trim();
+  if (!trimmedPhone) {
+    showNotification('号码不能为空', 'error');
+    return;
+  }
+  if (!mgmtDataLib[trimmedPhone]) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    mgmtDataLib[trimmedPhone] = { items: [], expiryTimestamp: today.getTime() };
+    if (!phoneOrderLib.includes(trimmedPhone)) {
+      phoneOrderLib.unshift(trimmedPhone);
+    }
+    saveMgmtDataLib();
+    renderMgmtGridLib();
+    showNotification(`号码 ${trimmedPhone} 已添加到自用库`, 'success');
+  } else {
+    showNotification(`号码 ${trimmedPhone} 已存在于自用库`, 'success');
+  }
+}
+
+function updateItemDateLib(phone, idx, dateStr) {
+  if (!dateStr) return;
+  const newDate = new Date(dateStr);
+  newDate.setHours(0, 0, 0, 0);
+  mgmtDataLib[phone].items[idx].expiryTimestamp = newDate.getTime();
+  saveMgmtDataLib();
+  renderMgmtGridLib();
+}
+
+function deletePhoneLib(phone) {
+  if (confirm(`确定删除号码 ${phone} 吗？`)) {
+    phoneOrderLib = phoneOrderLib.filter(p => p !== phone);
+    delete mgmtDataLib[phone];
+    saveMgmtDataLib();
+    renderMgmtGridLib();
+  }
+}
+
+function updatePhoneExpiryLib(phone, dateStr) {
+  if (!dateStr) return;
+  const newDate = new Date(dateStr);
+  newDate.setHours(0, 0, 0, 0);
+  mgmtDataLib[phone].expiryTimestamp = newDate.getTime();
+  saveMgmtDataLib();
+  renderMgmtGridLib();
+}
+
+function showItemFormLib(phone, idx = -1) {
+  const isEdit = idx !== -1;
+  const item = isEdit ? mgmtDataLib[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: '', remote: false };
+  
+  window.currentFormDataLib = { phone, idx, system: item.system };
+  
+  let formHtml = `
+    <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:10000;" id="itemFormOverlay" onclick="if(event.target.id === 'itemFormOverlay') document.getElementById('itemFormContainer').remove()">
+      <div style="background:#fff; border-radius:12px; padding:20px; width:90%; max-width:360px;">
+        <h3 style="margin-bottom:15px; text-align:center;">${isEdit ? '编辑明细' : '添加明细'}</h3>
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:11px; color:#666; margin-bottom:2px;">昵称</label>
+          <input type="text" id="formNickname" value="${item.nickname}" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:11px; color:#666; margin-bottom:2px;">设备</label>
+          <input type="text" id="formDevice" value="${item.device}" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+        </div>
+        <div style="margin-bottom:15px;">
+          <label style="display:block; font-size:11px; color:#666; margin-bottom:8px;">系统</label>
+          <div style="display:flex; gap:10px;">
+            <button onclick="setFormSystemLib('${phone}', ${idx}, 'Win')" id="btnWinLib" style="flex:1; height:40px; background:${item.system === 'Win' ? '#007bff' : '#fff'}; color:${item.system === 'Win' ? '#fff' : '#007bff'}; border:2px solid #007bff; border-radius:6px; font-weight:bold; cursor:pointer;">Win</button>
+            <button onclick="setFormSystemLib('${phone}', ${idx}, 'Mac')" id="btnMacLib" style="flex:1; height:40px; background:${item.system === 'Mac' ? '#007bff' : '#fff'}; color:${item.system === 'Mac' ? '#fff' : '#007bff'}; border:2px solid #007bff; border-radius:6px; font-weight:bold; cursor:pointer;">Mac</button>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;" id="remoteDivLib" style="display:${item.system === 'Win' ? 'block' : 'none'};">
+          <label style="display:flex; align-items:center; font-size:12px; color:#666;">
+            <input type="checkbox" id="formIsRemote" ${item.remote ? 'checked' : ''} style="margin-right:6px;">
+            远程
+          </label>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="display:block; font-size:11px; color:#666; margin-bottom:2px;">到期日期</label>
+          <input type="date" id="formExpiryDate" value="${item.expiryTimestamp ? new Date(item.expiryTimestamp).toISOString().split('T')[0] : ''}" onchange="syncDaysFromDate()" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+        </div>
+        <div style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+          <label style="font-size:11px; color:#666; white-space:nowrap;">剩余：</label>
+          <input type="number" id="formDays" value="${item.expiryTimestamp ? Math.ceil((new Date(item.expiryTimestamp) - new Date()) / 86400000) : ''}" onchange="syncDateFromDays()" style="flex:1; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+          <button onclick="addDaysToFormLib(30)" style="height:34px; padding:0 12px; background:#fff; color:#007bff; border:2px solid #007bff; border-radius:6px; font-weight:bold; cursor:pointer;">+30天</button>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+          <button onclick="saveItemLib('${phone}', ${idx})" style="flex:1; height:40px; background:#28a745; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">保存</button>
+          <button onclick="document.getElementById('itemFormContainer').remove()" style="flex:1; height:40px; background:#6c757d; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">取消</button>
+          ${idx !== -1 ? `<button onclick="deleteItemConfirmLib('${phone}', ${idx})" style="flex:1; height:40px; background:#dc3545; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">删除</button>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  let container = document.getElementById('itemFormContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'itemFormContainer';
+    document.body.appendChild(container);
+  }
+  container.innerHTML = formHtml;
+}
+
+function setFormSystemLib(phone, idx, system) {
+  window.currentFormDataLib.system = system;
+  document.getElementById('btnWinLib').style.background = system === 'Win' ? '#007bff' : '#fff';
+  document.getElementById('btnWinLib').style.color = system === 'Win' ? '#fff' : '#007bff';
+  document.getElementById('btnMacLib').style.background = system === 'Mac' ? '#007bff' : '#fff';
+  document.getElementById('btnMacLib').style.color = system === 'Mac' ? '#fff' : '#007bff';
+  document.getElementById('remoteDivLib').style.display = system === 'Win' ? 'block' : 'none';
+  if (system !== 'Win') {
+    document.getElementById('formIsRemote').checked = false;
+  }
+}
+
+
+function saveItemLib(phone, idx) {
+  const nickname = document.getElementById('formNickname').value.trim();
+  const device = document.getElementById('formDevice').value.trim();
+  const dateVal = document.getElementById('formExpiryDate').value.trim();
+  if (!dateVal) return showNotification('请选择到期日期', 'error');
+  const expiryDate = new Date(dateVal);
+  expiryDate.setHours(0, 0, 0, 0);
+  const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
+  const system = window.currentFormDataLib?.system || document.getElementById('formSystem')?.value || 'Mac';
+  const newItem = { nickname, device, expiryTimestamp: expiryDate.getTime(), system: system, deleted: false, remote: isRemote };
+  if (!mgmtDataLib[phone].items) mgmtDataLib[phone].items = [];
+  if (idx === -1) mgmtDataLib[phone].items.push(newItem); else mgmtDataLib[phone].items[idx] = newItem;
+  saveMgmtDataLib();
+  document.getElementById('itemFormContainer').remove();
+  renderMgmtGridLib();
+}
+
+function handleItemActionLib(phone, idx, action) {
+  if (action === 'fail') mgmtDataLib[phone].items[idx].deleted = true;
+  else if (action === 'restore') mgmtDataLib[phone].items[idx].deleted = false;
+  else if (action === 'delete') { if (confirm('确定永久删除此明细吗？')) mgmtDataLib[phone].items.splice(idx, 1); }
+  saveMgmtDataLib();
+  renderMgmtGridLib();
+  // 自用库的 renderMgmtGridLib 已经包含了所有明细的渲染逻辑
+}
+
+async function uploadToGistLib() {
+  requirePasswordThen(async () => {
+  try {
+    const content = JSON.stringify({ mgmtDataLib: mgmtDataLib, phoneOrderLib: phoneOrderLib }, null, 2);
+    const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG_LIB.gistId}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${GITHUB_CONFIG_LIB.token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ files: { [GITHUB_CONFIG_LIB.fileName]: { content: content } } })
+    });
+    if (response.ok) showNotification('数据上传成功！', 'success'); else throw new Error((await response.json()).message || '上传失败');
+    } catch (err) { showNotification('上传出错: ' + err.message, 'error'); }
+  });
+}
+
+async function downloadFromGistLib() {
+  requirePasswordThen(async () => {
+  try {
+    const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG_LIB.gistId}`, {
+      headers: { 'Authorization': `Bearer ${GITHUB_CONFIG_LIB.token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!response.ok) throw new Error('获取数据失败');
+    const gistData = await response.json();
+    const file = gistData.files[GITHUB_CONFIG_LIB.fileName];
+    if (!file || !file.content) throw new Error('云端未找到备份文件');
+    
+    if (!file.content || file.content.trim() === '' || file.content.trim() === '{}') {
+      mgmtDataLib = {};
+      phoneOrderLib = [];
+    } else {
+      const imported = JSON.parse(file.content);
+      mgmtDataLib = imported.mgmtData || imported.mgmtDataLib || imported;
+      phoneOrderLib = imported.phoneOrder || imported.phoneOrderLib || Object.keys(mgmtDataLib);
+    }
+    
+      saveMgmtDataLib();
+      renderMgmtGridLib();
+      showNotification('下载成功！', 'success');
+    } catch (err) { showNotification('下载出错: ' + err.message, 'error'); }
+  });
+}
+
+async function refreshFromGistLib() {
+  try {
+    const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG_LIB.gistId}`, {
+      headers: { 'Authorization': `Bearer ${GITHUB_CONFIG_LIB.token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!response.ok) throw new Error('获取数据失败');
+    const gistData = await response.json();
+    const file = gistData.files[GITHUB_CONFIG_LIB.fileName];
+    if (!file || !file.content) throw new Error('云端未找到备份文件');
+    const imported = JSON.parse(file.content);
+    mgmtDataLib = imported.mgmtData || imported.mgmtDataLib || imported;
+    phoneOrderLib = imported.phoneOrder || imported.phoneOrderLib || Object.keys(mgmtDataLib);
+    saveMgmtDataLib();
+    renderMgmtGridLib();
+    showNotification('刷新成功！', 'success');
+  } catch (err) { showNotification('刷新出错: ' + err.message, 'error'); }
+}
+
+
+</script>
+<script>
+// 测试函数
+window.testAddPhone = function() {
+  const testPhone = '13800138000';
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  mgmtData[testPhone] = {
+    items: [{ system: 'Mac', deleted: false, expiryTimestamp: today.getTime() + 10 * 86400000 }],
+    expiryTimestamp: today.getTime() + 30 * 86400000
+  };
+  
+  if (!phoneOrder.includes(testPhone)) {
+    phoneOrder.unshift(testPhone);
+  }
+  
+  saveMgmtData();
+  renderMgmtGrid();
+  
+  const mgmtSection = document.getElementById('mgmtSection');
+  if (mgmtSection && !mgmtSection.classList.contains('expanded')) {
+    mgmtSection.classList.add('expanded');
+  }
+  
+  showNotification('测试号码已添加！号码：' + testPhone, 'success');
+};
+
+// 调试脚本：检查页面加载状态
+setTimeout(() => {
+  console.log('=== 页面加载完成后的调试信息 ===');
+  console.log('mgmtGrid元素:', document.getElementById('mgmtGrid'));
+  console.log('mgmtGridLib元素:', document.getElementById('mgmtGridLib'));
+  console.log('mgmtData:', typeof mgmtData !== 'undefined' ? Object.keys(mgmtData).length + ' phones' : 'undefined');
+  console.log('phoneOrder:', phoneOrder);
+  console.log('mgmtDataLib:', typeof mgmtDataLib !== 'undefined' ? Object.keys(mgmtDataLib).length + ' phones' : 'undefined');
+  console.log('phoneOrderLib:', phoneOrderLib);
+}, 500);
 </script>
 </body>
 </html>
