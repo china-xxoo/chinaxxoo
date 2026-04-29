@@ -664,7 +664,7 @@ function renderMgmtGrid() {
       if (!it.deleted) {
         if (it.system === 'Mac') macCount++;
         else if (it.system === 'Win') {
-          if (it.isRemote) remoteWinCount++;
+          if (it.remote) remoteWinCount++;
           else winCount++;
         }
         const d = calculateRemainingDays(it.expiryTimestamp);
@@ -767,6 +767,7 @@ function renderMgmtGrid() {
       grid.appendChild(detailArea);
     }
   });
+  updateSummary();
 }
 
 function togglePhoneDetail(phone) {
@@ -1242,7 +1243,7 @@ function updateSummary() {
     validItems.forEach(it => {
       if (it.system === 'Mac') usedMac++;
       else if (it.system === 'Win') {
-        if (it.isRemote) usedRemoteWin++;
+        if (it.remote) usedRemoteWin++;
         else usedNormalWin++;
       }
     });
