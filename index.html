@@ -1136,7 +1136,7 @@ function saveItem(phone, idx) {
   const expiryDate = new Date(dateVal);
   expiryDate.setHours(0, 0, 0, 0);
   const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
-  const system = document.getElementById('formSystem') ? document.getElementById('formSystem').value : currentSelectedSystem;
+  const system = window.currentFormData?.system || 'Mac';
   const newItem = { nickname, device, expiryTimestamp: expiryDate.getTime(), system: system, deleted: false, remote: isRemote };
   if (!mgmtData[phone].items) mgmtData[phone].items = [];
   if (idx === -1) mgmtData[phone].items.push(newItem); else mgmtData[phone].items[idx] = newItem;
