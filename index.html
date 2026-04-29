@@ -581,6 +581,9 @@ window.onload = async () => {
     }
     
     renderMgmtGrid();
+    if (typeof renderMgmtGridLib === 'function') {
+      renderMgmtGridLib();
+    }
     
     setInterval(() => {
       const now = new Date();
