@@ -660,12 +660,18 @@ function renderMgmtGrid() {
     let remoteWinCount = 0;
     let macCount = 0;
     let minItemDays = Infinity;
-    (data.items || []).forEach(it => {
+    const items = data.items || [];
+    items.forEach(it => {
       if (!it.deleted) {
-        if (it.system === 'Mac') macCount++;
-        else if (it.system === 'Win') {
-          if (it.remote) remoteWinCount++;
-          else winCount++;
+        if (it.system === 'Mac') {
+          macCount++;
+        } else if (it.system === 'Win') {
+          // 深度对比：接码库明细中判断远程的字段是 isRemote
+          if (it.isRemote || it.remote) {
+            remoteWinCount++;
+          } else {
+            winCount++;
+          }
         }
         const d = calculateRemainingDays(it.expiryTimestamp);
         if (d < minItemDays) minItemDays = d;
@@ -685,12 +691,12 @@ function renderMgmtGrid() {
     }
     const daysBoxHtml = `<div class="mgmt-card-days-container"><div class="mgmt-card-days-box ${phoneDaysStyle}">${phoneDaysText}</div></div>`;
 
-            const statsHtml = `<div class="mgmt-card-stats">
-      <span class="stat-win">${winCount}</span>
-      <span class="stat-sep">/</span>
-      <span class="stat-remote">${remoteWinCount}</span>
-      <span class="stat-sep">/</span>
-      <span class="stat-mac">${macCount}</span>
+    const statsHtml = `<div class="mgmt-card-stats" style="display: flex !important; align-items: center; gap: 2px; font-size: 10px; font-weight: bold; min-width: 45px; justify-content: flex-end;">
+      <span class="stat-win" style="color: #28a745 !important;">${winCount}</span>
+      <span class="stat-sep" style="color: #999 !important;">/</span>
+      <span class="stat-remote" style="color: #dc3545 !important;">${remoteWinCount}</span>
+      <span class="stat-sep" style="color: #999 !important;">/</span>
+      <span class="stat-mac" style="color: #000000 !important;">${macCount}</span>
     </div>`;
 
     card.innerHTML = `<div class="mgmt-card-phone">${phone}</div>${daysBoxHtml}${statsHtml}${badgeHtml}`;
@@ -745,7 +751,8 @@ function renderMgmtGrid() {
       
       sortedItems.forEach((item, displayIdx) => {
         const itemDate = calculateDate(item.expiryTimestamp);
-        const isRemote = item.system === 'Win' && item.remote;
+        // 深度对比：接码库明细中判断远程的字段是 isRemote
+        const isRemote = item.system === 'Win' && (item.isRemote || item.remote);
         const remoteBadge = isRemote ? '<span class="remote-badge">远</span>' : '';
         const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || '-'}`;
         const rowClass = item.deleted ? 'item-deleted' : '';
@@ -754,7 +761,7 @@ function renderMgmtGrid() {
           <tr class="${rowClass}">
             <td class="col-nickname"><span style="cursor:pointer;" onclick="editItemNickname('${phone}', ${item.originalIdx})">${nicknameDisplay}</span></td>
             <td class="col-device">${item.device || '-'}</td>
-            <td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${item.remote ? '远程' : 'Win'}</span>` : item.system}</td>
+            <td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${isRemote ? '远程' : 'Win'}</span>` : item.system}</td>
             <td>${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${item.days}天<span style="color:red; font-weight:bold;">!</span></span>` : `${item.days}天`}</td>
             <td>${itemDate}</td>
             <td style="text-align:center;">${actionBtn}</td>
@@ -767,7 +774,25 @@ function renderMgmtGrid() {
       grid.appendChild(detailArea);
     }
   });
-  updateSummary();
+
+  // 更新接码库标题栏的统计
+  document.getElementById('mgmtTotalPhones').innerText = phoneOrder.length;
+  let totalExpiringItems = 0;
+  phoneOrder.forEach(phone => {
+    if (mgmtData[phone] && mgmtData[phone].items) {
+      mgmtData[phone].items.forEach(it => {
+        if (!it.deleted && calculateRemainingDays(it.expiryTimestamp) <= 7) {
+          totalExpiringItems++;
+        }
+      });
+    }
+  });
+  document.getElementById('mgmtExpiringCount').innerText = totalExpiringItems;
+  
+  // 同时触发全局统计面板更新
+  if (typeof updateSummary === 'function') {
+    updateSummary();
+  }
 }
 
 function togglePhoneDetail(phone) {
@@ -969,7 +994,7 @@ function savePhoneDate(phone) {
 
 function showItemForm(phone, idx = -1) {
   const isEdit = idx !== -1;
-  const item = isEdit ? mgmtData[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: 'Mac', remote: false };
+  const item = isEdit ? mgmtData[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: '', remote: false };
   
   window.currentFormData = { phone, idx, system: item.system };
   
@@ -1243,7 +1268,8 @@ function updateSummary() {
     validItems.forEach(it => {
       if (it.system === 'Mac') usedMac++;
       else if (it.system === 'Win') {
-        if (it.remote) usedRemoteWin++;
+        // 深度对比：接码库判断远程使用 isRemote
+        if (it.isRemote || it.remote) usedRemoteWin++;
         else usedNormalWin++;
       }
     });
@@ -1657,12 +1683,17 @@ function renderMgmtGridLib() {
     let remoteWinCount = 0;
     let macCount = 0;
     let minItemDays = Infinity;
-    (data.items || []).forEach(it => {
+    const items = data.items || [];
+    items.forEach(it => {
       if (!it.deleted) {
-        if (it.system === 'Mac') macCount++;
-        else if (it.system === 'Win') {
-          if (it.remote) remoteWinCount++;
-          else winCount++;
+        if (it.system === 'Mac') {
+          macCount++;
+        } else if (it.system === 'Win') {
+          if (it.remote || it.isRemote) {
+            remoteWinCount++;
+          } else {
+            winCount++;
+          }
         }
         const d = calculateRemainingDays(it.expiryTimestamp);
         if (d < minItemDays) minItemDays = d;
@@ -1682,12 +1713,12 @@ function renderMgmtGridLib() {
     }
     const daysBoxHtml = `<div class="mgmt-card-days-container"><div class="mgmt-card-days-box ${phoneDaysStyle}">${phoneDaysText}</div></div>`;
 
-            const statsHtml = `<div class="mgmt-card-stats">
-      <span class="stat-win">${winCount}</span>
-      <span class="stat-sep">/</span>
-      <span class="stat-remote">${remoteWinCount}</span>
-      <span class="stat-sep">/</span>
-      <span class="stat-mac">${macCount}</span>
+    const statsHtml = `<div class="mgmt-card-stats" style="display: flex !important; align-items: center; gap: 2px; font-size: 10px; font-weight: bold; min-width: 45px; justify-content: flex-end;">
+      <span class="stat-win" style="color: #28a745 !important;">${winCount}</span>
+      <span class="stat-sep" style="color: #999 !important;">/</span>
+      <span class="stat-remote" style="color: #dc3545 !important;">${remoteWinCount}</span>
+      <span class="stat-sep" style="color: #999 !important;">/</span>
+      <span class="stat-mac" style="color: #000000 !important;">${macCount}</span>
     </div>`;
 
     card.innerHTML = `<div class="mgmt-card-phone">${phone}</div>${daysBoxHtml}${statsHtml}${badgeHtml}`;
@@ -1909,7 +1940,7 @@ function updatePhoneExpiryLib(phone, dateStr) {
 
 function showItemFormLib(phone, idx = -1) {
   const isEdit = idx !== -1;
-  const item = isEdit ? mgmtDataLib[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: 'Mac', remote: false };
+  const item = isEdit ? mgmtDataLib[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: '', remote: false };
   
   window.currentFormDataLib = { phone, idx, system: item.system };
   
