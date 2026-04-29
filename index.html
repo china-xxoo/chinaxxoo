@@ -969,7 +969,7 @@ function savePhoneDate(phone) {
 
 function showItemForm(phone, idx = -1) {
   const isEdit = idx !== -1;
-  const item = isEdit ? mgmtData[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: '', remote: false };
+  const item = isEdit ? mgmtData[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: 'Mac', remote: false };
   
   window.currentFormData = { phone, idx, system: item.system };
   
@@ -1909,7 +1909,7 @@ function updatePhoneExpiryLib(phone, dateStr) {
 
 function showItemFormLib(phone, idx = -1) {
   const isEdit = idx !== -1;
-  const item = isEdit ? mgmtDataLib[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: '', remote: false };
+  const item = isEdit ? mgmtDataLib[phone].items[idx] : { nickname: '', device: '', expiryTimestamp: '', system: 'Mac', remote: false };
   
   window.currentFormDataLib = { phone, idx, system: item.system };
   
