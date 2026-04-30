@@ -595,7 +595,11 @@ window.onload = async () => {
       const today = new Date().toDateString();
       if (today !== lastDailyUpdateDate) {
         lastDailyUpdateDate = today;
-        decrementAllItemsDays();
+        // 仅刷新界面，不再修改数据，剩余天数会根据固定到期日自动重新计算
+        renderMgmtGrid();
+        if (typeof renderMgmtGridLib === 'function') {
+          renderMgmtGridLib();
+        }
       }
     }, 60000);
     
@@ -901,40 +905,7 @@ function addPhoneFromInput() {
   }
 }
 
-function decrementAllItemsDays() {
-  let updated = false;
-  
-  // 处理接码库
-  phoneOrder.forEach(phone => {
-    if (mgmtData[phone] && mgmtData[phone].items) {
-      mgmtData[phone].items.forEach(item => {
-        if (item.expiryTimestamp) {
-          item.expiryTimestamp -= 86400000; // 减少一天
-          updated = true;
-        }
-      });
-    }
-  });
-  
-  // 处理自用库
-  phoneOrderLib.forEach(phone => {
-    if (mgmtDataLib[phone] && mgmtDataLib[phone].items) {
-      mgmtDataLib[phone].items.forEach(item => {
-        if (item.expiryTimestamp) {
-          item.expiryTimestamp -= 86400000; // 减少一天
-          updated = true;
-        }
-      });
-    }
-  });
-  
-  if (updated) {
-    saveMgmtData();
-    saveMgmtDataLib();
-    renderMgmtGrid();
-    renderMgmtGridLib();
-  }
-}
+// 已删除错误的每日扣减逻辑，到期日期现在保持固定。
 
 function updateItemDate(phone, idx, dateStr) {
   if (!dateStr) return;
