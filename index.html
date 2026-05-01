@@ -585,6 +585,15 @@ window.onload = async () => {
       renderMgmtGridLib();
     }
     
+    // 刷新页面时自动从 Gist 加载最新数据
+    showNotification('正在从云端同步数据...', 'success');
+    Promise.all([
+      refreshFromGist().catch(e => console.error('Gist同步失败:', e)),
+      refreshFromGistLib().catch(e => console.error('GistLib同步失败:', e))
+    ]).then(() => {
+      showNotification('云端数据加载成功！', 'success');
+    });
+    
     setInterval(() => {
       const now = new Date();
       document.getElementById("currentTime").innerText = now.toTimeString().split(' ')[0];
@@ -901,6 +910,7 @@ function addPhoneFromInput() {
     }
     saveMgmtData();
     renderMgmtGrid();
+    uploadToGist('添加手机数据');
     showNotification(`号码 ${trimmedPhone} 已添加到接码库`, 'success');
   } else {
     showNotification(`号码 ${trimmedPhone} 已存在于接码库`, 'success');
@@ -916,6 +926,7 @@ function updateItemDate(phone, idx, dateStr) {
   mgmtData[phone].items[idx].expiryTimestamp = newDate.getTime();
   saveMgmtData();
   renderMgmtGrid();
+  uploadToGist('修改明细日期');
 }
 
 function deletePhone(phone) {
@@ -924,6 +935,7 @@ function deletePhone(phone) {
     delete mgmtData[phone];
     saveMgmtData();
     renderMgmtGrid();
+    uploadToGist('删除手机数据');
   }
 }
 
@@ -933,6 +945,7 @@ function updatePhoneExpiry(phone, dateVal) {
   mgmtData[phone].expiryTimestamp = newDate.getTime();
   saveMgmtData();
   renderMgmtGrid();
+  uploadToGist('到期时间修改');
 }
 
 function triggerPhoneDatePicker(phone, expiryTimestamp) {
@@ -972,6 +985,7 @@ function savePhoneDate(phone) {
   saveMgmtData();
   document.getElementById('phoneDateFormContainer').remove();
   renderMgmtGrid();
+  uploadToGist('到期时间修改');
 }
 
 function showItemForm(phone, idx = -1) {
@@ -1068,6 +1082,7 @@ function deleteItemConfirm(phone, idx) {
     mgmtData[phone].items.splice(idx, 1);
     saveMgmtData();
     renderMgmtGrid();
+    uploadToGist('删除明细数据');
     document.getElementById('itemFormContainer').remove();
   }
 }
@@ -1077,6 +1092,7 @@ function deleteItemConfirmLib(phone, idx) {
     mgmtDataLib[phone].items.splice(idx, 1);
     saveMgmtDataLib();
     renderMgmtGridLib();
+    uploadToGistLib('删除明细数据');
     document.getElementById('itemFormContainer').remove();
   }
 }
@@ -1156,9 +1172,10 @@ function saveItem(phone, idx) {
   saveMgmtData();
   document.getElementById('itemFormContainer').remove();
   renderMgmtGrid();
+  uploadToGist('明细保存');
 }
 
-async function uploadToGist() {
+async function uploadToGist(actionDesc = '数据') {
   requirePasswordThen(async () => {
   try {
     const content = JSON.stringify({ mgmtData: mgmtData, phoneOrder: phoneOrder }, null, 2);
@@ -1167,8 +1184,8 @@ async function uploadToGist() {
       headers: { 'Authorization': `Bearer ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
       body: JSON.stringify({ files: { [GITHUB_CONFIG.fileName]: { content: content } } })
     });
-    if (response.ok) showNotification('数据上传成功！', 'success'); else throw new Error((await response.json()).message || '上传失败');
-    } catch (err) { showNotification('上传出错: ' + err.message, 'error'); }
+    if (response.ok) showNotification(`${actionDesc}上传成功！`, 'success'); else throw new Error((await response.json()).message || '上传失败');
+    } catch (err) { showNotification(actionDesc + '上传出错: ' + err.message, 'error'); }
   });
 }
 
@@ -1213,8 +1230,10 @@ async function refreshFromGist() {
     phoneOrder = imported.phoneOrder || imported.phoneOrderLib || Object.keys(mgmtData);
     saveMgmtData();
     renderMgmtGrid();
-    showNotification('刷新成功！', 'success');
-  } catch (err) { showNotification('刷新出错: ' + err.message, 'error'); }
+  } catch (err) {
+    console.error('refreshFromGist error:', err);
+    throw err;
+  }
 }
 
 function updateSummary() {
@@ -1903,6 +1922,7 @@ function addPhoneToLibFromInput() {
     }
     saveMgmtDataLib();
     renderMgmtGridLib();
+    uploadToGistLib('添加手机数据');
     showNotification(`号码 ${trimmedPhone} 已添加到自用库`, 'success');
   } else {
     showNotification(`号码 ${trimmedPhone} 已存在于自用库`, 'success');
@@ -1916,6 +1936,7 @@ function updateItemDateLib(phone, idx, dateStr) {
   mgmtDataLib[phone].items[idx].expiryTimestamp = newDate.getTime();
   saveMgmtDataLib();
   renderMgmtGridLib();
+  uploadToGistLib('修改明细日期');
 }
 
 function deletePhoneLib(phone) {
@@ -1924,6 +1945,7 @@ function deletePhoneLib(phone) {
     delete mgmtDataLib[phone];
     saveMgmtDataLib();
     renderMgmtGridLib();
+    uploadToGistLib('删除手机数据');
   }
 }
 
@@ -1933,6 +1955,7 @@ function updatePhoneExpiryLib(phone, dateVal) {
   mgmtDataLib[phone].expiryTimestamp = newDate.getTime();
   saveMgmtDataLib();
   renderMgmtGridLib();
+  uploadToGistLib('到期时间修改');
 }
 
 function showItemFormLib(phone, idx = -1) {
@@ -2022,6 +2045,7 @@ function saveItemLib(phone, idx) {
   saveMgmtDataLib();
   document.getElementById('itemFormContainer').remove();
   renderMgmtGridLib();
+  uploadToGistLib('明细保存');
 }
 
 function handleItemActionLib(phone, idx, action) {
@@ -2033,7 +2057,7 @@ function handleItemActionLib(phone, idx, action) {
   // 自用库的 renderMgmtGridLib 已经包含了所有明细的渲染逻辑
 }
 
-async function uploadToGistLib() {
+async function uploadToGistLib(actionDesc = '数据') {
   requirePasswordThen(async () => {
   try {
     const content = JSON.stringify({ mgmtDataLib: mgmtDataLib, phoneOrderLib: phoneOrderLib }, null, 2);
@@ -2042,8 +2066,8 @@ async function uploadToGistLib() {
       headers: { 'Authorization': `Bearer ${GITHUB_CONFIG_LIB.token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
       body: JSON.stringify({ files: { [GITHUB_CONFIG_LIB.fileName]: { content: content } } })
     });
-    if (response.ok) showNotification('数据上传成功！', 'success'); else throw new Error((await response.json()).message || '上传失败');
-    } catch (err) { showNotification('上传出错: ' + err.message, 'error'); }
+    if (response.ok) showNotification(`${actionDesc}上传成功！`, 'success'); else throw new Error((await response.json()).message || '上传失败');
+    } catch (err) { showNotification(actionDesc + '上传出错: ' + err.message, 'error'); }
   });
 }
 
@@ -2088,8 +2112,10 @@ async function refreshFromGistLib() {
     phoneOrderLib = imported.phoneOrder || imported.phoneOrderLib || Object.keys(mgmtDataLib);
     saveMgmtDataLib();
     renderMgmtGridLib();
-    showNotification('刷新成功！', 'success');
-  } catch (err) { showNotification('刷新出错: ' + err.message, 'error'); }
+  } catch (err) {
+    console.error('refreshFromGistLib error:', err);
+    throw err;
+  }
 }
 
 
