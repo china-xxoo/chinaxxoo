@@ -736,7 +736,7 @@ function renderMgmtGrid() {
             <span class="mgmt-detail-title">${phone}</span>
             <div class="mgmt-detail-expiry" style="margin-left: 5px;">
               <span>📅 ${calculateDate(mgmtData[phone].expiryTimestamp)}</span>
-              <input type="date" class="mgmt-detail-expiry-input" value="${new Date(mgmtData[phone].expiryTimestamp).toISOString().split('T')[0]}" onchange="updatePhoneExpiry('${phone}', this.value)">
+              <input type="date" class="mgmt-detail-expiry-input" value="${(function(ts){const d=new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`})(mgmtData[phone].expiryTimestamp)}" onchange="updatePhoneExpiry('${phone}', this.value)">
             </div>
           </div>
           <div class="mgmt-detail-btns">
@@ -926,17 +926,23 @@ function deletePhone(phone) {
   }
 }
 
-function updatePhoneExpiry(phone, dateStr) {
-  if (!dateStr) return;
-  const newDate = new Date(dateStr);
-  newDate.setHours(0, 0, 0, 0);
+function updatePhoneExpiry(phone, dateVal) {
+  const [year, month, day] = dateVal.split('-').map(Number);
+  const newDate = new Date(year, month - 1, day, 0, 0, 0, 0);
   mgmtData[phone].expiryTimestamp = newDate.getTime();
   saveMgmtData();
   renderMgmtGrid();
 }
 
 function triggerPhoneDatePicker(phone, expiryTimestamp) {
-  let dateStr = expiryTimestamp ? new Date(expiryTimestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+  let dateStr = "";
+  if (expiryTimestamp) {
+    const d = new Date(expiryTimestamp);
+    dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  } else {
+    const d = new Date();
+    dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
   const formContainer = document.createElement('div');
   formContainer.id = 'phoneDateFormContainer';
   formContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:99999;';
@@ -1000,11 +1006,11 @@ function showItemForm(phone, idx = -1) {
         </div>
         <div style="margin-bottom:10px;">
           <label style="display:block; font-size:11px; color:#666; margin-bottom:2px;">到期日期</label>
-          <input type="date" id="formExpiryDate" value="${item.expiryTimestamp ? new Date(item.expiryTimestamp).toISOString().split('T')[0] : ''}" onchange="syncDaysFromDate()" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+          <input type="date" id="formExpiryDate" value="${item.expiryTimestamp ? (function(ts){const d=new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`})(item.expiryTimestamp) : ''}" onchange="syncDaysFromDate()" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
         </div>
         <div style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
           <label style="font-size:11px; color:#666; white-space:nowrap;">剩余：</label>
-          <input type="number" id="formDays" value="${item.expiryTimestamp ? Math.ceil((new Date(item.expiryTimestamp) - new Date()) / 86400000) : ''}" onchange="syncDateFromDays()" style="flex:1; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+          <input type="number" id="formDays" value="${item.expiryTimestamp ? calculateRemainingDays(item.expiryTimestamp) : ''}" onchange="syncDateFromDays()" style="flex:1; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
           <button onclick="addDaysToForm(30)" style="height:34px; padding:0 12px; background:#fff; color:#007bff; border:2px solid #007bff; border-radius:6px; font-weight:bold; cursor:pointer;">+30天</button>
         </div>
         <div style="display:flex; gap:10px; margin-top:15px;">
@@ -1082,10 +1088,11 @@ function editItemNicknameLib(phone, idx) {
 function syncDaysFromDate() {
   const dateVal = document.getElementById('formExpiryDate').value;
   if (!dateVal) return;
-  const targetDate = new Date(dateVal);
+  // 使用本地时间解析日期字符串
+  const [year, month, day] = dateVal.split('-').map(Number);
+  const targetDate = new Date(year, month - 1, day, 0, 0, 0, 0);
   const today = new Date();
   today.setHours(0,0,0,0);
-  targetDate.setHours(0,0,0,0);
   // 修正逻辑：当天算第1天。如果到期日是今天，天数应为1。
   // 算法：(目标日期 - 今天) / 一天的毫秒数 + 1
   const diffDays = Math.round((targetDate - today) / 86400000) + 1;
@@ -1100,7 +1107,11 @@ function syncDateFromDays() {
   if (days > 0) {
     targetDate.setDate(targetDate.getDate() + (days - 1));
   }
-  document.getElementById('formExpiryDate').value = targetDate.toISOString().split('T')[0];
+  // 格式化为本地日期的 YYYY-MM-DD
+  const y = targetDate.getFullYear();
+  const m = String(targetDate.getMonth() + 1).padStart(2, '0');
+  const d = String(targetDate.getDate()).padStart(2, '0');
+  document.getElementById('formExpiryDate').value = `${y}-${m}-${d}`;
 }
 
 function selectSystem(sys) {
@@ -1133,8 +1144,9 @@ function saveItem(phone, idx) {
   const device = document.getElementById('formDevice').value.trim();
   const dateVal = document.getElementById('formExpiryDate').value.trim();
   if (!dateVal) return showNotification('请选择到期日期', 'error');
-  const expiryDate = new Date(dateVal);
-  expiryDate.setHours(0, 0, 0, 0);
+  // 使用日期字符串创建日期对象，并确保处理为本地时间的 0 点
+  const [year, month, day] = dateVal.split('-').map(Number);
+  const expiryDate = new Date(year, month - 1, day, 0, 0, 0, 0);
   const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
   const system = window.currentFormData?.system || 'Mac';
   const newItem = { nickname, device, expiryTimestamp: expiryDate.getTime(), system: system, deleted: false, remote: isRemote };
@@ -1730,7 +1742,7 @@ function renderMgmtGridLib() {
             <span class="mgmt-detail-title">${phone}</span>
             <div class="mgmt-detail-expiry" style="margin-left: 5px;">
               <span>📅 ${calculateDate(mgmtDataLib[phone].expiryTimestamp)}</span>
-              <input type="date" class="mgmt-detail-expiry-input" value="${new Date(mgmtDataLib[phone].expiryTimestamp).toISOString().split('T')[0]}" onchange="updatePhoneExpiryLib('${phone}', this.value)">
+              <input type="date" class="mgmt-detail-expiry-input" value="${(function(ts){const d=new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`})(mgmtDataLib[phone].expiryTimestamp)}" onchange="updatePhoneExpiryLib('${phone}', this.value)">
             </div>
           </div>
           <div class="mgmt-detail-btns">
@@ -1914,10 +1926,9 @@ function deletePhoneLib(phone) {
   }
 }
 
-function updatePhoneExpiryLib(phone, dateStr) {
-  if (!dateStr) return;
-  const newDate = new Date(dateStr);
-  newDate.setHours(0, 0, 0, 0);
+function updatePhoneExpiryLib(phone, dateVal) {
+  const [year, month, day] = dateVal.split('-').map(Number);
+  const newDate = new Date(year, month - 1, day, 0, 0, 0, 0);
   mgmtDataLib[phone].expiryTimestamp = newDate.getTime();
   saveMgmtDataLib();
   renderMgmtGridLib();
@@ -1956,11 +1967,11 @@ function showItemFormLib(phone, idx = -1) {
         </div>
         <div style="margin-bottom:10px;">
           <label style="display:block; font-size:11px; color:#666; margin-bottom:2px;">到期日期</label>
-          <input type="date" id="formExpiryDate" value="${item.expiryTimestamp ? new Date(item.expiryTimestamp).toISOString().split('T')[0] : ''}" onchange="syncDaysFromDate()" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+          <input type="date" id="formExpiryDate" value="${item.expiryTimestamp ? (function(ts){const d=new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`})(item.expiryTimestamp) : ''}" onchange="syncDaysFromDate()" style="width:100%; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
         </div>
         <div style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
           <label style="font-size:11px; color:#666; white-space:nowrap;">剩余：</label>
-          <input type="number" id="formDays" value="${item.expiryTimestamp ? Math.ceil((new Date(item.expiryTimestamp) - new Date()) / 86400000) : ''}" onchange="syncDateFromDays()" style="flex:1; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
+          <input type="number" id="formDays" value="${item.expiryTimestamp ? calculateRemainingDays(item.expiryTimestamp) : ''}" onchange="syncDateFromDays()" style="flex:1; height:34px; padding:0 10px; border:1px solid #ddd; border-radius:6px; outline:none;">
           <button onclick="addDaysToFormLib(30)" style="height:34px; padding:0 12px; background:#fff; color:#007bff; border:2px solid #007bff; border-radius:6px; font-weight:bold; cursor:pointer;">+30天</button>
         </div>
         <div style="display:flex; gap:10px; margin-top:15px;">
@@ -1999,8 +2010,9 @@ function saveItemLib(phone, idx) {
   const device = document.getElementById('formDevice').value.trim();
   const dateVal = document.getElementById('formExpiryDate').value.trim();
   if (!dateVal) return showNotification('请选择到期日期', 'error');
-  const expiryDate = new Date(dateVal);
-  expiryDate.setHours(0, 0, 0, 0);
+  // 使用日期字符串创建日期对象，并确保处理为本地时间的 0 点
+  const [year, month, day] = dateVal.split('-').map(Number);
+  const expiryDate = new Date(year, month - 1, day, 0, 0, 0, 0);
   const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
   const system = window.currentFormDataLib?.system || document.getElementById('formSystem')?.value || 'Mac';
   const newItem = { nickname, device, expiryTimestamp: expiryDate.getTime(), system: system, deleted: false, remote: isRemote };
