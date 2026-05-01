@@ -630,14 +630,15 @@ function calculateRemainingDays(expiryTimestamp) {
   const expiryDate = new Date(expiryTimestamp);
   expiryDate.setHours(0, 0, 0, 0);
   const diffTime = expiryDate - today;
-  // 修正逻辑：当天算第1天。如果到期日就是今天，剩余天数应显示为 1。
-  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  // 修正逻辑：到期日减去今天。如果到期日是今天，剩余天数为 0。
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
   return Math.max(0, diffDays);
 }
 
 function calculateDate(daysOrTimestamp) {
   if (daysOrTimestamp === undefined || daysOrTimestamp === null) return '-';
-  let date = (typeof daysOrTimestamp === 'number' && daysOrTimestamp > 100000) ? new Date(daysOrTimestamp) : new Date(new Date().getTime() + parseInt(daysOrTimestamp) * 86400000);
+  // 修正逻辑：1号登记10天，10号到期。即日期 = 今天 + (天数 - 1)
+  let date = (typeof daysOrTimestamp === 'number' && daysOrTimestamp > 100000) ? new Date(daysOrTimestamp) : new Date(new Date().getTime() + (parseInt(daysOrTimestamp) - 1) * 86400000);
   const now = new Date();
   const isThisYear = date.getFullYear() === now.getFullYear();
   const y = date.getFullYear().toString().slice(-2);
@@ -1093,15 +1094,15 @@ function syncDaysFromDate() {
   const targetDate = new Date(year, month - 1, day, 0, 0, 0, 0);
   const today = new Date();
   today.setHours(0,0,0,0);
-  // 修正逻辑：当天算第1天。如果到期日是今天，天数应为1。
-  // 算法：(目标日期 - 今天) / 一天的毫秒数 + 1
-  const diffDays = Math.round((targetDate - today) / 86400000) + 1;
+  // 修正逻辑：到期日减去今天。如果到期日是今天，天数应为0。
+  // 算法：(目标日期 - 今天) / 一天的毫秒数
+  const diffDays = Math.round((targetDate - today) / 86400000);
   document.getElementById('formDays').value = diffDays;
 }
 
 function syncDateFromDays() {
   const days = parseInt(document.getElementById('formDays').value) || 0;
-  // 修正逻辑：当天算第1天。如果输入1天，到期日就是今天；如果输入30天，到期日就是今天起的第30天。
+  // 修正逻辑：1号登记10天，10号到期。
   // 算法：在今天的基础上增加 (days - 1) 天。
   const targetDate = new Date();
   if (days > 0) {
@@ -2101,8 +2102,8 @@ window.testAddPhone = function() {
   today.setHours(0, 0, 0, 0);
   
   mgmtData[testPhone] = {
-    items: [{ system: 'Mac', deleted: false, expiryTimestamp: today.getTime() + 10 * 86400000 }],
-    expiryTimestamp: today.getTime() + 30 * 86400000
+    items: [{ system: 'Mac', deleted: false, expiryTimestamp: today.getTime() + 9 * 86400000 }],
+    expiryTimestamp: today.getTime() + 29 * 86400000
   };
   
   if (!phoneOrder.includes(testPhone)) {
