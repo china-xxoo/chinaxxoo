@@ -630,7 +630,8 @@ function calculateRemainingDays(expiryTimestamp) {
   const expiryDate = new Date(expiryTimestamp);
   expiryDate.setHours(0, 0, 0, 0);
   const diffTime = expiryDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // 修正逻辑：当天算第1天。如果到期日就是今天，剩余天数应显示为 1。
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
   return Math.max(0, diffDays);
 }
 
@@ -1042,27 +1043,17 @@ function editItemNickname(phone, idx) {
 
 
 function addDaysToForm(days) {
-  const dateInput = document.getElementById('formExpiryDate');
-  if (!dateInput.value) {
-    const today = new Date();
-    dateInput.value = today.toISOString().split('T')[0];
-  }
-  const currentDate = new Date(dateInput.value);
-  currentDate.setDate(currentDate.getDate() + days);
-  dateInput.value = currentDate.toISOString().split('T')[0];
-  syncDaysFromDate();
+  const daysInput = document.getElementById('formDays');
+  let currentDays = parseInt(daysInput.value) || 0;
+  daysInput.value = currentDays + days;
+  syncDateFromDays();
 }
 
 function addDaysToFormLib(days) {
-  const dateInput = document.getElementById('formExpiryDate');
-  if (!dateInput.value) {
-    const today = new Date();
-    dateInput.value = today.toISOString().split('T')[0];
-  }
-  const currentDate = new Date(dateInput.value);
-  currentDate.setDate(currentDate.getDate() + days);
-  dateInput.value = currentDate.toISOString().split('T')[0];
-  syncDaysFromDate();
+  const daysInput = document.getElementById('formDays');
+  let currentDays = parseInt(daysInput.value) || 0;
+  daysInput.value = currentDays + days;
+  syncDateFromDays();
 }
 
 function deleteItemConfirm(phone, idx) {
@@ -1095,12 +1086,21 @@ function syncDaysFromDate() {
   const today = new Date();
   today.setHours(0,0,0,0);
   targetDate.setHours(0,0,0,0);
-  document.getElementById('formDays').value = Math.ceil((targetDate - today) / 86400000);
+  // 修正逻辑：当天算第1天。如果到期日是今天，天数应为1。
+  // 算法：(目标日期 - 今天) / 一天的毫秒数 + 1
+  const diffDays = Math.round((targetDate - today) / 86400000) + 1;
+  document.getElementById('formDays').value = diffDays;
 }
 
 function syncDateFromDays() {
   const days = parseInt(document.getElementById('formDays').value) || 0;
-  document.getElementById('formExpiryDate').value = new Date(new Date().getTime() + days * 86400000).toISOString().split('T')[0];
+  // 修正逻辑：当天算第1天。如果输入1天，到期日就是今天；如果输入30天，到期日就是今天起的第30天。
+  // 算法：在今天的基础上增加 (days - 1) 天。
+  const targetDate = new Date();
+  if (days > 0) {
+    targetDate.setDate(targetDate.getDate() + (days - 1));
+  }
+  document.getElementById('formExpiryDate').value = targetDate.toISOString().split('T')[0];
 }
 
 function selectSystem(sys) {
@@ -1347,28 +1347,32 @@ async function getBalance() {
 
 async function getPhone() {
   stopPolling();
+  showNotification("正在获取号码...", "success");
   document.getElementById("inputPhone").value = "获取中...";
   const res = await apiCall("getPhone");
   if (res.code == 0 && res.phone) {
     handlePhoneSuccess(res.phone);
     autoCopy(res.phone);
+    showNotification("获取成功: " + res.phone, "success");
   } else {
     document.getElementById("inputPhone").value = "获取失败";
-    showNotification("获取失败: " + (res.msg || "未知错误", 'error'));
+    showNotification("获取失败: " + (res.msg || "未知错误"), "error");
   }
 }
 
 async function getSpecPhone() {
   const phone = document.getElementById("inputPhone").value.trim();
-  if (!phone) return showNotification("请输入号码", 'error');
+  if (!phone) return showNotification("请输入号码", "error");
   stopPolling();
+  showNotification("正在指定号码...", "success");
   document.getElementById("inputPhone").value = "指定中...";
   const res = await apiCall("getPhone", { phone: phone });
   if (res.code == 0) {
     handlePhoneSuccess(phone);
+    showNotification("指定成功: " + phone, "success");
   } else {
     document.getElementById("inputPhone").value = "指定失败";
-    showNotification("指定失败: " + (res.msg || "未知错误", 'error'));
+    showNotification("指定失败: " + (res.msg || "未知错误"), "error");
   }
 }
 
@@ -1482,6 +1486,7 @@ function copyShareContent(id) {
   autoCopy(text);
   const originalText = text;
   box.innerText = "✅ 已复制";
+  showNotification("已复制: " + text, "success");
   setTimeout(() => { box.innerText = originalText; }, 800);
 }
 
@@ -1495,7 +1500,13 @@ function autoCopy(text) {
   document.body.removeChild(textArea);
 }
 
-function copyText(id) { autoCopy(document.getElementById(id).innerText); }
+function copyText(id) { 
+  const text = document.getElementById(id).innerText;
+  if (text && text !== "等待获取" && text !== "等待短信...") {
+    autoCopy(text);
+    showNotification("已复制验证码: " + text, "success");
+  }
+}
 
 function requirePasswordThen(callback) {
   pendingFunction = callback;
