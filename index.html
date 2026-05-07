@@ -585,7 +585,7 @@ window.onload = async () => {
       renderMgmtGridLib();
     }
     
-    // 刷新页面时自动 from Gist 加载最新数据
+    // 刷新页面时自动从 Gist 加载最新数据
     showNotification('正在从云端同步数据...', 'success');
     Promise.all([
       refreshFromGist().catch(e => console.error('Gist同步失败:', e)),
@@ -719,24 +719,19 @@ function renderMgmtGrid() {
 
     card.innerHTML = `<div class="mgmt-card-phone">${phone}</div>${daysBoxHtml}${statsHtml}${badgeHtml}`;
     
-    // 单击同步号码，双击展开详情
     card.onclick = (e) => {
-      const inputPhone = document.getElementById('inputPhone');
-      if (inputPhone) inputPhone.value = phone;
-    };
-    card.ondblclick = (e) => {
-      expandedPhone = (expandedPhone === phone) ? null : phone;
+      if (expandedPhone === phone) {
+        expandedPhone = null;
+      } else {
+        expandedPhone = phone;
+        // 点击时将号码同步到顶部的未获取输入框
+        const inputPhone = document.getElementById('inputPhone');
+        if (inputPhone) {
+          inputPhone.value = phone;
+        }
+      }
       renderMgmtGrid();
     };
-    let lastClick = 0;
-    card.addEventListener('touchstart', (e) => {
-      let now = Date.now();
-      if (now - lastClick < 300) {
-        expandedPhone = (expandedPhone === phone) ? null : phone;
-        renderMgmtGrid();
-      }
-      lastClick = now;
-    });
     
     grid.appendChild(card);
     
@@ -816,7 +811,7 @@ function renderMgmtGrid() {
   if (typeof updateSummary === 'function') {
     updateSummary();
   }
-  try { initLongPressDrag(grid, phoneOrder, saveMgmtData, uploadToGist); } catch(e){}
+}
 
 function togglePhoneDetail(phone) {
   expandedPhone = (expandedPhone === phone) ? null : phone;
@@ -1745,19 +1740,14 @@ function renderMgmtGridLib() {
 
     card.innerHTML = `<div class="mgmt-card-phone">${phone}</div>${daysBoxHtml}${statsHtml}${badgeHtml}`;
     
-    card.ondblclick = (e) => {
-      expandedPhoneLib = (expandedPhoneLib === phone) ? null : phone;
+    card.onclick = (e) => {
+      if (expandedPhoneLib === phone) {
+        expandedPhoneLib = null;
+      } else {
+        expandedPhoneLib = phone;
+      }
       renderMgmtGridLib();
     };
-    let lastClickLib = 0;
-    card.addEventListener('touchstart', (e) => {
-      let now = Date.now();
-      if (now - lastClickLib < 300) {
-        expandedPhoneLib = (expandedPhoneLib === phone) ? null : phone;
-        renderMgmtGridLib();
-      }
-      lastClickLib = now;
-    });
     
     grid.appendChild(card);
     
@@ -2129,170 +2119,6 @@ async function refreshFromGistLib() {
 }
 
 
-
-/**
- * 为指定的容器及其子元素启用长按拖拽排序功能
- */
-function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
-    if (!container) return;
-    let dragSrcEl = null;
-    let longPressTimer = null;
-    let isDragging = false;
-    let startX, startY;
-
-    function clearTimer() {
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-        }
-    }
-
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('mousedown', handleStart);
-
-    function handleStart(e) {
-        const card = e.target.closest('.mgmt-card');
-        if (!card) return;
-
-        dragSrcEl = card;
-        const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX;
-        startY = touch.clientY;
-        
-        clearTimer();
-        longPressTimer = setTimeout(() => {
-            isDragging = true;
-            card.classList.add('dragging');
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-        }, 500);
-
-        const handleMove = (moveEvent) => {
-            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
-            
-            if (!isDragging) {
-                if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) {
-                    clearTimer();
-                }
-                return;
-            }
-            
-            moveEvent.preventDefault();
-            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
-            const overCard = target ? target.closest('.mgmt-card') : null;
-
-            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
-                const rect = overCard.getBoundingClientRect();
-                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
-                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
-            }
-        };
-
-        const handleEnd = () => {
-            clearTimer();
-            if (isDragging) {
-                isDragging = false;
-                dragSrcEl.classList.remove('dragging');
-                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
-                orderArray.length = 0;
-                newOrder.forEach(p => orderArray.push(p));
-                if (saveCallback) saveCallback();
-                if (uploadCallback) uploadCallback('排序更新');
-            }
-            window.removeEventListener('touchmove', handleMove);
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchend', handleEnd);
-            window.removeEventListener('mouseup', handleEnd);
-        };
-
-        window.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd);
-        window.addEventListener('mouseup', handleEnd);
-    }
-}
-
-
-/**
- * 为指定的容器及其子元素启用长按拖拽排序功能
- */
-function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
-    if (!container || !orderArray) return;
-    let dragSrcEl = null;
-    let longPressTimer = null;
-    let isDragging = false;
-    let startX, startY;
-
-    function clearTimer() {
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-        }
-    }
-
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('mousedown', handleStart);
-
-    function handleStart(e) {
-        const card = e.target.closest('.mgmt-card');
-        if (!card) return;
-
-        dragSrcEl = card;
-        const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX;
-        startY = touch.clientY;
-        
-        clearTimer();
-        longPressTimer = setTimeout(() => {
-            isDragging = true;
-            card.classList.add('dragging');
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-        }, 500);
-
-        const handleMove = (moveEvent) => {
-            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
-            
-            if (!isDragging) {
-                if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) {
-                    clearTimer();
-                }
-                return;
-            }
-            
-            moveEvent.preventDefault();
-            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
-            const overCard = target ? target.closest('.mgmt-card') : null;
-
-            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
-                const rect = overCard.getBoundingClientRect();
-                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
-                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
-            }
-        };
-
-        const handleEnd = () => {
-            clearTimer();
-            if (isDragging) {
-                isDragging = false;
-                dragSrcEl.classList.remove('dragging');
-                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
-                orderArray.length = 0;
-                newOrder.forEach(p => orderArray.push(p));
-                if (saveCallback) saveCallback();
-                if (uploadCallback) uploadCallback('排序更新');
-            }
-            window.removeEventListener('touchmove', handleMove);
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchend', handleEnd);
-            window.removeEventListener('mouseup', handleEnd);
-        };
-
-        window.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd);
-        window.addEventListener('mouseup', handleEnd);
-    }
-}
-
 </script>
 <script>
 // 测试函数
@@ -2332,358 +2158,5 @@ setTimeout(() => {
   console.log('phoneOrderLib:', phoneOrderLib);
 }, 500);
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<script>
-function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
-    if (!container || !orderArray) return;
-    let dragSrcEl = null;
-    let longPressTimer = null;
-    let isDragging = false;
-    let startX, startY;
-    function clearTimer() { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } }
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('mousedown', handleStart);
-    function handleStart(e) {
-        const card = e.target.closest('.mgmt-card');
-        if (!card) return;
-        dragSrcEl = card;
-        const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX; startY = touch.clientY;
-        clearTimer();
-        longPressTimer = setTimeout(() => { isDragging = true; card.classList.add('dragging'); if (window.navigator.vibrate) window.navigator.vibrate(50); }, 500);
-        const handleMove = (moveEvent) => {
-            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
-            if (!isDragging) { if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) clearTimer(); return; }
-            moveEvent.preventDefault();
-            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
-            const overCard = target ? target.closest('.mgmt-card') : null;
-            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
-                const rect = overCard.getBoundingClientRect();
-                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
-                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
-            }
-        };
-        const handleEnd = () => {
-            clearTimer();
-            if (isDragging) {
-                isDragging = false; dragSrcEl.classList.remove('dragging');
-                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
-                orderArray.length = 0; newOrder.forEach(p => orderArray.push(p));
-                if (saveCallback) saveCallback(); if (uploadCallback) uploadCallback('排序更新');
-            }
-            window.removeEventListener('touchmove', handleMove); window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchend', handleEnd); window.removeEventListener('mouseup', handleEnd);
-        };
-        window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd); window.addEventListener('mouseup', handleEnd);
-    }
-}
-</script>
-
-<script>
-function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
-    if (!container || !orderArray) return;
-    let dragSrcEl = null; let longPressTimer = null; let isDragging = false; let startX, startY;
-    function clearTimer() { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } }
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('mousedown', handleStart);
-    function handleStart(e) {
-        const card = e.target.closest('.mgmt-card'); if (!card) return;
-        dragSrcEl = card; const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX; startY = touch.clientY; clearTimer();
-        longPressTimer = setTimeout(() => { isDragging = true; card.classList.add('dragging'); if (window.navigator.vibrate) window.navigator.vibrate(50); }, 500);
-        const handleMove = (moveEvent) => {
-            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
-            if (!isDragging) { if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) clearTimer(); return; }
-            moveEvent.preventDefault();
-            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
-            const overCard = target ? target.closest('.mgmt-card') : null;
-            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
-                const rect = overCard.getBoundingClientRect();
-                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
-                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
-            }
-        };
-        const handleEnd = () => {
-            clearTimer();
-            if (isDragging) {
-                isDragging = false; dragSrcEl.classList.remove('dragging');
-                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
-                orderArray.length = 0; newOrder.forEach(p => orderArray.push(p));
-                if (saveCallback) saveCallback(); if (uploadCallback) uploadCallback('排序更新');
-            }
-            window.removeEventListener('touchmove', handleMove); window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchend', handleEnd); window.removeEventListener('mouseup', handleEnd);
-        };
-        window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd); window.addEventListener('mouseup', handleEnd);
-    }
-}
-</script>
-
-
-<script>
-/**
- * 为指定的容器及其子元素启用长按拖拽排序功能
- */
-function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
-    if (!container || !orderArray) return;
-    let dragSrcEl = null;
-    let longPressTimer = null;
-    let isDragging = false;
-    let startX, startY;
-
-    function clearTimer() {
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-        }
-    }
-
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('mousedown', handleStart);
-
-    function handleStart(e) {
-        const card = e.target.closest('.mgmt-card');
-        if (!card) return;
-
-        dragSrcEl = card;
-        const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX;
-        startY = touch.clientY;
-        
-        clearTimer();
-        longPressTimer = setTimeout(() => {
-            isDragging = true;
-            card.classList.add('dragging');
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-        }, 500);
-
-        const handleMove = (moveEvent) => {
-            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
-            
-            if (!isDragging) {
-                if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) {
-                    clearTimer();
-                }
-                return;
-            }
-            
-            moveEvent.preventDefault();
-            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
-            const overCard = target ? target.closest('.mgmt-card') : null;
-
-            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
-                const rect = overCard.getBoundingClientRect();
-                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
-                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
-            }
-        };
-
-        const handleEnd = () => {
-            clearTimer();
-            if (isDragging) {
-                isDragging = false;
-                dragSrcEl.classList.remove('dragging');
-                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
-                orderArray.length = 0;
-                newOrder.forEach(p => orderArray.push(p));
-                if (saveCallback) saveCallback();
-                if (uploadCallback) uploadCallback('排序更新');
-            }
-            window.removeEventListener('touchmove', handleMove);
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchend', handleEnd);
-            window.removeEventListener('mouseup', handleEnd);
-        };
-
-        window.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd);
-        window.addEventListener('mouseup', handleEnd);
-    }
-}
-</script>
-
-
-<script>
-function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
-    if (!container || !orderArray) return;
-    let dragSrcEl = null; let longPressTimer = null; let isDragging = false; let startX, startY;
-    function clearTimer() { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } }
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('mousedown', handleStart);
-    function handleStart(e) {
-        const card = e.target.closest('.mgmt-card'); if (!card) return;
-        dragSrcEl = card; const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX; startY = touch.clientY; clearTimer();
-        longPressTimer = setTimeout(() => { isDragging = true; card.classList.add('dragging'); if (window.navigator.vibrate) window.navigator.vibrate(50); }, 500);
-        const handleMove = (moveEvent) => {
-            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
-            if (!isDragging) { if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) clearTimer(); return; }
-            moveEvent.preventDefault();
-            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
-            const overCard = target ? target.closest('.mgmt-card') : null;
-            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
-                const rect = overCard.getBoundingClientRect();
-                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
-                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
-            }
-        };
-        const handleEnd = () => {
-            clearTimer();
-            if (isDragging) {
-                isDragging = false; dragSrcEl.classList.remove('dragging');
-                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
-                orderArray.length = 0; newOrder.forEach(p => orderArray.push(p));
-                if (saveCallback) saveCallback(); if (uploadCallback) uploadCallback('排序更新');
-            }
-            window.removeEventListener('touchmove', handleMove); window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchend', handleEnd); window.removeEventListener('mouseup', handleEnd);
-        };
-        window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd); window.addEventListener('mouseup', handleEnd);
-    }
-}
-</script>
-
-
-<script>
-/**
- * 为指定的容器及其子元素启用长按拖拽排序功能
- */
-function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
-    if (!container || !orderArray) return;
-    let dragSrcEl = null;
-    let longPressTimer = null;
-    let isDragging = false;
-    let startX, startY;
-
-    function clearTimer() {
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-        }
-    }
-
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('mousedown', handleStart);
-
-    function handleStart(e) {
-        const card = e.target.closest('.mgmt-card');
-        if (!card) return;
-
-        dragSrcEl = card;
-        const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX;
-        startY = touch.clientY;
-        
-        clearTimer();
-        longPressTimer = setTimeout(() => {
-            isDragging = true;
-            card.classList.add('dragging');
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-        }, 500);
-
-        const handleMove = (moveEvent) => {
-            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
-            
-            if (!isDragging) {
-                if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) {
-                    clearTimer();
-                }
-                return;
-            }
-            
-            moveEvent.preventDefault();
-            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
-            const overCard = target ? target.closest('.mgmt-card') : null;
-
-            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
-                const rect = overCard.getBoundingClientRect();
-                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
-                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
-            }
-        };
-
-        const handleEnd = () => {
-            clearTimer();
-            if (isDragging) {
-                isDragging = false;
-                dragSrcEl.classList.remove('dragging');
-                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
-                orderArray.length = 0;
-                newOrder.forEach(p => orderArray.push(p));
-                if (saveCallback) saveCallback();
-                if (uploadCallback) uploadCallback('排序更新');
-            }
-            window.removeEventListener('touchmove', handleMove);
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchend', handleEnd);
-            window.removeEventListener('mouseup', handleEnd);
-        };
-
-        window.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd);
-        window.addEventListener('mouseup', handleEnd);
-    }
-}
-</script>
-
-
-<script>
-function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
-    if (!container || !orderArray) return;
-    let dragSrcEl = null; let longPressTimer = null; let isDragging = false; let startX, startY;
-    function clearTimer() { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } }
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('mousedown', handleStart);
-    function handleStart(e) {
-        const card = e.target.closest('.mgmt-card'); if (!card) return;
-        dragSrcEl = card; const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX; startY = touch.clientY; clearTimer();
-        longPressTimer = setTimeout(() => { isDragging = true; card.classList.add('dragging'); if (window.navigator.vibrate) window.navigator.vibrate(50); }, 500);
-        const handleMove = (moveEvent) => {
-            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
-            if (!isDragging) { if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) clearTimer(); return; }
-            moveEvent.preventDefault();
-            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
-            const overCard = target ? target.closest('.mgmt-card') : null;
-            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
-                const rect = overCard.getBoundingClientRect();
-                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
-                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
-            }
-        };
-        const handleEnd = () => {
-            clearTimer();
-            if (isDragging) {
-                isDragging = false; dragSrcEl.classList.remove('dragging');
-                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
-                orderArray.length = 0; newOrder.forEach(p => orderArray.push(p));
-                if (saveCallback) saveCallback(); if (uploadCallback) uploadCallback('排序更新');
-            }
-            window.removeEventListener('touchmove', handleMove); window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchend', handleEnd); window.removeEventListener('mouseup', handleEnd);
-        };
-        window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd); window.addEventListener('mouseup', handleEnd);
-    }
-}
-</script>
-
 </body>
 </html>
