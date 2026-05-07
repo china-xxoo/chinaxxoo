@@ -412,32 +412,6 @@ function dateInputValue(ts) {
 const d = new Date(ts || Date.now());
 return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-function getNextDeletedOrder(items) {
-const now = Date.now();
-let maxOrder = 0;
-(items || []).forEach(item => {
-const order = Number(item.deletedOrder || item.deletedAt || 0);
-if (order > maxOrder) maxOrder = order;
-});
-return Math.max(now, maxOrder + 1);
-}
-function sortDetailItems(items) {
-return (items || []).map((item, idx) => ({
-...item,
-originalIdx: idx,
-days: calculateRemainingDays(item.expiryTimestamp)
-})).sort((a, b) => {
-const aDeleted = !!a.deleted;
-const bDeleted = !!b.deleted;
-if (aDeleted !== bDeleted) return aDeleted ? 1 : -1;
-if (aDeleted && bDeleted) {
-const aOrder = Number(a.deletedOrder || a.deletedAt || 0);
-const bOrder = Number(b.deletedOrder || b.deletedAt || 0);
-return (aOrder - bOrder) || (a.originalIdx - b.originalIdx);
-}
-return (a.days - b.days) || (a.originalIdx - b.originalIdx);
-});
-}
 function getPhoneCardStats(data) {
 let winCount = 0, remoteWinCount = 0, macCount = 0, minItemDays = Infinity;
 (data.items || []).forEach(it => {
@@ -456,6 +430,23 @@ const badgeHtml = minItemDays !== Infinity && minItemDays <= 7 ? `<div class="mg
 const phoneDaysStyle = phoneDays <= 7 ? 'warning' : '';
 const phoneDaysText = phoneDays <= 7 ? `${phoneDays}<span style="color:red; font-weight:bold;">!</span>` : phoneDays;
 return `<div class="mgmt-card-phone">${phone}</div><div class="mgmt-card-days-container"><div class="mgmt-card-days-box ${phoneDaysStyle}">${phoneDaysText}</div></div><div class="mgmt-card-stats" style="display:flex!important;align-items:center;gap:2px;font-size:10px;font-weight:bold;min-width:45px;justify-content:flex-end;"><span class="stat-win" style="color:#28a745!important;">${winCount}</span><span class="stat-sep" style="color:#999!important;">/</span><span class="stat-remote" style="color:#dc3545!important;">${remoteWinCount}</span><span class="stat-sep" style="color:#999!important;">/</span><span class="stat-mac" style="color:#000!important;">${macCount}</span></div>${badgeHtml}`;
+}
+function getDeletedSortTime(item, originalIdx) {
+const savedTime = Number(item.deletedAt || item.failedAt || item.invalidAt || 0);
+return savedTime > 0 ? savedTime : (9000000000000 + originalIdx);
+}
+function sortDetailItems(items) {
+return (items || []).map((item, idx) => ({
+...item,
+originalIdx: idx,
+days: calculateRemainingDays(item.expiryTimestamp)
+})).sort((a, b) => {
+const aDeleted = !!a.deleted;
+const bDeleted = !!b.deleted;
+if (aDeleted !== bDeleted) return aDeleted ? 1 : -1;
+if (aDeleted && bDeleted) return getDeletedSortTime(a, a.originalIdx) - getDeletedSortTime(b, b.originalIdx);
+return (a.days - b.days) || (a.originalIdx - b.originalIdx);
+});
 }
 function toggleMgmtSection() {
 document.getElementById('mgmtSection').classList.toggle('expanded');
@@ -599,9 +590,18 @@ container.innerHTML = html;
 }
 function handleItemAction(phone, idx, action) {
 const item = mgmtData[phone] && mgmtData[phone].items ? mgmtData[phone].items[idx] : null;
-if (action === 'fail' && item) { item.deleted = true; item.deletedAt = Date.now(); item.deletedOrder = getNextDeletedOrder(mgmtData[phone].items); }
-else if (action === 'restore' && item) { item.deleted = false; delete item.deletedAt; delete item.deletedOrder; }
-else if (action === 'delete') { if (confirm('确定永久删除此明细吗？')) mgmtData[phone].items.splice(idx, 1); }
+if (!item) return;
+if (action === 'fail') {
+item.deleted = true;
+item.deletedAt = Date.now();
+} else if (action === 'restore') {
+item.deleted = false;
+delete item.deletedAt;
+delete item.failedAt;
+delete item.invalidAt;
+} else if (action === 'delete') {
+if (confirm('确定永久删除此明细吗？')) mgmtData[phone].items.splice(idx, 1);
+}
 saveMgmtData();
 renderMgmtGrid();
 if (typeof renderPhoneItems === 'function') {
@@ -1585,9 +1585,18 @@ uploadToGistLib('明细保存');
 }
 function handleItemActionLib(phone, idx, action) {
 const item = mgmtDataLib[phone] && mgmtDataLib[phone].items ? mgmtDataLib[phone].items[idx] : null;
-if (action === 'fail' && item) { item.deleted = true; item.deletedAt = Date.now(); item.deletedOrder = getNextDeletedOrder(mgmtDataLib[phone].items); }
-else if (action === 'restore' && item) { item.deleted = false; delete item.deletedAt; delete item.deletedOrder; }
-else if (action === 'delete') { if (confirm('确定永久删除此明细吗？')) mgmtDataLib[phone].items.splice(idx, 1); }
+if (!item) return;
+if (action === 'fail') {
+item.deleted = true;
+item.deletedAt = Date.now();
+} else if (action === 'restore') {
+item.deleted = false;
+delete item.deletedAt;
+delete item.failedAt;
+delete item.invalidAt;
+} else if (action === 'delete') {
+if (confirm('确定永久删除此明细吗？')) mgmtDataLib[phone].items.splice(idx, 1);
+}
 saveMgmtDataLib();
 renderMgmtGridLib();
 }
