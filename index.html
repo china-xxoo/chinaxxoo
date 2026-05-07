@@ -182,30 +182,13 @@ phoneSingleTimer = null;
 }
 }
 function handlePhoneCardTap(library, phone) {
-const now = Date.now();
-const key = `${library}|${phone}`;
+clearPhoneSingleTimer();
+phoneTapState = { key: '', time: 0 };
 const ctx = getPhoneCardContext(library);
-if (ctx.isOpen && ctx.isOpen(phone)) {
-clearPhoneSingleTimer();
-phoneTapState = { key: '', time: 0 };
+if (library === 'lib' && typeof copyLibPhoneText === 'function') {
+copyLibPhoneText(phone);
+}
 ctx.toggle(phone);
-return;
-}
-if (phoneTapState.key === key && now - phoneTapState.time <= PHONE_TAP_GAP) {
-clearPhoneSingleTimer();
-phoneTapState = { key: '', time: 0 };
-ctx.toggle(phone);
-return;
-}
-clearPhoneSingleTimer();
-phoneTapState = { key, time: now };
-phoneSingleTimer = setTimeout(() => {
-const latestCtx = getPhoneCardContext(library);
-if (phoneTapState.key === key && !(latestCtx.isOpen && latestCtx.isOpen(phone))) {
-latestCtx.single(phone);
-}
-phoneSingleTimer = null;
-}, PHONE_TAP_GAP + 20);
 }
 function bindPhoneCardInteraction(card, library, phone) {
 card.dataset.library = library;
@@ -1160,7 +1143,7 @@ return `号码：${phone}，${tpl}`;
 function copyLibPhoneText(phone) {
 const content = buildLibPhoneCopyText(phone);
 autoCopy(content);
-showNotification('已复制自用库话术: ' + content, 'success');
+showNotification('已复制', 'success');
 }
 function copyShareContent(id) {
 const box = document.getElementById(id);
