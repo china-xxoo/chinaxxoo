@@ -412,6 +412,32 @@ function dateInputValue(ts) {
 const d = new Date(ts || Date.now());
 return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
+function getNextDeletedOrder(items) {
+const now = Date.now();
+let maxOrder = 0;
+(items || []).forEach(item => {
+const order = Number(item.deletedOrder || item.deletedAt || 0);
+if (order > maxOrder) maxOrder = order;
+});
+return Math.max(now, maxOrder + 1);
+}
+function sortDetailItems(items) {
+return (items || []).map((item, idx) => ({
+...item,
+originalIdx: idx,
+days: calculateRemainingDays(item.expiryTimestamp)
+})).sort((a, b) => {
+const aDeleted = !!a.deleted;
+const bDeleted = !!b.deleted;
+if (aDeleted !== bDeleted) return aDeleted ? 1 : -1;
+if (aDeleted && bDeleted) {
+const aOrder = Number(a.deletedOrder || a.deletedAt || 0);
+const bOrder = Number(b.deletedOrder || b.deletedAt || 0);
+return (aOrder - bOrder) || (a.originalIdx - b.originalIdx);
+}
+return (a.days - b.days) || (a.originalIdx - b.originalIdx);
+});
+}
 function getPhoneCardStats(data) {
 let winCount = 0, remoteWinCount = 0, macCount = 0, minItemDays = Infinity;
 (data.items || []).forEach(it => {
@@ -470,11 +496,7 @@ let html = `
 </thead>
 <tbody>
 `;
-const sortedItems = mgmtData[phone].items.map((item, idx) => ({
-...item,
-originalIdx: idx,
-days: calculateRemainingDays(item.expiryTimestamp)
-})).sort((a, b) => a.days - b.days);
+const sortedItems = sortDetailItems(mgmtData[phone].items);
 sortedItems.forEach((item, displayIdx) => {
 const itemDate = calculateDate(item.expiryTimestamp);
 const isRemote = item.system === 'Win' && (item.isRemote || item.remote);
@@ -525,7 +547,7 @@ function renderPhoneItems(phone) {
 const container = document.getElementById(`items-${phone}`);
 if (!container || !mgmtData[phone]) return;
 let html = '';
-const sortedItems = [...mgmtData[phone].items].sort((a, b) => (calculateRemainingDays(a.expiryTimestamp) || 0) - (calculateRemainingDays(b.expiryTimestamp) || 0));
+const sortedItems = sortDetailItems(mgmtData[phone].items);
 if (sortedItems.length === 0) {
 html = '<div style="text-align:center; color:#999; font-size:12px; padding:10px;">暂无明细</div>';
 } else {
@@ -576,8 +598,9 @@ ${isDeleted ? `<button class="mgmt-btn" onclick="handleItemAction('${phone}', ${
 container.innerHTML = html;
 }
 function handleItemAction(phone, idx, action) {
-if (action === 'fail') mgmtData[phone].items[idx].deleted = true;
-else if (action === 'restore') mgmtData[phone].items[idx].deleted = false;
+const item = mgmtData[phone] && mgmtData[phone].items ? mgmtData[phone].items[idx] : null;
+if (action === 'fail' && item) { item.deleted = true; item.deletedAt = Date.now(); item.deletedOrder = getNextDeletedOrder(mgmtData[phone].items); }
+else if (action === 'restore' && item) { item.deleted = false; delete item.deletedAt; delete item.deletedOrder; }
 else if (action === 'delete') { if (confirm('确定永久删除此明细吗？')) mgmtData[phone].items.splice(idx, 1); }
 saveMgmtData();
 renderMgmtGrid();
@@ -1323,11 +1346,7 @@ let html = `
 </thead>
 <tbody>
 `;
-const sortedItems = mgmtDataLib[phone].items.map((item, idx) => ({
-...item,
-originalIdx: idx,
-days: calculateRemainingDays(item.expiryTimestamp)
-})).sort((a, b) => a.days - b.days);
+const sortedItems = sortDetailItems(mgmtData[phone].items);
 sortedItems.forEach((item, displayIdx) => {
 const itemDate = calculateDate(item.expiryTimestamp);
 const isRemote = item.system === 'Win' && item.remote;
@@ -1565,8 +1584,9 @@ renderMgmtGridLib();
 uploadToGistLib('明细保存');
 }
 function handleItemActionLib(phone, idx, action) {
-if (action === 'fail') mgmtDataLib[phone].items[idx].deleted = true;
-else if (action === 'restore') mgmtDataLib[phone].items[idx].deleted = false;
+const item = mgmtDataLib[phone] && mgmtDataLib[phone].items ? mgmtDataLib[phone].items[idx] : null;
+if (action === 'fail' && item) { item.deleted = true; item.deletedAt = Date.now(); item.deletedOrder = getNextDeletedOrder(mgmtDataLib[phone].items); }
+else if (action === 'restore' && item) { item.deleted = false; delete item.deletedAt; delete item.deletedOrder; }
 else if (action === 'delete') { if (confirm('确定永久删除此明细吗？')) mgmtDataLib[phone].items.splice(idx, 1); }
 saveMgmtDataLib();
 renderMgmtGridLib();
