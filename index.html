@@ -1346,7 +1346,7 @@ let html = `
 </thead>
 <tbody>
 `;
-const sortedItems = sortDetailItems(mgmtData[phone].items);
+const sortedItems = sortDetailItems(mgmtDataLib[phone].items);
 sortedItems.forEach((item, displayIdx) => {
 const itemDate = calculateDate(item.expiryTimestamp);
 const isRemote = item.system === 'Win' && item.remote;
