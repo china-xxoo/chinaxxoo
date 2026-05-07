@@ -656,6 +656,90 @@ function calculateDate(daysOrTimestamp) {
   return isThisYear ? `${m}.${d}` : `${y}.${m}.${d}`;
 }
 
+/**
+ * 为指定的容器及其子元素启用长按拖拽排序功能
+ */
+function initLongPressDrag(container, orderArray, saveCallback, uploadCallback) {
+    let dragSrcEl = null;
+    let longPressTimer = null;
+    let isDragging = false;
+    let startX, startY;
+
+    function clearTimer() {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }
+
+    container.addEventListener('touchstart', handleStart, { passive: false });
+    container.addEventListener('mousedown', handleStart);
+
+    function handleStart(e) {
+        const card = e.target.closest('.mgmt-card');
+        if (!card) return;
+
+        dragSrcEl = card;
+        const touch = e.type === 'touchstart' ? e.touches[0] : e;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        
+        clearTimer();
+        longPressTimer = setTimeout(() => {
+            isDragging = true;
+            card.classList.add('dragging');
+            if (window.navigator.vibrate) window.navigator.vibrate(50); // 震动反馈
+        }, 500);
+
+        const handleMove = (moveEvent) => {
+            const mTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
+            
+            if (!isDragging) {
+                // 如果移动距离超过10px，取消长按
+                if (Math.abs(mTouch.clientX - startX) > 10 || Math.abs(mTouch.clientY - startY) > 10) {
+                    clearTimer();
+                }
+                return;
+            }
+            
+            moveEvent.preventDefault();
+
+            const target = document.elementFromPoint(mTouch.clientX, mTouch.clientY);
+            const overCard = target ? target.closest('.mgmt-card') : null;
+
+            if (overCard && overCard !== dragSrcEl && overCard.parentNode === container) {
+                const rect = overCard.getBoundingClientRect();
+                const next = (mTouch.clientY - rect.top) > (rect.height / 2);
+                container.insertBefore(dragSrcEl, next ? overCard.nextSibling : overCard);
+            }
+        };
+
+        const handleEnd = () => {
+            clearTimer();
+            if (isDragging) {
+                isDragging = false;
+                dragSrcEl.classList.remove('dragging');
+                
+                const newOrder = Array.from(container.querySelectorAll('.mgmt-card')).map(el => el.getAttribute('data-phone'));
+                orderArray.length = 0;
+                newOrder.forEach(p => orderArray.push(p));
+                
+                if (saveCallback) saveCallback();
+                if (uploadCallback) uploadCallback('排序更新');
+            }
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('touchend', handleEnd);
+            window.removeEventListener('mouseup', handleEnd);
+        };
+
+        window.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchend', handleEnd);
+        window.addEventListener('mouseup', handleEnd);
+    }
+}
+
 function toggleMgmtSection() {
   document.getElementById('mgmtSection').classList.toggle('expanded');
 }
@@ -671,6 +755,7 @@ function renderMgmtGrid() {
     const card = document.createElement('div');
     card.className = 'mgmt-card' + (phone === expandedPhone ? ' active' : '');
     card.setAttribute('data-phone', phone);
+    card.draggable = true; // 允许拖拽属性
     
     const phoneDays = calculateRemainingDays(data.expiryTimestamp);
     
@@ -719,19 +804,25 @@ function renderMgmtGrid() {
 
     card.innerHTML = `<div class="mgmt-card-phone">${phone}</div>${daysBoxHtml}${statsHtml}${badgeHtml}`;
     
+    // 单击同步号码，双击展开详情
     card.onclick = (e) => {
-      if (expandedPhone === phone) {
-        expandedPhone = null;
-      } else {
-        expandedPhone = phone;
-        // 点击时将号码同步到顶部的未获取输入框
-        const inputPhone = document.getElementById('inputPhone');
-        if (inputPhone) {
-          inputPhone.value = phone;
-        }
-      }
+      const inputPhone = document.getElementById('inputPhone');
+      if (inputPhone) inputPhone.value = phone;
+    };
+    card.ondblclick = (e) => {
+      expandedPhone = (expandedPhone === phone) ? null : phone;
       renderMgmtGrid();
     };
+    // 移动端兼容双击
+    let lastClick = 0;
+    card.addEventListener('touchstart', (e) => {
+      let now = Date.now();
+      if (now - lastClick < 300) {
+        expandedPhone = (expandedPhone === phone) ? null : phone;
+        renderMgmtGrid();
+      }
+      lastClick = now;
+    });
     
     grid.appendChild(card);
     
@@ -807,10 +898,13 @@ function renderMgmtGrid() {
   });
   document.getElementById('mgmtExpiringCount').innerText = totalExpiringItems;
   
-  // 同时触发全局统计面板更新
-  if (typeof updateSummary === 'function') {
+  // 同时触发全局统计面板更新  if (typeof updateSummary === 'function') {
     updateSummary();
   }
+  
+  
+}  
+  
 }
 
 function togglePhoneDetail(phone) {
@@ -1686,13 +1780,14 @@ function renderMgmtGridLib() {
   const grid = document.getElementById('mgmtGridLib');
   grid.innerHTML = '';
   
-  phoneOrderLib.forEach(phone => {
+    phoneOrderLib.forEach(phone => {
     if (!mgmtDataLib[phone]) return;
     
     const data = mgmtDataLib[phone];
     const card = document.createElement('div');
     card.className = 'mgmt-card' + (phone === expandedPhoneLib ? ' active' : '');
     card.setAttribute('data-phone', phone);
+    card.draggable = true; // 允许拖拽属性
     
     const phoneDays = calculateRemainingDays(data.expiryTimestamp);
     
@@ -1740,14 +1835,20 @@ function renderMgmtGridLib() {
 
     card.innerHTML = `<div class="mgmt-card-phone">${phone}</div>${daysBoxHtml}${statsHtml}${badgeHtml}`;
     
-    card.onclick = (e) => {
-      if (expandedPhoneLib === phone) {
-        expandedPhoneLib = null;
-      } else {
-        expandedPhoneLib = phone;
-      }
+    card.ondblclick = (e) => {
+      expandedPhoneLib = (expandedPhoneLib === phone) ? null : phone;
       renderMgmtGridLib();
     };
+    // 移动端兼容双击
+    let lastClickLib = 0;
+    card.addEventListener('touchstart', (e) => {
+      let now = Date.now();
+      if (now - lastClickLib < 300) {
+        expandedPhoneLib = (expandedPhoneLib === phone) ? null : phone;
+        renderMgmtGridLib();
+      }
+      lastClickLib = now;
+    });
     
     grid.appendChild(card);
     
@@ -1821,6 +1922,8 @@ function renderMgmtGridLib() {
   });
   document.getElementById('libExpiringCount').innerText = totalExpiringItemsLib;
   updateSummaryLib();
+  initLongPressDrag(grid, phoneOrderLib, saveMgmtDataLib, uploadToGistLib);
+  initLongPressDrag(grid, phoneOrderLib, saveMgmtDataLib, uploadToGistLib);
 }
 
 function updateSummaryLib() {
