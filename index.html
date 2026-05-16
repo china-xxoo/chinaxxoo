@@ -40,12 +40,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-function trimTrailingEmptySlots(order) {
-  const next = Array.isArray(order) ? order.slice() : [];
-  while (next.length && !next[next.length - 1]) next.pop();
-  return next;
-}
-
 function normalizePhoneSlots(data, order) {
   const used = new Set();
   const slots = Array.isArray(order) ? order.map(phone => {
@@ -56,34 +50,40 @@ function normalizePhoneSlots(data, order) {
     }
     return SLOT_EMPTY;
   }) : [];
+
   Object.keys(data || {}).forEach(phone => {
     if (!used.has(phone)) {
       slots.push(phone);
       used.add(phone);
     }
   });
-  return trimTrailingEmptySlots(slots);
+
+  return slots;
 }
 
 function appendPhoneToLastSlot(order, phone) {
-  const next = trimTrailingEmptySlots(order);
+  const next = Array.isArray(order) ? order.slice() : [];
   next.push(phone);
   return next;
 }
 
 function removePhoneFromSlot(order, phone) {
-  return trimTrailingEmptySlots((order || []).map(p => p === phone ? SLOT_EMPTY : p));
+  return (Array.isArray(order) ? order : []).map(p => p === phone ? SLOT_EMPTY : p);
 }
 
 function setPhoneSlotPosition(data, order, phone, targetPosition) {
   const next = normalizePhoneSlots(data, order);
   const targetIndex = targetPosition - 1;
   const currentIndex = next.indexOf(phone);
+
   while (next.length <= targetIndex) next.push(SLOT_EMPTY);
+
   if (next[targetIndex] && next[targetIndex] !== phone) return null;
+
   if (currentIndex !== -1) next[currentIndex] = SLOT_EMPTY;
   next[targetIndex] = phone;
-  return trimTrailingEmptySlots(next);
+
+  return next;
 }
 
 async function uploadFixedMain(actionDesc) {
@@ -169,6 +169,7 @@ function renderFixedGrid(library) {
 
   order.forEach((phone, slotIndex) => {
     const position = slotIndex + 1;
+
     if (!phone || !dataMap[phone]) {
       appendEmptySlotCard(grid, position);
       return;
@@ -189,7 +190,7 @@ function renderFixedGrid(library) {
     const updateExpiryFn = isLib ? 'updatePhoneExpiryLib' : 'updatePhoneExpiry';
     const showFormFn = isLib ? 'showItemFormLib' : 'showItemForm';
     const deletePhoneFn = isLib ? 'deletePhoneLib' : 'deletePhone';
-    const editFn = isLib ? 'editItemNicknameLib' : 'editItemNicknameLib';
+    const editFn = isLib ? 'editItemNicknameLib' : 'editItemNickname';
     const actionFn = isLib ? 'handleItemActionLib' : 'handleItemAction';
     const detailArea = document.createElement('div');
 
