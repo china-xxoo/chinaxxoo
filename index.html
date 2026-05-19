@@ -2306,4 +2306,583 @@ showItemFormLib = function(phone, idx = -1) {
 })();
 </script>
 
+<script>
+(function searchAndSpecCopyPatch() {
+let mgmtSearchQuery = '';
+
+const style = document.createElement('style');
+style.textContent = `
+#mgmtSearchRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:4px;
+  margin:0 0 6px 0;
+}
+#mgmtSearchInput{
+  width:100%;
+  height:34px;
+  border:1px solid #ced4da;
+  border-radius:8px;
+  padding:0 10px;
+  font-size:13px;
+  outline:none;
+  background:#fff;
+}
+#mgmtSearchInput:focus{
+  border-color:#007bff;
+  box-shadow:0 0 0 2px rgba(0,123,255,.12);
+}
+`;
+document.head.appendChild(style);
+
+function normalizeSearchSlots(data, order) {
+  const used = new Set();
+  const slots = Array.isArray(order) ? order.map(phone => {
+    const p = phone ? String(phone) : '';
+    if (p && data[p] && !used.has(p)) {
+      used.add(p);
+      return p;
+    }
+    return '';
+  }) : [];
+  Object.keys(data || {}).forEach(phone => {
+    if (!used.has(phone)) {
+      slots.push(phone);
+      used.add(phone);
+    }
+  });
+  return slots;
+}
+
+function appendSearchEmptySlotCard(grid, position) {
+  const card = document.createElement('div');
+  card.className = 'mgmt-card mgmt-card-empty';
+  card.innerHTML = `<div class="mgmt-card-position">${position}</div><div class="empty-slot-label">空位</div>`;
+  grid.appendChild(card);
+}
+
+function phoneMatchesSearch(data, query) {
+  if (!query) return false;
+  const q = query.toLowerCase();
+  return (data.items || []).some(item => {
+    if (item.deleted) return false;
+    const nickname = String(item.nickname || '').toLowerCase();
+    const device = String(item.device || '').toLowerCase();
+    return nickname.includes(q) || device.includes(q);
+  });
+}
+
+function renderSearchAwareGrid(library) {
+  const isLib = library === 'lib';
+  const grid = document.getElementById(isLib ? 'mgmtGridLib' : 'mgmtGrid');
+  const dataMap = isLib ? mgmtDataLib : mgmtData;
+  let order = normalizeSearchSlots(dataMap, isLib ? phoneOrderLib : phoneOrder);
+  const query = mgmtSearchQuery.trim().toLowerCase();
+  const searchActive = query.length > 0;
+  let hasSearchMatch = false;
+
+  if (isLib) phoneOrderLib = order;
+  else phoneOrder = order;
+
+  grid.innerHTML = '';
+
+  order.forEach((phone, slotIndex) => {
+    const position = slotIndex + 1;
+    if (!phone || !dataMap[phone]) {
+      appendSearchEmptySlotCard(grid, position);
+      return;
+    }
+
+    const data = dataMap[phone];
+    const expanded = isLib ? expandedPhoneLib : expandedPhone;
+    const matched = searchActive && phoneMatchesSearch(data, query);
+    const shouldExpand = matched || (!searchActive && expanded === phone);
+    if (matched) hasSearchMatch = true;
+
+    const card = document.createElement('div');
+    card.className = 'mgmt-card' + (shouldExpand ? ' active' : '');
+    card.setAttribute('data-phone', phone);
+    card.innerHTML = buildPhoneCardHtml(phone, data, position, isLib ? 'lib' : 'main');
+    bindPhoneCardInteraction(card, isLib ? 'lib' : 'main', phone);
+    grid.appendChild(card);
+
+    if (!shouldExpand) return;
+
+    const phoneArg = String(phone).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const updateExpiryFn = isLib ? 'updatePhoneExpiryLib' : 'updatePhoneExpiry';
+    const showFormFn = isLib ? 'showItemFormLib' : 'showItemForm';
+    const deletePhoneFn = isLib ? 'deletePhoneLib' : 'deletePhone';
+    const editFn = isLib ? 'editItemNicknameLib' : 'editItemNickname';
+    const actionFn = isLib ? 'handleItemActionLib' : 'handleItemAction';
+    const detailArea = document.createElement('div');
+
+    detailArea.className = 'mgmt-detail-area active';
+    detailArea.style.gridColumn = '1 / -1';
+
+    let html = `
+<div class="mgmt-detail-header">
+<div class="mgmt-detail-title-wrap">
+<span class="mgmt-detail-title">${phone}</span>
+<div class="mgmt-detail-expiry" style="margin-left: 5px;">
+<span>📅 ${calculateDate(dataMap[phone].expiryTimestamp)}</span>
+<input type="date" class="mgmt-detail-expiry-input" value="${dateInputValue(dataMap[phone].expiryTimestamp)}" onchange="${updateExpiryFn}('${phone}', this.value)">
+</div>
+</div>
+<div class="mgmt-detail-btns">
+<button class="detail-action-btn mgmt-detail-position-btn" onclick="event.stopPropagation(); changePhonePosition('${isLib ? 'lib' : 'main'}', '${phoneArg}')">位置 ${position}</button>
+<button class="detail-action-btn" style="background:#28a745;" onclick="event.stopPropagation(); ${showFormFn}('${phoneArg}')">添加</button>
+<button class="detail-action-btn" style="background:#dc3545;" onclick="event.stopPropagation(); ${deletePhoneFn}('${phoneArg}')">删除</button>
+</div>
+</div>
+<table class="mgmt-detail-table">
+<thead>
+<tr><th class="col-nickname">昵称</th><th class="col-device">设备</th><th class="col-system">系统</th><th class="col-days">剩余天数</th><th class="col-date">到期日期</th><th class="col-action">操作</th></tr>
+</thead>
+<tbody>
+`;
+
+    const sortedItems = sortDetailItems(dataMap[phone].items || []);
+    sortedItems.forEach((item, displayIdx) => {
+      const itemDate = calculateDate(item.expiryTimestamp);
+      const isRemote = item.system === 'Win' && (item.isRemote || item.remote);
+      const remoteBadge = isRemote ? '<span class="remote-badge">远</span>' : '';
+      const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || '-'}`;
+      const rowClass = item.deleted ? 'item-deleted' : '';
+      const actionBtn = item.deleted
+        ? `<button class="mgmt-btn" onclick="${actionFn}('${phone}', ${item.originalIdx}, 'restore')" style="padding:1px 2px; font-size:9px; background:#fff; color:#28a745; border:1px solid #28a745; border-radius:2px; cursor:pointer; width:100%; height:16px;">恢复</button>`
+        : `<button class="mgmt-btn" onclick="${actionFn}('${phone}', ${item.originalIdx}, 'fail')" style="padding:1px 2px; font-size:9px; background:#fff; color:#dc3545; border:1px solid #dc3545; border-radius:2px; cursor:pointer; width:100%; height:16px;">失效</button>`;
+
+      html += `
+<tr class="${rowClass}">
+<td class="col-nickname"><span style="cursor:pointer;" onclick="${editFn}('${phone}', ${item.originalIdx})">${nicknameDisplay}</span></td>
+<td class="col-device">${item.device || '-'}</td>
+<td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${isRemote ? '远程' : 'Win'}</span>` : item.system}</td>
+<td>${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${item.days}天<span style="color:red; font-weight:bold;">!</span></span>` : `${item.days}天`}</td>
+<td>${itemDate}</td>
+<td style="text-align:center;">${actionBtn}</td>
+</tr>
+`;
+    });
+
+    html += `</tbody></table>`;
+    detailArea.innerHTML = html;
+    grid.appendChild(detailArea);
+  });
+
+  document.getElementById(isLib ? 'libTotalPhones' : 'mgmtTotalPhones').innerText = Object.keys(dataMap).length;
+
+  let totalExpiringItems = 0;
+  Object.keys(dataMap).forEach(phone => {
+    (dataMap[phone].items || []).forEach(it => {
+      if (!it.deleted && calculateRemainingDays(it.expiryTimestamp) <= 7) totalExpiringItems++;
+    });
+  });
+  document.getElementById(isLib ? 'libExpiringCount' : 'mgmtExpiringCount').innerText = totalExpiringItems;
+
+  if (searchActive && hasSearchMatch) {
+    document.getElementById(isLib ? 'mgmtSectionLib' : 'mgmtSection')?.classList.add('expanded');
+  }
+
+  if (isLib) updateSummaryLib();
+  else if (typeof updateSummary === 'function') updateSummary();
+}
+
+renderMgmtGrid = function() {
+  renderSearchAwareGrid('main');
+};
+
+renderMgmtGridLib = function() {
+  renderSearchAwareGrid('lib');
+};
+
+window.applyMgmtSearch = function() {
+  const input = document.getElementById('mgmtSearchInput');
+  mgmtSearchQuery = input ? input.value : '';
+  renderMgmtGridLib();
+  renderMgmtGrid();
+};
+
+function installMgmtSearchBox() {
+  if (document.getElementById('mgmtSearchRow')) return;
+  const getButton = Array.from(document.querySelectorAll('button')).find(btn => btn.getAttribute('onclick') === 'getPhone()');
+  const actionRow = getButton ? getButton.closest('.flex-row') : null;
+  if (!actionRow) return;
+  const row = document.createElement('div');
+  row.id = 'mgmtSearchRow';
+  row.innerHTML = '<input id="mgmtSearchInput" type="search" placeholder="搜索昵称或设备，匹配号码自动展开" oninput="applyMgmtSearch()">';
+  actionRow.insertAdjacentElement('afterend', row);
+}
+
+getSpecPhone = async function() {
+  const phone = document.getElementById("inputPhone").value.trim();
+  if (!phone) return showNotification("请输入号码", "error");
+  stopPolling();
+  showNotification("正在指定号码...", "success");
+  document.getElementById("inputPhone").value = "指定中...";
+  const res = await apiCall("getPhone", { phone: phone });
+  if (res.code == 0) {
+    handlePhoneSuccess(phone);
+    const shareText = (document.getElementById('shareBoxA')?.innerText || '').trim();
+    if (shareText) autoCopy(shareText);
+    showNotification("指定成功，复取内容已复制: " + phone, "success");
+  } else {
+    document.getElementById("inputPhone").value = "指定失败";
+    showNotification("指定失败: " + (res.msg || "未知错误"), "error");
+  }
+};
+
+installMgmtSearchBox();
+})();
+</script>
+
+
+<script>
+(function consumptionAuditAndAutoCollapsePatch() {
+const CONSUMPTION_KEY = 'sms_consumption_audit_records';
+const MAX_RECORDS = 100;
+const IDLE_MS = 30000;
+let consumptionExpanded = false;
+let idleTimer = null;
+let currentConsumptionContext = null;
+
+const style = document.createElement('style');
+style.textContent = `
+#consumptionAuditSection{
+  margin-top:8px;
+  padding-top:6px;
+  border-top:1px solid #eee;
+}
+#consumptionAuditHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:34px;
+  cursor:pointer;
+  padding:0 2px;
+}
+#consumptionAuditTitle{
+  font-size:14px;
+  font-weight:bold;
+  color:#333;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+#consumptionAuditTitle::after{
+  content:"▼";
+  font-size:10px;
+  color:#999;
+  transition:transform .3s;
+}
+#consumptionAuditSection.expanded #consumptionAuditTitle::after{
+  transform:rotate(180deg);
+}
+#consumptionAuditSummary{
+  font-size:11px;
+  color:#666;
+  font-weight:bold;
+}
+#consumptionAuditBody{
+  display:none;
+  margin-top:4px;
+  border:1px solid #eee;
+  background:#fff;
+  overflow:hidden;
+}
+#consumptionAuditSection.expanded #consumptionAuditBody{
+  display:block;
+}
+#consumptionAuditTable{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+#consumptionAuditTable th,
+#consumptionAuditTable td{
+  border:1px solid #eee;
+  padding:2px 1px;
+  height:20px;
+  line-height:16px;
+  text-align:center;
+  font-size:10px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#consumptionAuditTable th{
+  background:#fafafa;
+  color:#666;
+  font-weight:bold;
+}
+#consumptionAuditTable .audit-time{width:27%;}
+#consumptionAuditTable .audit-code{width:22%;}
+#consumptionAuditTable .audit-tail{width:14%;}
+#consumptionAuditTable .audit-balance{width:18%;}
+#consumptionAuditTable .audit-cost{width:19%;color:#dc3545;font-weight:bold;}
+.consumption-empty-row td{
+  color:#999;
+  height:28px!important;
+}
+`;
+document.head.appendChild(style);
+
+function parseMoney(value) {
+  if (value === undefined || value === null) return null;
+  const str = String(value).replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+  if (!str) return null;
+  const num = Number(str[0]);
+  return Number.isFinite(num) ? num : null;
+}
+
+function formatMoney(value) {
+  const num = parseMoney(value);
+  if (num === null) return '-';
+  return (Math.round(num * 100) / 100).toFixed(2);
+}
+
+function formatCost(value) {
+  const num = parseMoney(value);
+  if (num === null || num < 0) return '-';
+  return (Math.round(num * 100) / 100).toFixed(2);
+}
+
+function formatAuditTime(date = new Date()) {
+  return `${date.getMonth() + 1}.${date.getDate()}-${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function getCurrentDisplayedBalance() {
+  return parseMoney(document.getElementById('balanceText')?.innerText || '');
+}
+
+async function fetchBalanceNumber() {
+  try {
+    const res = await apiCall('getSummary');
+    if (res && res.code == 0 && res.money !== undefined) {
+      const balance = parseMoney(res.money);
+      const el = document.getElementById('balanceText');
+      if (el && balance !== null) el.innerText = `余额：${formatMoney(balance)}元`;
+      return balance;
+    }
+  } catch (e) {}
+  return getCurrentDisplayedBalance();
+}
+
+function readRecords() {
+  try {
+    const records = JSON.parse(localStorage.getItem(CONSUMPTION_KEY) || '[]');
+    return Array.isArray(records) ? records.slice(0, MAX_RECORDS) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveRecords(records) {
+  localStorage.setItem(CONSUMPTION_KEY, JSON.stringify(records.slice(0, MAX_RECORDS)));
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
+function installConsumptionSection() {
+  if (document.getElementById('consumptionAuditSection')) return;
+  const container = document.querySelector('.container');
+  if (!container) return;
+  const section = document.createElement('div');
+  section.id = 'consumptionAuditSection';
+  section.innerHTML = `
+<div id="consumptionAuditHeader" onclick="toggleConsumptionAudit()">
+  <div id="consumptionAuditTitle">消费明细核对</div>
+  <div id="consumptionAuditSummary">0条</div>
+</div>
+<div id="consumptionAuditBody">
+  <table id="consumptionAuditTable">
+    <thead>
+      <tr>
+        <th class="audit-time">获取时间</th>
+        <th class="audit-code">验证码</th>
+        <th class="audit-tail">尾号</th>
+        <th class="audit-balance">余额</th>
+        <th class="audit-cost">消费</th>
+      </tr>
+    </thead>
+    <tbody id="consumptionAuditRows"></tbody>
+  </table>
+</div>`;
+  container.appendChild(section);
+  renderConsumptionAudit();
+}
+
+window.toggleConsumptionAudit = function() {
+  consumptionExpanded = !consumptionExpanded;
+  renderConsumptionAudit();
+};
+
+function renderConsumptionAudit() {
+  const section = document.getElementById('consumptionAuditSection');
+  const rowsEl = document.getElementById('consumptionAuditRows');
+  const summaryEl = document.getElementById('consumptionAuditSummary');
+  if (!section || !rowsEl || !summaryEl) return;
+
+  const records = readRecords();
+  section.classList.toggle('expanded', consumptionExpanded);
+  summaryEl.innerText = `${records.length}条`;
+
+  if (!records.length) {
+    rowsEl.innerHTML = '<tr class="consumption-empty-row"><td colspan="5">暂无消费记录</td></tr>';
+    return;
+  }
+
+  rowsEl.innerHTML = records.map(record => `
+<tr>
+  <td class="audit-time">${escapeHtml(record.time)}</td>
+  <td class="audit-code">${escapeHtml(record.code || '-')}</td>
+  <td class="audit-tail">${escapeHtml(record.tail || '-')}</td>
+  <td class="audit-balance">${escapeHtml(record.balance || '-')}</td>
+  <td class="audit-cost">${escapeHtml(record.cost || '-')}</td>
+</tr>`).join('');
+}
+
+async function createConsumptionRecord(phone, code) {
+  const afterBalance = await fetchBalanceNumber();
+  const beforeBalance = parseMoney(currentConsumptionContext?.beforeBalance);
+  const tail = String(phone || currentConsumptionContext?.phone || '').replace(/\D/g, '').slice(-4) || '-';
+  let cost = null;
+  if (beforeBalance !== null && afterBalance !== null) {
+    cost = beforeBalance - afterBalance;
+  }
+
+  const record = {
+    time: formatAuditTime(new Date()),
+    code: code || '-',
+    tail,
+    balance: afterBalance === null ? '-' : formatMoney(afterBalance),
+    cost: formatCost(cost)
+  };
+
+  const records = readRecords();
+  records.unshift(record);
+  saveRecords(records);
+  renderConsumptionAudit();
+  currentConsumptionContext = null;
+}
+
+function beginConsumptionContext(phone, beforeBalance) {
+  currentConsumptionContext = {
+    phone,
+    beforeBalance: parseMoney(beforeBalance),
+    startedAt: Date.now()
+  };
+}
+
+getPhone = async function() {
+  stopPolling();
+  showNotification('正在获取号码...', 'success');
+  document.getElementById('inputPhone').value = '获取中...';
+  const beforeBalance = await fetchBalanceNumber();
+  const res = await apiCall('getPhone');
+  if (res.code == 0 && res.phone) {
+    beginConsumptionContext(res.phone, beforeBalance);
+    handlePhoneSuccess(res.phone);
+    autoCopy(res.phone);
+    showNotification('获取成功: ' + res.phone, 'success');
+  } else {
+    currentConsumptionContext = null;
+    document.getElementById('inputPhone').value = '获取失败';
+    showNotification('获取失败: ' + (res.msg || '未知错误'), 'error');
+  }
+};
+
+getSpecPhone = async function() {
+  const phone = document.getElementById('inputPhone').value.trim();
+  if (!phone) return showNotification('请输入号码', 'error');
+  stopPolling();
+  showNotification('正在指定号码...', 'success');
+  document.getElementById('inputPhone').value = '指定中...';
+  const beforeBalance = await fetchBalanceNumber();
+  const res = await apiCall('getPhone', { phone: phone });
+  if (res.code == 0) {
+    beginConsumptionContext(phone, beforeBalance);
+    handlePhoneSuccess(phone);
+    const shareText = (document.getElementById('shareBoxA')?.innerText || '').trim();
+    if (shareText) autoCopy(shareText);
+    showNotification('指定成功，复取内容已复制: ' + phone, 'success');
+  } else {
+    currentConsumptionContext = null;
+    document.getElementById('inputPhone').value = '指定失败';
+    showNotification('指定失败: ' + (res.msg || '未知错误'), 'error');
+  }
+};
+
+startPolling = function() {
+  stopPolling();
+  let remainingTime = 180;
+  function updateCountdown() {
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('codeShow').innerText = timeStr;
+    if (remainingTime <= 0) {
+      clearInterval(countdownTimer);
+      currentConsumptionContext = null;
+      document.getElementById('codeShow').innerText = '等待获取';
+      document.getElementById('smsContent').innerText = '等待短信...';
+      updateShareB('');
+    } else {
+      remainingTime--;
+    }
+  }
+  updateCountdown();
+  countdownTimer = setInterval(updateCountdown, 1000);
+  document.getElementById('smsContent').innerText = '等待短信...';
+  updateShareB('');
+  pollTimer = setInterval(async () => {
+    const pollingPhone = currentPhone;
+    const res = await apiCall('getMessage', { phone: pollingPhone });
+    if (res.code == 0) {
+      stopPolling();
+      const code = res.yzm || '已收码';
+      document.getElementById('codeShow').innerText = code;
+      document.getElementById('smsContent').innerText = res.sms || '无内容';
+      updateShareB(res.yzm || '');
+      autoCopy(res.yzm || '');
+      await createConsumptionRecord(pollingPhone, res.yzm || code);
+    }
+  }, 5000);
+};
+
+function clearSearchAndExpandedDetails() {
+  const searchInput = document.getElementById('mgmtSearchInput');
+  if (searchInput && searchInput.value) {
+    searchInput.value = '';
+    if (typeof applyMgmtSearch === 'function') applyMgmtSearch();
+  }
+  expandedPhone = null;
+  expandedPhoneLib = null;
+  consumptionExpanded = false;
+  if (typeof renderMgmtGridLib === 'function') renderMgmtGridLib();
+  if (typeof renderMgmtGrid === 'function') renderMgmtGrid();
+  renderConsumptionAudit();
+}
+
+function resetIdleTimer() {
+  if (idleTimer) clearTimeout(idleTimer);
+  idleTimer = setTimeout(clearSearchAndExpandedDetails, IDLE_MS);
+}
+
+['click', 'input', 'keydown', 'touchstart', 'change'].forEach(eventName => {
+  document.addEventListener(eventName, resetIdleTimer, true);
+});
+
+installConsumptionSection();
+resetIdleTimer();
+})();
+</script>
+
 </body></html>
