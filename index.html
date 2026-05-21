@@ -2577,10 +2577,27 @@ style.textContent = `
 #consumptionAuditSection.expanded #consumptionAuditTitle::after{
   transform:rotate(180deg);
 }
+#consumptionAuditRight{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
 #consumptionAuditSummary{
   font-size:11px;
   color:#666;
   font-weight:bold;
+}
+.consumption-sync-btn{
+  height:20px;
+  line-height:18px;
+  padding:0 6px;
+  font-size:10px;
+  border:1px solid #007bff;
+  color:#007bff;
+  background:#fff;
+  border-radius:3px;
+  font-weight:bold;
+  cursor:pointer;
 }
 #consumptionAuditBody{
   display:none;
@@ -2699,7 +2716,11 @@ function installConsumptionSection() {
   section.innerHTML = `
 <div id="consumptionAuditHeader" onclick="toggleConsumptionAudit()">
   <div id="consumptionAuditTitle">消费明细核对</div>
-  <div id="consumptionAuditSummary">0条</div>
+  <div id="consumptionAuditRight">
+    <div id="consumptionAuditSummary">0条</div>
+    <button class="consumption-sync-btn" onclick="event.stopPropagation(); uploadConsumptionAuditManual()">上传</button>
+    <button class="consumption-sync-btn" onclick="event.stopPropagation(); downloadConsumptionAuditManual()">下载</button>
+  </div>
 </div>
 <div id="consumptionAuditBody">
   <table id="consumptionAuditTable">
@@ -3039,6 +3060,90 @@ refreshFromGist = async function() {
 
 window.syncConsumptionAuditToCloud = function() {
   return uploadMainDataToGist('消费明细同步');
+};
+})();
+</script>
+
+
+<script>
+(function consumptionManualSyncButtonsPatch() {
+async function fetchMainGistPayloadForConsumptionManual() {
+  const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG.gistId}`, {
+    headers: { 'Authorization': `Bearer ${GITHUB_CONFIG.token}`, 'Accept': 'application/vnd.github+json' }
+  });
+  if (!response.ok) throw new Error('获取数据失败');
+  const gistData = await response.json();
+  const file = gistData.files[GITHUB_CONFIG.fileName];
+  if (!file || !file.content) throw new Error('云端未找到备份文件');
+  if (!file.content || file.content.trim() === '' || file.content.trim() === '{}') return {};
+  return JSON.parse(file.content);
+}
+
+function getLocalConsumptionRecordsForManual() {
+  if (typeof window.readConsumptionAuditRecords === 'function') return window.readConsumptionAuditRecords();
+  try {
+    const records = JSON.parse(localStorage.getItem('sms_consumption_audit_records') || '[]');
+    return Array.isArray(records) ? records.slice(0, 100) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function setLocalConsumptionRecordsForManual(records) {
+  if (typeof window.saveConsumptionAuditRecords === 'function') {
+    window.saveConsumptionAuditRecords(records || []);
+    return;
+  }
+  localStorage.setItem('sms_consumption_audit_records', JSON.stringify((records || []).slice(0, 100)));
+  if (typeof window.renderConsumptionAudit === 'function') window.renderConsumptionAudit();
+}
+
+function extractConsumptionRecordsForManual(payload) {
+  if (!payload || typeof payload !== 'object') return [];
+  const records = payload.consumptionAuditRecords || payload.consumptionRecords || payload.smsConsumptionRecords;
+  return Array.isArray(records) ? records : [];
+}
+
+function consumptionRecordKeyForManual(record) {
+  if (record && record.id) return 'id:' + record.id;
+  return [record?.time, record?.code, record?.tail, record?.balance, record?.cost].map(v => String(v ?? '')).join('|');
+}
+
+function mergeConsumptionRecordsForManual(...lists) {
+  const merged = [];
+  const seen = new Set();
+  lists.flat().forEach(record => {
+    if (!record || typeof record !== 'object') return;
+    const key = consumptionRecordKeyForManual(record);
+    if (seen.has(key)) return;
+    seen.add(key);
+    merged.push(record);
+  });
+  return merged.slice(0, 100);
+}
+
+window.uploadConsumptionAuditManual = function() {
+  requirePasswordThen(async () => {
+    if (typeof uploadMainDataToGist === 'function') {
+      await uploadMainDataToGist('消费明细手动上传');
+    } else {
+      showNotification('上传功能不可用', 'error');
+    }
+  });
+};
+
+window.downloadConsumptionAuditManual = function() {
+  requirePasswordThen(async () => {
+    try {
+      const imported = await fetchMainGistPayloadForConsumptionManual();
+      const cloudRecords = extractConsumptionRecordsForManual(imported);
+      const mergedRecords = mergeConsumptionRecordsForManual(cloudRecords, getLocalConsumptionRecordsForManual());
+      setLocalConsumptionRecordsForManual(mergedRecords);
+      showNotification('消费明细下载成功', 'success');
+    } catch (err) {
+      showNotification('消费明细下载出错: ' + err.message, 'error');
+    }
+  });
 };
 })();
 </script>
