@@ -2759,6 +2759,7 @@ async function createConsumptionRecord(phone, code) {
   }
 
   const record = {
+    id: Date.now() + '-' + Math.random().toString(16).slice(2),
     time: formatAuditTime(new Date()),
     code: code || '-',
     tail,
@@ -2771,6 +2772,9 @@ async function createConsumptionRecord(phone, code) {
   saveRecords(records);
   renderConsumptionAudit();
   currentConsumptionContext = null;
+  if (typeof uploadMainDataToGist === 'function') {
+    uploadMainDataToGist('消费明细同步');
+  }
 }
 
 function beginConsumptionContext(phone, beforeBalance) {
@@ -2881,7 +2885,161 @@ function resetIdleTimer() {
 });
 
 installConsumptionSection();
+window.renderConsumptionAudit = renderConsumptionAudit;
+window.readConsumptionAuditRecords = readRecords;
+window.saveConsumptionAuditRecords = function(records) {
+  saveRecords(records || []);
+  renderConsumptionAudit();
+};
 resetIdleTimer();
+})();
+</script>
+
+
+<script>
+(function consumptionCloudSyncPatch() {
+const CONSUMPTION_KEY = 'sms_consumption_audit_records';
+const MAX_RECORDS = 100;
+
+function readConsumptionRecords() {
+  if (typeof window.readConsumptionAuditRecords === 'function') return window.readConsumptionAuditRecords();
+  try {
+    const records = JSON.parse(localStorage.getItem(CONSUMPTION_KEY) || '[]');
+    return Array.isArray(records) ? records.slice(0, MAX_RECORDS) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveConsumptionRecords(records) {
+  const next = Array.isArray(records) ? records.slice(0, MAX_RECORDS) : [];
+  if (typeof window.saveConsumptionAuditRecords === 'function') {
+    window.saveConsumptionAuditRecords(next);
+    return;
+  }
+  localStorage.setItem(CONSUMPTION_KEY, JSON.stringify(next));
+  if (typeof window.renderConsumptionAudit === 'function') window.renderConsumptionAudit();
+}
+
+function extractConsumptionRecords(payload) {
+  if (!payload || typeof payload !== 'object') return [];
+  const records = payload.consumptionAuditRecords || payload.consumptionRecords || payload.smsConsumptionRecords;
+  return Array.isArray(records) ? records : [];
+}
+
+function recordKey(record) {
+  if (record && record.id) return 'id:' + record.id;
+  return [record?.time, record?.code, record?.tail, record?.balance, record?.cost].map(v => String(v ?? '')).join('|');
+}
+
+function mergeConsumptionRecords(...lists) {
+  const merged = [];
+  const seen = new Set();
+  lists.flat().forEach(record => {
+    if (!record || typeof record !== 'object') return;
+    const key = recordKey(record);
+    if (seen.has(key)) return;
+    seen.add(key);
+    merged.push(record);
+  });
+  return merged.slice(0, MAX_RECORDS);
+}
+
+function getMainPayloadFromImported(imported) {
+  if (!imported || typeof imported !== 'object') return { mgmtData: {}, phoneOrder: [] };
+  return {
+    mgmtData: imported.mgmtData || imported.mgmtDataLib || imported,
+    phoneOrder: imported.phoneOrder || imported.phoneOrderLib || Object.keys(imported.mgmtData || imported.mgmtDataLib || imported)
+  };
+}
+
+async function fetchMainGistPayload() {
+  const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG.gistId}`, {
+    headers: { 'Authorization': `Bearer ${GITHUB_CONFIG.token}`, 'Accept': 'application/vnd.github+json' }
+  });
+  if (!response.ok) throw new Error('获取数据失败');
+  const gistData = await response.json();
+  const file = gistData.files[GITHUB_CONFIG.fileName];
+  if (!file || !file.content) throw new Error('云端未找到备份文件');
+  if (!file.content || file.content.trim() === '' || file.content.trim() === '{}') return {};
+  return JSON.parse(file.content);
+}
+
+uploadMainDataToGist = async function(actionDesc = '数据') {
+  try {
+    saveLocalBackup('main', `${actionDesc}上传前`);
+    let cloudRecords = [];
+    try {
+      const cloudPayload = await fetchMainGistPayload();
+      cloudRecords = extractConsumptionRecords(cloudPayload);
+    } catch (e) {}
+    const mergedRecords = mergeConsumptionRecords(readConsumptionRecords(), cloudRecords);
+    saveConsumptionRecords(mergedRecords);
+    const content = JSON.stringify({
+      mgmtData: mgmtData,
+      phoneOrder: phoneOrder,
+      consumptionAuditRecords: mergedRecords
+    }, null, 2);
+    const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG.gistId}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ files: { [GITHUB_CONFIG.fileName]: { content: content } } })
+    });
+    if (response.ok) showNotification(`${actionDesc}上传成功，本地已备份！`, 'success');
+    else throw new Error((await response.json()).message || '上传失败');
+  } catch (err) {
+    showNotification(actionDesc + '上传出错: ' + err.message, 'error');
+  }
+};
+
+function applyMainPayload(imported) {
+  const payload = getMainPayloadFromImported(imported);
+  mgmtData = payload.mgmtData || {};
+  if (typeof normalizePhoneSlots === 'function') {
+    phoneOrder = normalizePhoneSlots(mgmtData, payload.phoneOrder || Object.keys(mgmtData));
+  } else {
+    phoneOrder = payload.phoneOrder || Object.keys(mgmtData);
+  }
+  const mergedRecords = mergeConsumptionRecords(extractConsumptionRecords(imported), readConsumptionRecords());
+  saveConsumptionRecords(mergedRecords);
+  saveMgmtData();
+  renderMgmtGrid();
+  if (typeof window.renderConsumptionAudit === 'function') window.renderConsumptionAudit();
+}
+
+downloadFromGist = async function() {
+  requirePasswordThen(async () => {
+    try {
+      saveLocalBackup('main', '云端下载覆盖前');
+      const imported = await fetchMainGistPayload();
+      if (!imported || Object.keys(imported).length === 0) {
+        mgmtData = {};
+        phoneOrder = [];
+        saveMgmtData();
+        renderMgmtGrid();
+      } else {
+        applyMainPayload(imported);
+      }
+      showNotification('下载成功，消费明细已同步！', 'success');
+    } catch (err) {
+      showNotification('下载出错: ' + err.message, 'error');
+    }
+  });
+};
+
+refreshFromGist = async function() {
+  try {
+    const imported = await fetchMainGistPayload();
+    applyMainPayload(imported);
+  } catch (err) {
+    console.error('refreshFromGist error:', err);
+    throw err;
+  }
+};
+
+window.syncConsumptionAuditToCloud = function() {
+  return uploadMainDataToGist('消费明细同步');
+};
 })();
 </script>
 
