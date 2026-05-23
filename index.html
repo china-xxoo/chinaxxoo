@@ -349,6 +349,9 @@ phoneOrder = parsed.order || Object.keys(mgmtData);
 }
 }
 function saveMgmtData() {
+if (typeof normalizePhoneSlots === 'function') {
+phoneOrder = normalizePhoneSlots(mgmtData, phoneOrder);
+}
 localStorage.setItem('sms_mgmt_data', JSON.stringify({ mgmt: mgmtData, order: phoneOrder }));
 }
 function saveLocalBackup(libraryType, reason) {
@@ -1319,6 +1322,9 @@ phoneOrderLib = localStorage.getItem('phoneOrderLib') ? JSON.parse(localStorage.
 }
 }
 function saveMgmtDataLib() {
+if (typeof normalizePhoneSlots === 'function') {
+phoneOrderLib = normalizePhoneSlots(mgmtDataLib, phoneOrderLib);
+}
 localStorage.setItem('mgmtDataLib', JSON.stringify(mgmtDataLib));
 localStorage.setItem('phoneOrderLib', JSON.stringify(phoneOrderLib));
 }
@@ -1635,6 +1641,9 @@ await uploadLibDataToGist(actionDesc);
 }
 async function uploadLibDataToGist(actionDesc = '数据') {
 try {
+if (typeof normalizePhoneSlots === 'function') {
+phoneOrderLib = normalizePhoneSlots(mgmtDataLib, phoneOrderLib);
+}
 saveLocalBackup('lib', `${actionDesc}上传前`);
 const content = JSON.stringify({ mgmtDataLib: mgmtDataLib, phoneOrderLib: phoneOrderLib }, null, 2);
 const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG_LIB.gistId}`, {
@@ -1699,6 +1708,12 @@ throw err;
 (function fixedSlotOrderPatch() {
 const SLOT_EMPTY = '';
 
+function trimTrailingEmptySlots(slots) {
+  const next = Array.isArray(slots) ? slots.slice() : [];
+  while (next.length && !next[next.length - 1]) next.pop();
+  return next;
+}
+
 const style = document.createElement('style');
 style.textContent = `
 .mgmt-card-position{
@@ -1761,17 +1776,31 @@ function normalizePhoneSlots(data, order) {
     }
   });
 
-  return slots;
+  return trimTrailingEmptySlots(slots);
 }
 
+window.trimTrailingEmptySlots = trimTrailingEmptySlots;
+window.normalizePhoneSlots = normalizePhoneSlots;
+
+saveMgmtData = function() {
+  phoneOrder = normalizePhoneSlots(mgmtData, phoneOrder);
+  localStorage.setItem('sms_mgmt_data', JSON.stringify({ mgmt: mgmtData, order: phoneOrder }));
+};
+
+saveMgmtDataLib = function() {
+  phoneOrderLib = normalizePhoneSlots(mgmtDataLib, phoneOrderLib);
+  localStorage.setItem('mgmtDataLib', JSON.stringify(mgmtDataLib));
+  localStorage.setItem('phoneOrderLib', JSON.stringify(phoneOrderLib));
+};
+
 function appendPhoneToLastSlot(order, phone) {
-  const next = Array.isArray(order) ? order.slice() : [];
+  const next = trimTrailingEmptySlots(order);
   next.push(phone);
   return next;
 }
 
 function removePhoneFromSlot(order, phone) {
-  return (Array.isArray(order) ? order : []).map(p => p === phone ? SLOT_EMPTY : p);
+  return trimTrailingEmptySlots((Array.isArray(order) ? order : []).map(p => p === phone ? SLOT_EMPTY : p));
 }
 
 function setPhoneSlotPosition(data, order, phone, targetPosition) {
@@ -1786,7 +1815,7 @@ function setPhoneSlotPosition(data, order, phone, targetPosition) {
   if (currentIndex !== -1) next[currentIndex] = SLOT_EMPTY;
   next[targetIndex] = phone;
 
-  return next;
+  return trimTrailingEmptySlots(next);
 }
 
 async function uploadFixedMain(actionDesc) {
@@ -2351,7 +2380,7 @@ function normalizeSearchSlots(data, order) {
       used.add(phone);
     }
   });
-  return slots;
+  return typeof window.trimTrailingEmptySlots === 'function' ? window.trimTrailingEmptySlots(slots) : slots;
 }
 
 function appendSearchEmptySlotCard(grid, position) {
@@ -2988,6 +3017,9 @@ async function fetchMainGistPayload() {
 
 uploadMainDataToGist = async function(actionDesc = '数据') {
   try {
+    if (typeof normalizePhoneSlots === 'function') {
+      phoneOrder = normalizePhoneSlots(mgmtData, phoneOrder);
+    }
     saveLocalBackup('main', `${actionDesc}上传前`);
     let cloudRecords = [];
     try {
