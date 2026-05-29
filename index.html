@@ -2338,14 +2338,19 @@ showItemFormLib = function(phone, idx = -1) {
 <script>
 (function searchAndSpecCopyPatch() {
 let mgmtSearchQuery = '';
+let mgmtSearchActive = false;
+let mgmtSearchIdleTimer = null;
+let mgmtDateTimer = null;
+const SEARCH_IDLE_MS = 20000;
 
 const style = document.createElement('style');
 style.textContent = `
 #mgmtSearchRow{
   display:grid;
-  grid-template-columns:1fr;
+  grid-template-columns:minmax(0,1fr) repeat(3,46px);
   gap:4px;
   margin:0 0 6px 0;
+  align-items:stretch;
 }
 #mgmtSearchInput{
   width:100%;
@@ -2357,12 +2362,90 @@ style.textContent = `
   outline:none;
   background:#fff;
 }
+#mgmtSearchInput[readonly]{
+  color:#667085;
+  caret-color:transparent;
+}
 #mgmtSearchInput:focus{
   border-color:#007bff;
   box-shadow:0 0 0 2px rgba(0,123,255,.12);
 }
+.mgmt-future-date{
+  height:34px;
+  border:1px solid #d8e1ea;
+  border-radius:8px;
+  background:#f8fbff;
+  color:#007bff;
+  font-size:12px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  pointer-events:none;
+}
 `;
 document.head.appendChild(style);
+
+function futureDateText(offsetDays) {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + offsetDays);
+  return `${d.getMonth() + 1}.${d.getDate()}`;
+}
+
+function updateMgmtFutureDates() {
+  [
+    ['mgmtFutureDate30', 30],
+    ['mgmtFutureDate60', 60],
+    ['mgmtFutureDate90', 90]
+  ].forEach(([id, days]) => {
+    const el = document.getElementById(id);
+    if (el) el.innerText = futureDateText(days);
+  });
+}
+
+function scheduleMgmtDateRefresh() {
+  updateMgmtFutureDates();
+  if (mgmtDateTimer) clearTimeout(mgmtDateTimer);
+  const now = new Date();
+  const nextMidnight = new Date(now);
+  nextMidnight.setHours(24, 0, 1, 0);
+  mgmtDateTimer = setTimeout(scheduleMgmtDateRefresh, Math.max(1000, nextMidnight - now));
+}
+
+function resetMgmtSearchIdleTimer() {
+  if (!mgmtSearchActive && !mgmtSearchQuery) return;
+  if (mgmtSearchIdleTimer) clearTimeout(mgmtSearchIdleTimer);
+  mgmtSearchIdleTimer = setTimeout(() => {
+    if (typeof window.resetMgmtSearchBox === 'function') window.resetMgmtSearchBox();
+  }, SEARCH_IDLE_MS);
+}
+
+window.activateMgmtSearchInput = function() {
+  const input = document.getElementById('mgmtSearchInput');
+  if (!input) return;
+  mgmtSearchActive = true;
+  input.readOnly = false;
+  input.dataset.active = '1';
+  resetMgmtSearchIdleTimer();
+};
+
+window.resetMgmtSearchBox = function() {
+  if (mgmtSearchIdleTimer) clearTimeout(mgmtSearchIdleTimer);
+  mgmtSearchIdleTimer = null;
+  mgmtSearchActive = false;
+  mgmtSearchQuery = '';
+  const input = document.getElementById('mgmtSearchInput');
+  if (input) {
+    input.value = '';
+    input.readOnly = true;
+    input.dataset.active = '0';
+    input.blur();
+  }
+  renderMgmtGridLib();
+  renderMgmtGrid();
+};
 
 function normalizeSearchSlots(data, order) {
   const used = new Set();
@@ -2526,7 +2609,9 @@ renderMgmtGridLib = function() {
 
 window.applyMgmtSearch = function() {
   const input = document.getElementById('mgmtSearchInput');
-  mgmtSearchQuery = input ? input.value : '';
+  if (!mgmtSearchActive && input && input.value) input.value = '';
+  mgmtSearchQuery = mgmtSearchActive && input ? input.value : '';
+  resetMgmtSearchIdleTimer();
   renderMgmtGridLib();
   renderMgmtGrid();
 };
@@ -2538,9 +2623,14 @@ function installMgmtSearchBox() {
   if (!actionRow) return;
   const row = document.createElement('div');
   row.id = 'mgmtSearchRow';
-  row.innerHTML = '<input id="mgmtSearchInput" type="search" placeholder="搜索昵称或设备，匹配号码自动展开" oninput="applyMgmtSearch()">';
+  row.innerHTML = '<input id="mgmtSearchInput" type="search" inputmode="search" autocomplete="off" readonly data-active="0" placeholder="点此搜索昵称或设备" onpointerdown="activateMgmtSearchInput()" onfocus="activateMgmtSearchInput()" oninput="applyMgmtSearch()"><div class="mgmt-future-date" id="mgmtFutureDate30"></div><div class="mgmt-future-date" id="mgmtFutureDate60"></div><div class="mgmt-future-date" id="mgmtFutureDate90"></div>';
   actionRow.insertAdjacentElement('afterend', row);
+  scheduleMgmtDateRefresh();
 }
+
+['click', 'input', 'keydown', 'touchstart', 'change'].forEach(eventName => {
+  document.addEventListener(eventName, resetMgmtSearchIdleTimer, true);
+});
 
 getSpecPhone = async function() {
   const phone = document.getElementById("inputPhone").value.trim();
@@ -2918,7 +3008,8 @@ startPolling = function() {
 
 function clearSearchAndExpandedDetails() {
   const searchInput = document.getElementById('mgmtSearchInput');
-  if (searchInput && searchInput.value) {
+  if (typeof window.resetMgmtSearchBox === 'function') window.resetMgmtSearchBox();
+  else if (searchInput && searchInput.value) {
     searchInput.value = '';
     if (typeof applyMgmtSearch === 'function') applyMgmtSearch();
   }
