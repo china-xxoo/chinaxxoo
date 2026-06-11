@@ -2384,6 +2384,18 @@ style.textContent = `
   white-space:nowrap;
   pointer-events:none;
 }
+.item-deleted{
+  opacity:1!important;
+  filter:none!important;
+  text-decoration:none!important;
+  background:#e5e7eb!important;
+}
+.item-deleted td,
+.item-deleted td span{
+  color:#6b7280!important;
+  background:#e5e7eb!important;
+  text-decoration:none!important;
+}
 `;
 document.head.appendChild(style);
 
@@ -2477,7 +2489,6 @@ function phoneMatchesSearch(data, query) {
   if (!query) return false;
   const q = query.toLowerCase();
   return (data.items || []).some(item => {
-    if (item.deleted) return false;
     const nickname = String(item.nickname || '').toLowerCase();
     const device = String(item.device || '').toLowerCase();
     return nickname.includes(q) || device.includes(q);
