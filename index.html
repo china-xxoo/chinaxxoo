@@ -3558,18 +3558,26 @@ function injectDetailIdField(library) {
   const formData = library === 'lib' ? window.currentFormDataLib : window.currentFormData;
   const dataMap = library === 'lib' ? mgmtDataLib : mgmtData;
   const item = formData?.idx >= 0 ? dataMap?.[formData.phone]?.items?.[formData.idx] : null;
-  const detailId = normalizeDetailId(item && item.detailId);
-  if (formData) formData.originalDetailId = detailId;
+  const originalDetailId = normalizeDetailId(item && item.detailId);
+  let detailId = originalDetailId;
+  if (!detailId) {
+    try {
+      detailId = generateDetailId();
+    } catch (err) {
+      showNotification(err.message, 'error');
+    }
+  }
+  if (formData) formData.originalDetailId = originalDetailId;
 
   const block = document.createElement('div');
   block.className = 'detail-id-block';
   block.innerHTML = `
 <label class="detail-id-label">明细编号</label>
 <div class="detail-id-row">
-  <input id="formDetailId" type="text" inputmode="numeric" maxlength="8" value="${detailId}" placeholder="保存时自动生成" oninput="filterDetailIdInput(this)" onclick="copyDetailIdFromForm()">
+  <input id="formDetailId" type="text" inputmode="numeric" maxlength="8" value="${detailId}" placeholder="自动生成8位编号" oninput="filterDetailIdInput(this)" onclick="copyDetailIdFromForm()">
   <button type="button" class="detail-id-copy-btn" onclick="copyDetailIdFromForm()">复制</button>
 </div>
-<div class="detail-id-note">固定8位数字，可修改；重复编号强制确认后可共同使用。</div>`;
+<div class="detail-id-note">打开时临时分配，保存后确认使用；取消不占用，可修改。</div>`;
 
   const transferRow = container.querySelector('.detail-transfer-row');
   const title = container.querySelector('h3');
