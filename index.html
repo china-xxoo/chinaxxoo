@@ -362,7 +362,9 @@ library: isLib ? '自用库' : '接码库',
 reason: reason || '手动备份',
 time: new Date().toISOString(),
 localTime: new Date().toLocaleString(),
-data: isLib ? { mgmtDataLib: mgmtDataLib, phoneOrderLib: phoneOrderLib } : { mgmtData: mgmtData, phoneOrder: phoneOrder }
+data: isLib
+? { mgmtDataLib: mgmtDataLib, phoneOrderLib: phoneOrderLib, detailIdHistory: typeof window.getDetailIdHistory === 'function' ? window.getDetailIdHistory() : [] }
+: { mgmtData: mgmtData, phoneOrder: phoneOrder, detailIdHistory: typeof window.getDetailIdHistory === 'function' ? window.getDetailIdHistory() : [] }
 };
 const latestKey = isLib ? 'sms_local_backup_lib_latest' : 'sms_local_backup_main_latest';
 const historyKey = isLib ? 'sms_local_backup_lib_history' : 'sms_local_backup_main_history';
@@ -481,7 +483,7 @@ sortedItems.forEach((item, displayIdx) => {
 const itemDate = calculateDate(item.expiryTimestamp);
 const isRemote = item.system === 'Win' && (item.isRemote || item.remote);
 const remoteBadge = isRemote ? '<span class="remote-badge">远</span>' : '';
-const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || '-'}`;
+const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || item.detailId || '-'}`;
 const rowClass = item.deleted ? 'item-deleted' : '';
 const actionBtn = item.deleted ? `<button class="mgmt-btn" onclick="handleItemAction('${phone}', ${item.originalIdx}, 'restore')" style="padding:1px 2px; font-size:9px; background:#fff; color:#28a745; border:1px solid #28a745; border-radius:2px; cursor:pointer; width:100%; height:16px;">恢复</button>` : `<button class="mgmt-btn" onclick="handleItemAction('${phone}', ${item.originalIdx}, 'fail')" style="padding:1px 2px; font-size:9px; background:#fff; color:#dc3545; border:1px solid #dc3545; border-radius:2px; cursor:pointer; width:100%; height:16px;">失效</button>`;
 html += `
@@ -561,7 +563,7 @@ html += `
 <div class="mgmt-item-table-wrapper">
 <table class="mgmt-detail-table">
 <tr>
-<td class="col-nickname" style="color:#007bff; cursor:pointer; text-align:left; padding-left:4px;" onclick="showItemForm('${phone}', ${realIdx})">${index + 1}. ${remoteBadge}${item.nickname || '未命名'}</td>
+<td class="col-nickname" style="color:#007bff; cursor:pointer; text-align:left; padding-left:4px;" onclick="showItemForm('${phone}', ${realIdx})">${index + 1}. ${remoteBadge}${item.nickname || item.detailId || '未命名'}</td>
 <td class="col-device">${item.device || '-'}</td>
 <td class="col-system" style="${systemColor} font-weight:bold;">${item.system || '-'}</td>
 <td class="col-days" style="color:#28a745;">${itemDaysDisplay}</td>
@@ -1372,7 +1374,7 @@ sortedItems.forEach((item, displayIdx) => {
 const itemDate = calculateDate(item.expiryTimestamp);
 const isRemote = item.system === 'Win' && item.remote;
 const remoteBadge = isRemote ? '<span class="remote-badge">远</span>' : '';
-const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || '-'}`;
+const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || item.detailId || '-'}`;
 const rowClass = item.deleted ? 'item-deleted' : '';
 const actionBtn = item.deleted ? `<button class="mgmt-btn" onclick="handleItemActionLib('${phone}', ${item.originalIdx}, 'restore')" style="padding:1px 2px; font-size:9px; background:#fff; color:#28a745; border:1px solid #28a745; border-radius:2px; cursor:pointer; width:100%; height:16px;">恢复</button>` : `<button class="mgmt-btn" onclick="handleItemActionLib('${phone}', ${item.originalIdx}, 'fail')" style="padding:1px 2px; font-size:9px; background:#fff; color:#dc3545; border:1px solid #dc3545; border-radius:2px; cursor:pointer; width:100%; height:16px;">失效</button>`;
 html += `
@@ -1645,7 +1647,24 @@ if (typeof normalizePhoneSlots === 'function') {
 phoneOrderLib = normalizePhoneSlots(mgmtDataLib, phoneOrderLib);
 }
 saveLocalBackup('lib', `${actionDesc}上传前`);
-const content = JSON.stringify({ mgmtDataLib: mgmtDataLib, phoneOrderLib: phoneOrderLib }, null, 2);
+try {
+const historyResponse = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG_LIB.gistId}`, {
+headers: { 'Authorization': `Bearer ${GITHUB_CONFIG_LIB.token}`, 'Accept': 'application/vnd.github+json' }
+});
+if (historyResponse.ok) {
+const historyGist = await historyResponse.json();
+const historyFile = historyGist.files[GITHUB_CONFIG_LIB.fileName];
+if (historyFile && historyFile.content && typeof window.mergeDetailIdHistory === 'function') {
+const historyPayload = JSON.parse(historyFile.content);
+window.mergeDetailIdHistory(historyPayload.detailIdHistory || []);
+}
+}
+} catch (e) {}
+const content = JSON.stringify({
+mgmtDataLib: mgmtDataLib,
+phoneOrderLib: phoneOrderLib,
+detailIdHistory: typeof window.getDetailIdHistory === 'function' ? window.getDetailIdHistory() : []
+}, null, 2);
 const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG_LIB.gistId}`, {
 method: 'PATCH',
 headers: { 'Authorization': `Bearer ${GITHUB_CONFIG_LIB.token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
@@ -1956,7 +1975,7 @@ function renderFixedGrid(library) {
       const itemDate = calculateDate(item.expiryTimestamp);
       const isRemote = item.system === 'Win' && (item.isRemote || item.remote);
       const remoteBadge = isRemote ? '<span class="remote-badge">远</span>' : '';
-      const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || '-'}`;
+      const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || item.detailId || '-'}`;
       const rowClass = item.deleted ? 'item-deleted' : '';
       const actionBtn = item.deleted
         ? `<button class="mgmt-btn" onclick="${actionFn}('${phone}', ${item.originalIdx}, 'restore')" style="padding:1px 2px; font-size:9px; background:#fff; color:#28a745; border:1px solid #28a745; border-radius:2px; cursor:pointer; width:100%; height:16px;">恢复</button>`
@@ -2168,6 +2187,7 @@ downloadFromGistLib = async function() {
         const imported = JSON.parse(file.content);
         mgmtDataLib = imported.mgmtData || imported.mgmtDataLib || imported;
         phoneOrderLib = normalizePhoneSlots(mgmtDataLib, imported.phoneOrder || imported.phoneOrderLib || Object.keys(mgmtDataLib));
+        if (typeof window.mergeDetailIdHistory === 'function') window.mergeDetailIdHistory(imported.detailIdHistory || []);
       }
       saveMgmtDataLib();
       renderMgmtGridLib();
@@ -2190,6 +2210,7 @@ refreshFromGistLib = async function() {
     const imported = JSON.parse(file.content);
     mgmtDataLib = imported.mgmtData || imported.mgmtDataLib || imported;
     phoneOrderLib = normalizePhoneSlots(mgmtDataLib, imported.phoneOrder || imported.phoneOrderLib || Object.keys(mgmtDataLib));
+    if (typeof window.mergeDetailIdHistory === 'function') window.mergeDetailIdHistory(imported.detailIdHistory || []);
     saveMgmtDataLib();
     renderMgmtGridLib();
   } catch (err) {
@@ -2255,10 +2276,12 @@ function readDetailForm(library) {
   const remoteEl = document.getElementById('formIsRemote');
   const dateEl = document.getElementById('formExpiryDate');
   const daysEl = document.getElementById('formDays');
+  const detailIdEl = document.getElementById('formDetailId');
 
   return {
     nickname: nicknameEl ? nicknameEl.value : '',
     device: deviceEl ? deviceEl.value : '',
+    detailId: detailIdEl ? detailIdEl.value : '',
     system: getCurrentDetailSystem(library),
     remote: remoteEl ? !!remoteEl.checked : false,
     expiryDate: dateEl ? dateEl.value : '',
@@ -2275,9 +2298,11 @@ function writeDetailForm(library, detail) {
   const remoteEl = document.getElementById('formIsRemote');
   const dateEl = document.getElementById('formExpiryDate');
   const daysEl = document.getElementById('formDays');
+  const detailIdEl = document.getElementById('formDetailId');
 
   if (nicknameEl) nicknameEl.value = detail.nickname || '';
   if (deviceEl) deviceEl.value = detail.device || '';
+  if (detailIdEl) detailIdEl.value = String(detail.detailId || '').replace(/\D/g, '').slice(0, 8);
   setCurrentDetailSystem(library, detail.system || '');
   if (remoteEl) remoteEl.checked = !!detail.remote;
   if (dateEl) dateEl.value = detail.expiryDate || '';
@@ -2491,7 +2516,8 @@ function phoneMatchesSearch(data, query) {
   return (data.items || []).some(item => {
     const nickname = String(item.nickname || '').toLowerCase();
     const device = String(item.device || '').toLowerCase();
-    return nickname.includes(q) || device.includes(q);
+    const detailId = String(item.detailId || '');
+    return nickname.includes(q) || device.includes(q) || detailId.includes(q);
   });
 }
 
@@ -2569,7 +2595,7 @@ function renderSearchAwareGrid(library) {
       const itemDate = calculateDate(item.expiryTimestamp);
       const isRemote = item.system === 'Win' && (item.isRemote || item.remote);
       const remoteBadge = isRemote ? '<span class="remote-badge">远</span>' : '';
-      const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || '-'}`;
+      const nicknameDisplay = `${remoteBadge}${displayIdx + 1}. ${item.nickname || item.detailId || '-'}`;
       const rowClass = item.deleted ? 'item-deleted' : '';
       const actionBtn = item.deleted
         ? `<button class="mgmt-btn" onclick="${actionFn}('${phone}', ${item.originalIdx}, 'restore')" style="padding:1px 2px; font-size:9px; background:#fff; color:#28a745; border:1px solid #28a745; border-radius:2px; cursor:pointer; width:100%; height:16px;">恢复</button>`
@@ -2634,7 +2660,7 @@ function installMgmtSearchBox() {
   if (!actionRow) return;
   const row = document.createElement('div');
   row.id = 'mgmtSearchRow';
-  row.innerHTML = '<input id="mgmtSearchInput" type="search" inputmode="search" autocomplete="off" readonly data-active="0" placeholder="点此搜索昵称或设备" onpointerdown="activateMgmtSearchInput()" onfocus="activateMgmtSearchInput()" oninput="applyMgmtSearch()"><div class="mgmt-future-date" id="mgmtFutureDate30"></div><div class="mgmt-future-date" id="mgmtFutureDate60"></div><div class="mgmt-future-date" id="mgmtFutureDate90"></div>';
+  row.innerHTML = '<input id="mgmtSearchInput" type="search" inputmode="search" autocomplete="off" readonly data-active="0" placeholder="搜索昵称、设备或编号" onpointerdown="activateMgmtSearchInput()" onfocus="activateMgmtSearchInput()" oninput="applyMgmtSearch()"><div class="mgmt-future-date" id="mgmtFutureDate30"></div><div class="mgmt-future-date" id="mgmtFutureDate60"></div><div class="mgmt-future-date" id="mgmtFutureDate90"></div>';
   actionRow.insertAdjacentElement('afterend', row);
   scheduleMgmtDateRefresh();
 }
@@ -3150,12 +3176,14 @@ uploadMainDataToGist = async function(actionDesc = '数据') {
     try {
       const cloudPayload = await fetchMainGistPayload();
       cloudRecords = extractConsumptionRecords(cloudPayload);
+      if (typeof window.mergeDetailIdHistory === 'function') window.mergeDetailIdHistory(cloudPayload.detailIdHistory || []);
     } catch (e) {}
     const mergedRecords = mergeConsumptionRecords(readConsumptionRecords(), cloudRecords);
     saveConsumptionRecords(mergedRecords);
     const content = JSON.stringify({
       mgmtData: mgmtData,
       phoneOrder: phoneOrder,
+      detailIdHistory: typeof window.getDetailIdHistory === 'function' ? window.getDetailIdHistory() : [],
       consumptionAuditRecords: mergedRecords
     }, null, 2);
     const response = await fetch(`https://api.github.com/gists/${GITHUB_CONFIG.gistId}`, {
@@ -3173,6 +3201,7 @@ uploadMainDataToGist = async function(actionDesc = '数据') {
 function applyMainPayload(imported) {
   const payload = getMainPayloadFromImported(imported);
   mgmtData = payload.mgmtData || {};
+  if (typeof window.mergeDetailIdHistory === 'function') window.mergeDetailIdHistory(imported.detailIdHistory || []);
   if (typeof normalizePhoneSlots === 'function') {
     phoneOrder = normalizePhoneSlots(mgmtData, payload.phoneOrder || Object.keys(mgmtData));
   } else {
@@ -3327,6 +3356,324 @@ window.downloadConsumptionAuditManual = function() {
     }
   });
 };
+})();
+</script>
+
+<script>
+(function detailUniqueIdPatch() {
+const DETAIL_ID_HISTORY_KEY = 'sms_detail_id_history';
+const DETAIL_ID_LENGTH = 8;
+
+const style = document.createElement('style');
+style.textContent = `
+.detail-id-block{
+  margin:0 0 10px 0;
+}
+.detail-id-label{
+  display:block;
+  font-size:11px;
+  color:#666;
+  margin-bottom:2px;
+}
+.detail-id-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 56px;
+  gap:6px;
+}
+#formDetailId{
+  width:100%;
+  height:34px;
+  padding:0 10px;
+  border:1px solid #007bff;
+  border-radius:6px;
+  outline:none;
+  color:#007bff;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+.detail-id-copy-btn{
+  height:34px;
+  border:1px solid #007bff;
+  border-radius:6px;
+  background:#fff;
+  color:#007bff;
+  font-size:12px;
+  font-weight:bold;
+}
+.detail-id-note{
+  margin-top:3px;
+  color:#98a2b3;
+  font-size:10px;
+  line-height:1.3;
+}
+`;
+document.head.appendChild(style);
+
+function normalizeDetailId(value) {
+  return String(value || '').replace(/\D/g, '').slice(0, DETAIL_ID_LENGTH);
+}
+
+function readDetailIdHistory() {
+  try {
+    const list = JSON.parse(localStorage.getItem(DETAIL_ID_HISTORY_KEY) || '[]');
+    return Array.isArray(list) ? list.map(normalizeDetailId).filter(id => id.length === DETAIL_ID_LENGTH) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeDetailIdHistory(list) {
+  const unique = [...new Set((list || []).map(normalizeDetailId).filter(id => id.length === DETAIL_ID_LENGTH))];
+  localStorage.setItem(DETAIL_ID_HISTORY_KEY, JSON.stringify(unique));
+  return unique;
+}
+
+function visitAllDetailItems(callback) {
+  [
+    ['main', mgmtData],
+    ['lib', mgmtDataLib]
+  ].forEach(([library, dataMap]) => {
+    Object.keys(dataMap || {}).forEach(phone => {
+      ((dataMap[phone] && dataMap[phone].items) || []).forEach((item, idx) => callback(item, library, phone, idx));
+    });
+  });
+}
+
+function syncDetailIdHistoryFromData() {
+  const history = readDetailIdHistory();
+  visitAllDetailItems(item => {
+    const id = normalizeDetailId(item && item.detailId);
+    if (id.length === DETAIL_ID_LENGTH) history.push(id);
+  });
+  return writeDetailIdHistory(history);
+}
+
+function rememberDetailIds(...ids) {
+  return writeDetailIdHistory([...readDetailIdHistory(), ...ids]);
+}
+
+window.getDetailIdHistory = function() {
+  return syncDetailIdHistoryFromData();
+};
+
+window.mergeDetailIdHistory = function(ids) {
+  return writeDetailIdHistory([...readDetailIdHistory(), ...(Array.isArray(ids) ? ids : [])]);
+};
+
+function generateDetailId() {
+  const used = new Set(syncDetailIdHistoryFromData());
+  visitAllDetailItems(item => {
+    const id = normalizeDetailId(item && item.detailId);
+    if (id.length === DETAIL_ID_LENGTH) used.add(id);
+  });
+  if (used.size >= 100000000) throw new Error('8位数字编号已经全部使用完');
+
+  for (let attempt = 0; attempt < 200000; attempt++) {
+    let number;
+    if (window.crypto && window.crypto.getRandomValues) {
+      const values = new Uint32Array(1);
+      window.crypto.getRandomValues(values);
+      number = values[0] % 100000000;
+    } else {
+      number = Math.floor(Math.random() * 100000000);
+    }
+    const id = String(number).padStart(DETAIL_ID_LENGTH, '0');
+    if (!used.has(id)) return id;
+  }
+  throw new Error('暂时无法生成唯一编号，请重新保存');
+}
+
+function findDuplicateDetailIds(detailId, current) {
+  const matches = [];
+  visitAllDetailItems((item, library, phone, idx) => {
+    if (library === current.library && phone === current.phone && idx === current.idx) return;
+    if (normalizeDetailId(item && item.detailId) === detailId) matches.push({ library, phone, idx });
+  });
+  return matches;
+}
+
+function currentFormContext(library) {
+  const formData = library === 'lib' ? window.currentFormDataLib : window.currentFormData;
+  return {
+    library,
+    phone: String(formData?.phone || ''),
+    idx: Number.isInteger(formData?.idx) ? formData.idx : -1,
+    originalDetailId: normalizeDetailId(formData?.originalDetailId || '')
+  };
+}
+
+function prepareDetailIdForSave(library) {
+  const input = document.getElementById('formDetailId');
+  let detailId = normalizeDetailId(input ? input.value : '');
+  if (!detailId) {
+    try {
+      detailId = generateDetailId();
+    } catch (err) {
+      showNotification(err.message, 'error');
+      return null;
+    }
+    if (input) input.value = detailId;
+  }
+  if (detailId.length !== DETAIL_ID_LENGTH) {
+    showNotification('编号必须是8位数字', 'error');
+    return null;
+  }
+
+  const current = currentFormContext(library);
+  const duplicates = findDuplicateDetailIds(detailId, current);
+  const previouslyUsed = readDetailIdHistory().includes(detailId);
+  const unchangedExistingId = current.originalDetailId === detailId;
+  if ((duplicates.length || previouslyUsed) && !unchangedExistingId) {
+    const duplicateText = duplicates.length ? '已被其他明细使用' : '曾经使用过';
+    const forceSave = confirm(`编号 ${detailId} ${duplicateText}。\n\n点击“确定”强制保存，点击“取消”返回修改。`);
+    if (!forceSave) return null;
+  }
+  return detailId;
+}
+
+window.copyDetailIdFromForm = function() {
+  const input = document.getElementById('formDetailId');
+  const detailId = normalizeDetailId(input ? input.value : '');
+  if (!detailId) {
+    showNotification('保存后会自动生成编号', 'success');
+    return;
+  }
+  if (input) input.select();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(detailId).then(() => showNotification('编号已复制', 'success')).catch(() => autoCopy(detailId));
+  } else {
+    autoCopy(detailId);
+    showNotification('编号已复制', 'success');
+  }
+};
+
+window.filterDetailIdInput = function(input) {
+  if (input) input.value = normalizeDetailId(input.value);
+};
+
+function injectDetailIdField(library) {
+  const container = document.getElementById('itemFormContainer');
+  if (!container || container.querySelector('.detail-id-block')) return;
+  const formData = library === 'lib' ? window.currentFormDataLib : window.currentFormData;
+  const dataMap = library === 'lib' ? mgmtDataLib : mgmtData;
+  const item = formData?.idx >= 0 ? dataMap?.[formData.phone]?.items?.[formData.idx] : null;
+  const detailId = normalizeDetailId(item && item.detailId);
+  if (formData) formData.originalDetailId = detailId;
+
+  const block = document.createElement('div');
+  block.className = 'detail-id-block';
+  block.innerHTML = `
+<label class="detail-id-label">明细编号</label>
+<div class="detail-id-row">
+  <input id="formDetailId" type="text" inputmode="numeric" maxlength="8" value="${detailId}" placeholder="保存时自动生成" oninput="filterDetailIdInput(this)" onclick="copyDetailIdFromForm()">
+  <button type="button" class="detail-id-copy-btn" onclick="copyDetailIdFromForm()">复制</button>
+</div>
+<div class="detail-id-note">固定8位数字，可修改；重复编号强制确认后可共同使用。</div>`;
+
+  const transferRow = container.querySelector('.detail-transfer-row');
+  const title = container.querySelector('h3');
+  if (transferRow) transferRow.insertAdjacentElement('afterend', block);
+  else if (title) title.insertAdjacentElement('afterend', block);
+}
+
+const previousShowItemForm = showItemForm;
+showItemForm = function(phone, idx = -1) {
+  previousShowItemForm(phone, idx);
+  injectDetailIdField('main');
+};
+
+const previousShowItemFormLib = showItemFormLib;
+showItemFormLib = function(phone, idx = -1) {
+  previousShowItemFormLib(phone, idx);
+  injectDetailIdField('lib');
+};
+
+saveItem = function(phone, idx) {
+  const detailId = prepareDetailIdForSave('main');
+  if (!detailId) return;
+  requirePasswordThen(async () => {
+    const nickname = document.getElementById('formNickname').value.trim();
+    const device = document.getElementById('formDevice').value.trim();
+    const dateVal = document.getElementById('formExpiryDate').value.trim();
+    if (!dateVal) return showNotification('请选择到期日期', 'error');
+    const [year, month, day] = dateVal.split('-').map(Number);
+    const expiryDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
+    const system = window.currentFormData?.system || 'Mac';
+    if (!mgmtData[phone].items) mgmtData[phone].items = [];
+    const existing = idx === -1 ? {} : (mgmtData[phone].items[idx] || {});
+    const previousId = normalizeDetailId(existing.detailId);
+    const newItem = {
+      ...existing,
+      nickname,
+      device,
+      detailId,
+      expiryTimestamp: expiryDate.getTime(),
+      system,
+      remote: isRemote,
+      isRemote,
+      deleted: idx === -1 ? false : !!existing.deleted
+    };
+    if (idx === -1) mgmtData[phone].items.push(newItem);
+    else mgmtData[phone].items[idx] = newItem;
+    rememberDetailIds(previousId, detailId);
+    saveMgmtData();
+    document.getElementById('itemFormContainer').remove();
+    renderMgmtGrid();
+    await uploadMainDataToGist('明细保存');
+  });
+};
+
+saveItemLib = function(phone, idx) {
+  const detailId = prepareDetailIdForSave('lib');
+  if (!detailId) return;
+  requirePasswordThen(async () => {
+    const nickname = document.getElementById('formNickname').value.trim();
+    const device = document.getElementById('formDevice').value.trim();
+    const dateVal = document.getElementById('formExpiryDate').value.trim();
+    if (!dateVal) return showNotification('请选择到期日期', 'error');
+    const [year, month, day] = dateVal.split('-').map(Number);
+    const expiryDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
+    const system = window.currentFormDataLib?.system || 'Mac';
+    if (!mgmtDataLib[phone].items) mgmtDataLib[phone].items = [];
+    const existing = idx === -1 ? {} : (mgmtDataLib[phone].items[idx] || {});
+    const previousId = normalizeDetailId(existing.detailId);
+    const newItem = {
+      ...existing,
+      nickname,
+      device,
+      detailId,
+      expiryTimestamp: expiryDate.getTime(),
+      system,
+      remote: isRemote,
+      isRemote,
+      deleted: idx === -1 ? false : !!existing.deleted
+    };
+    if (idx === -1) mgmtDataLib[phone].items.push(newItem);
+    else mgmtDataLib[phone].items[idx] = newItem;
+    rememberDetailIds(previousId, detailId);
+    saveMgmtDataLib();
+    document.getElementById('itemFormContainer').remove();
+    renderMgmtGridLib();
+    await uploadLibDataToGist('明细保存');
+  });
+};
+
+const previousDeleteItemConfirm = deleteItemConfirm;
+deleteItemConfirm = function(phone, idx) {
+  rememberDetailIds(mgmtData?.[phone]?.items?.[idx]?.detailId);
+  previousDeleteItemConfirm(phone, idx);
+};
+
+const previousDeleteItemConfirmLib = deleteItemConfirmLib;
+deleteItemConfirmLib = function(phone, idx) {
+  rememberDetailIds(mgmtDataLib?.[phone]?.items?.[idx]?.detailId);
+  previousDeleteItemConfirmLib(phone, idx);
+};
+
+syncDetailIdHistoryFromData();
 })();
 </script>
 
