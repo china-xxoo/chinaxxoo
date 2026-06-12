@@ -385,23 +385,9 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 const expiryDate = new Date(expiryTimestamp);
 expiryDate.setHours(0, 0, 0, 0);
-return Math.max(0, Math.round((expiryDate - today) / (1000 * 60 * 60 * 24)));
-}
-function calculateRemainingHours(expiryTimestamp) {
-if (!expiryTimestamp) return 0;
-return Math.max(0, Math.ceil((Number(expiryTimestamp) - Date.now()) / (1000 * 60 * 60)));
-}
-function formatRemainingTime(expiryTimestamp) {
-const totalHours = calculateRemainingHours(expiryTimestamp);
-const days = Math.floor(totalHours / 24);
-const hours = totalHours % 24;
-return `${days}天${hours}时`;
-}
-function calculateItemRemainingDays(item) {
-return item && item.hourPrecision ? Math.max(0, Math.ceil((Number(item.expiryTimestamp) - Date.now()) / (24 * 60 * 60 * 1000))) : calculateRemainingDays(item && item.expiryTimestamp);
-}
-function formatItemRemainingTime(item) {
-return item && item.hourPrecision ? formatRemainingTime(item.expiryTimestamp) : `${calculateRemainingDays(item && item.expiryTimestamp)}天0时`;
+const diffTime = expiryDate - today;
+const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+return Math.max(0, diffDays);
 }
 function calculateDate(daysOrTimestamp) {
 if (daysOrTimestamp === undefined || daysOrTimestamp === null) return '-';
@@ -423,7 +409,7 @@ let winCount = 0, remoteWinCount = 0, macCount = 0, minItemDays = Infinity;
 if (it.deleted) return;
 if (it.system === 'Mac') macCount++;
 else if (it.system === 'Win') (it.isRemote || it.remote) ? remoteWinCount++ : winCount++;
-const d = calculateItemRemainingDays(it);
+const d = calculateRemainingDays(it.expiryTimestamp);
 if (d < minItemDays) minItemDays = d;
 });
 return { winCount, remoteWinCount, macCount, minItemDays };
@@ -444,7 +430,7 @@ function sortDetailItems(items) {
 return (items || []).map((item, idx) => ({
 ...item,
 originalIdx: idx,
-days: calculateItemRemainingDays(item)
+days: calculateRemainingDays(item.expiryTimestamp)
 })).sort((a, b) => {
 const aDeleted = !!a.deleted;
 const bDeleted = !!b.deleted;
@@ -505,7 +491,7 @@ html += `
 <td class="col-nickname"><span style="cursor:pointer;" onclick="editItemNickname('${phone}', ${item.originalIdx})">${nicknameDisplay}</span></td>
 <td class="col-device">${item.device || '-'}</td>
 <td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${isRemote ? '远程' : 'Win'}</span>` : item.system}</td>
-<td class="col-days">${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${formatItemRemainingTime(item)}<span style="color:red; font-weight:bold;">!</span></span>` : formatItemRemainingTime(item)}</td>
+<td>${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${item.days}天<span style="color:red; font-weight:bold;">!</span></span>` : `${item.days}天`}</td>
 <td>${itemDate}</td>
 <td style="text-align:center;">${actionBtn}</td>
 </tr>
@@ -521,7 +507,7 @@ let totalExpiringItems = 0;
 phoneOrder.forEach(phone => {
 if (mgmtData[phone] && mgmtData[phone].items) {
 mgmtData[phone].items.forEach(it => {
-if (!it.deleted && calculateItemRemainingDays(it) <= 7) {
+if (!it.deleted && calculateRemainingDays(it.expiryTimestamp) <= 7) {
 totalExpiringItems++;
 }
 });
@@ -555,7 +541,7 @@ html += `
 <th class="col-nickname">昵称</th>
 <th class="col-device">设备</th>
 <th class="col-system">系统</th>
-<th class="col-days">剩余天数</th>
+<th class="col-days">剩余</th>
 <th class="col-date">到期日期</th>
 </tr>
 </table>
@@ -570,7 +556,7 @@ const itemDays = calculateRemainingDays(item.expiryTimestamp);
 const expiryDate = calculateDate(item.expiryTimestamp);
 const rowClass = isDeleted ? 'item-deleted' : '';
 let systemColor = item.system === 'Mac' ? 'color:#007bff;' : (item.system === 'Win' ? 'color:#dc3545;' : '');
-let itemDaysDisplay = itemDays <= 7 ? `${formatItemRemainingTime(item)}<span style="color:red; font-weight:bold;">!</span>` : formatItemRemainingTime(item);
+let itemDaysDisplay = itemDays <= 7 ? `${itemDays}天<span style="color:red; font-weight:bold;">!</span>` : `${itemDays}天`;
 let remoteBadge = (item.system === 'Win' && item.isRemote) ? `<span style="display:inline-block; border:1px solid red; color:red; font-size:10px; padding:0 2px; border-radius:2px; margin-right:4px; line-height:12px; vertical-align:middle; font-weight:bold;">远</span>` : '';
 html += `
 <div class="mgmt-item-row ${rowClass}">
@@ -837,7 +823,7 @@ function syncDateFromDays() {
 const days = parseInt(document.getElementById('formDays').value) || 0;
 const targetDate = new Date();
 if (days > 0) {
-targetDate.setDate(targetDate.getDate() + days);
+targetDate.setDate(targetDate.getDate() + (days - 1));
 }
 const y = targetDate.getFullYear();
 const m = String(targetDate.getMonth() + 1).padStart(2, '0');
@@ -959,7 +945,7 @@ const validItems = mgmtData[phone].items.filter(it => !it.deleted);
 let phoneExpiringItems = 0;
 let minItemDays = Infinity;
 validItems.forEach(it => {
-const d = calculateItemRemainingDays(it);
+const d = calculateRemainingDays(it.expiryTimestamp);
 if (d > 0 && d <= 7) {
 expiringItemCount++;
 phoneExpiringItems++;
@@ -1396,7 +1382,7 @@ html += `
 <td class="col-nickname"><span style="cursor:pointer;" onclick="editItemNicknameLib('${phone}', ${item.originalIdx})">${nicknameDisplay}</span></td>
 <td class="col-device">${item.device || '-'}</td>
 <td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${item.remote ? '远程' : 'Win'}</span>` : item.system}</td>
-<td class="col-days">${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${formatItemRemainingTime(item)}<span style="color:red; font-weight:bold;">!</span></span>` : formatItemRemainingTime(item)}</td>
+<td>${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${item.days}天<span style="color:red; font-weight:bold;">!</span></span>` : `${item.days}天`}</td>
 <td>${itemDate}</td>
 <td style="text-align:center;">${actionBtn}</td>
 </tr>
@@ -1412,7 +1398,7 @@ let totalExpiringItemsLib = 0;
 phoneOrderLib.forEach(phone => {
 if (mgmtDataLib[phone] && mgmtDataLib[phone].items) {
 mgmtDataLib[phone].items.forEach(it => {
-if (!it.deleted && calculateItemRemainingDays(it) <= 7) {
+if (!it.deleted && calculateRemainingDays(it.expiryTimestamp) <= 7) {
 totalExpiringItemsLib++;
 }
 });
@@ -2000,7 +1986,7 @@ function renderFixedGrid(library) {
 <td class="col-nickname"><span style="cursor:pointer;" onclick="${editFn}('${phone}', ${item.originalIdx})">${nicknameDisplay}</span></td>
 <td class="col-device">${item.device || '-'}</td>
 <td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${isRemote ? '远程' : 'Win'}</span>` : item.system}</td>
-<td class="col-days">${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${formatItemRemainingTime(item)}<span style="color:red; font-weight:bold;">!</span></span>` : formatItemRemainingTime(item)}</td>
+<td>${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${item.days}天<span style="color:red; font-weight:bold;">!</span></span>` : `${item.days}天`}</td>
 <td>${itemDate}</td>
 <td style="text-align:center;">${actionBtn}</td>
 </tr>
@@ -2017,7 +2003,7 @@ function renderFixedGrid(library) {
   let totalExpiringItems = 0;
   Object.keys(dataMap).forEach(phone => {
     (dataMap[phone].items || []).forEach(it => {
-      if (!it.deleted && calculateItemRemainingDays(it) <= 7) totalExpiringItems++;
+      if (!it.deleted && calculateRemainingDays(it.expiryTimestamp) <= 7) totalExpiringItems++;
     });
   });
   document.getElementById(isLib ? 'libExpiringCount' : 'mgmtExpiringCount').innerText = totalExpiringItems;
@@ -2290,7 +2276,6 @@ function readDetailForm(library) {
   const remoteEl = document.getElementById('formIsRemote');
   const dateEl = document.getElementById('formExpiryDate');
   const daysEl = document.getElementById('formDays');
-  const hourEl = document.getElementById('formExpiryHour');
   const detailIdEl = document.getElementById('formDetailId');
 
   return {
@@ -2301,7 +2286,6 @@ function readDetailForm(library) {
     remote: remoteEl ? !!remoteEl.checked : false,
     expiryDate: dateEl ? dateEl.value : '',
     days: daysEl ? daysEl.value : '',
-    expiryHour: hourEl ? hourEl.value : '',
     copiedAt: Date.now()
   };
 }
@@ -2314,7 +2298,6 @@ function writeDetailForm(library, detail) {
   const remoteEl = document.getElementById('formIsRemote');
   const dateEl = document.getElementById('formExpiryDate');
   const daysEl = document.getElementById('formDays');
-  const hourEl = document.getElementById('formExpiryHour');
   const detailIdEl = document.getElementById('formDetailId');
 
   if (nicknameEl) nicknameEl.value = detail.nickname || '';
@@ -2324,10 +2307,6 @@ function writeDetailForm(library, detail) {
   if (remoteEl) remoteEl.checked = !!detail.remote;
   if (dateEl) dateEl.value = detail.expiryDate || '';
   if (daysEl) daysEl.value = detail.days || '';
-  if (hourEl && detail.expiryHour !== undefined && detail.expiryHour !== '') {
-    hourEl.value = detail.expiryHour;
-    if (typeof window.markDetailExpiryHourTouched === 'function') window.markDetailExpiryHourTouched(library);
-  }
 
   if (dateEl && dateEl.value && typeof syncDaysFromDate === 'function') syncDaysFromDate();
   return true;
@@ -2442,19 +2421,13 @@ style.textContent = `
   background:#e5e7eb!important;
   text-decoration:none!important;
 }
-.mgmt-detail-table .col-nickname{width:21%!important;}
-.mgmt-detail-table .col-device{width:14%!important;}
-.mgmt-detail-table .col-system{width:9%!important;}
-.mgmt-detail-table .col-days{width:24%!important;}
-.mgmt-detail-table .col-date{width:17%!important;}
-.mgmt-detail-table .col-action{width:15%!important;}
 `;
 document.head.appendChild(style);
 
 function futureDateText(offsetDays) {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() + Math.max(0, offsetDays));
+  d.setDate(d.getDate() + Math.max(0, offsetDays - 1));
   return `${d.getMonth() + 1}.${d.getDate()}`;
 }
 
@@ -2633,7 +2606,7 @@ function renderSearchAwareGrid(library) {
 <td class="col-nickname"><span style="cursor:pointer;" onclick="${editFn}('${phone}', ${item.originalIdx})">${nicknameDisplay}</span></td>
 <td class="col-device">${item.device || '-'}</td>
 <td>${item.system === 'Win' ? `<span style="color: #28a745; font-weight: bold;">${isRemote ? '远程' : 'Win'}</span>` : item.system}</td>
-<td class="col-days">${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${formatItemRemainingTime(item)}<span style="color:red; font-weight:bold;">!</span></span>` : formatItemRemainingTime(item)}</td>
+<td>${item.days <= 7 ? `<span style="color:red; font-weight:bold;">${item.days}天<span style="color:red; font-weight:bold;">!</span></span>` : `${item.days}天`}</td>
 <td>${itemDate}</td>
 <td style="text-align:center;">${actionBtn}</td>
 </tr>
@@ -2650,7 +2623,7 @@ function renderSearchAwareGrid(library) {
   let totalExpiringItems = 0;
   Object.keys(dataMap).forEach(phone => {
     (dataMap[phone].items || []).forEach(it => {
-      if (!it.deleted && calculateItemRemainingDays(it) <= 7) totalExpiringItems++;
+      if (!it.deleted && calculateRemainingDays(it.expiryTimestamp) <= 7) totalExpiringItems++;
     });
   });
   document.getElementById(isLib ? 'libExpiringCount' : 'mgmtExpiringCount').innerText = totalExpiringItems;
@@ -3390,8 +3363,6 @@ window.downloadConsumptionAuditManual = function() {
 (function detailUniqueIdPatch() {
 const DETAIL_ID_HISTORY_KEY = 'sms_detail_id_history';
 const DETAIL_ID_LENGTH = 8;
-const DETAIL_DEFAULT_DURATION_DAYS = 30;
-const DETAIL_DAY_MS = 24 * 60 * 60 * 1000;
 
 const style = document.createElement('style');
 style.textContent = `
@@ -3436,93 +3407,8 @@ style.textContent = `
   font-size:10px;
   line-height:1.3;
 }
-.detail-expiry-hour-block{
-  margin-bottom:10px;
-}
-.detail-expiry-hour-block label{
-  display:block;
-  font-size:11px;
-  color:#666;
-  margin-bottom:2px;
-}
-#formExpiryHour{
-  width:100%;
-  height:34px;
-  padding:0 10px;
-  border:1px solid #ddd;
-  border-radius:6px;
-  outline:none;
-  background:#fff;
-}
 `;
 document.head.appendChild(style);
-
-function initializeNewDetailTiming(library, idx) {
-  if (idx !== -1) return;
-  const dateEl = document.getElementById('formExpiryDate');
-  const daysEl = document.getElementById('formDays');
-  const defaultExpiry = Date.now() + DETAIL_DEFAULT_DURATION_DAYS * DETAIL_DAY_MS;
-  if (daysEl) daysEl.value = DETAIL_DEFAULT_DURATION_DAYS;
-  if (dateEl) dateEl.value = dateInputValue(defaultExpiry);
-  const formData = library === 'lib' ? window.currentFormDataLib : window.currentFormData;
-  if (formData) {
-    formData.defaultDurationDays = DETAIL_DEFAULT_DURATION_DAYS;
-    formData.defaultExpiryHour = new Date(defaultExpiry).getHours();
-  }
-}
-
-window.markDetailExpiryHourTouched = function(library) {
-  const formData = library === 'lib' ? window.currentFormDataLib : window.currentFormData;
-  if (formData) formData.expiryHourTouched = true;
-};
-
-function injectExpiryHourField(library, idx) {
-  const container = document.getElementById('itemFormContainer');
-  const dateEl = document.getElementById('formExpiryDate');
-  if (!container || !dateEl || container.querySelector('.detail-expiry-hour-block')) return;
-  const dataMap = library === 'lib' ? mgmtDataLib : mgmtData;
-  const formData = library === 'lib' ? window.currentFormDataLib : window.currentFormData;
-  const item = idx >= 0 ? dataMap?.[formData?.phone]?.items?.[idx] : null;
-  const reference = item?.expiryTimestamp
-    ? new Date(item.expiryTimestamp)
-    : new Date(Date.now() + DETAIL_DEFAULT_DURATION_DAYS * DETAIL_DAY_MS);
-  if (formData) formData.expiryHourTouched = false;
-
-  const block = document.createElement('div');
-  block.className = 'detail-expiry-hour-block';
-  block.innerHTML = `
-<label>到期小时（24小时制）</label>
-<input type="number" id="formExpiryHour" min="0" max="23" step="1" value="${reference.getHours()}" oninput="markDetailExpiryHourTouched('${library}')">`;
-  dateEl.closest('div')?.insertAdjacentElement('afterend', block);
-}
-
-function resolveDetailExpiry(existing, idx, saveTime, library) {
-  const dateEl = document.getElementById('formExpiryDate');
-  const daysEl = document.getElementById('formDays');
-  const hourEl = document.getElementById('formExpiryHour');
-  const formData = library === 'lib' ? window.currentFormDataLib : window.currentFormData;
-  const dateVal = dateEl ? dateEl.value.trim() : '';
-  const days = Math.max(0, parseInt(daysEl ? daysEl.value : '', 10) || 0);
-  const selectedHour = Math.max(0, Math.min(23, parseInt(hourEl ? hourEl.value : '', 10) || 0));
-  const hourTouched = !!formData?.expiryHourTouched;
-
-  if (idx === -1 && !hourTouched) return saveTime + days * DETAIL_DAY_MS;
-  if (existing.expiryTimestamp && dateVal === dateInputValue(existing.expiryTimestamp) && !hourTouched) {
-    return Number(existing.expiryTimestamp);
-  }
-
-  const [year, month, day] = dateVal.split('-').map(Number);
-  const reference = existing.expiryTimestamp ? new Date(existing.expiryTimestamp) : new Date(saveTime + days * DETAIL_DAY_MS);
-  return new Date(
-    year,
-    month - 1,
-    day,
-    hourTouched ? selectedHour : reference.getHours(),
-    reference.getMinutes(),
-    reference.getSeconds(),
-    reference.getMilliseconds()
-  ).getTime();
-}
 
 function normalizeDetailId(value) {
   return String(value || '').replace(/\D/g, '').slice(0, DETAIL_ID_LENGTH);
@@ -3702,16 +3588,12 @@ function injectDetailIdField(library) {
 const previousShowItemForm = showItemForm;
 showItemForm = function(phone, idx = -1) {
   previousShowItemForm(phone, idx);
-  initializeNewDetailTiming('main', idx);
-  injectExpiryHourField('main', idx);
   injectDetailIdField('main');
 };
 
 const previousShowItemFormLib = showItemFormLib;
 showItemFormLib = function(phone, idx = -1) {
   previousShowItemFormLib(phone, idx);
-  initializeNewDetailTiming('lib', idx);
-  injectExpiryHourField('lib', idx);
   injectDetailIdField('lib');
 };
 
@@ -3723,21 +3605,19 @@ saveItem = function(phone, idx) {
     const device = document.getElementById('formDevice').value.trim();
     const dateVal = document.getElementById('formExpiryDate').value.trim();
     if (!dateVal) return showNotification('请选择到期日期', 'error');
+    const [year, month, day] = dateVal.split('-').map(Number);
+    const expiryDate = new Date(year, month - 1, day, 0, 0, 0, 0);
     const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
     const system = window.currentFormData?.system || 'Mac';
     if (!mgmtData[phone].items) mgmtData[phone].items = [];
     const existing = idx === -1 ? {} : (mgmtData[phone].items[idx] || {});
-    const saveTime = Date.now();
-    const expiryTimestamp = resolveDetailExpiry(existing, idx, saveTime, 'main');
     const previousId = normalizeDetailId(existing.detailId);
     const newItem = {
       ...existing,
       nickname,
       device,
       detailId,
-      registeredAt: idx === -1 ? saveTime : existing.registeredAt,
-      expiryTimestamp,
-      hourPrecision: idx === -1 ? true : (!!existing.hourPrecision || !!window.currentFormData?.expiryHourTouched),
+      expiryTimestamp: expiryDate.getTime(),
       system,
       remote: isRemote,
       isRemote,
@@ -3761,21 +3641,19 @@ saveItemLib = function(phone, idx) {
     const device = document.getElementById('formDevice').value.trim();
     const dateVal = document.getElementById('formExpiryDate').value.trim();
     if (!dateVal) return showNotification('请选择到期日期', 'error');
+    const [year, month, day] = dateVal.split('-').map(Number);
+    const expiryDate = new Date(year, month - 1, day, 0, 0, 0, 0);
     const isRemote = document.getElementById('formIsRemote') ? document.getElementById('formIsRemote').checked : false;
     const system = window.currentFormDataLib?.system || 'Mac';
     if (!mgmtDataLib[phone].items) mgmtDataLib[phone].items = [];
     const existing = idx === -1 ? {} : (mgmtDataLib[phone].items[idx] || {});
-    const saveTime = Date.now();
-    const expiryTimestamp = resolveDetailExpiry(existing, idx, saveTime, 'lib');
     const previousId = normalizeDetailId(existing.detailId);
     const newItem = {
       ...existing,
       nickname,
       device,
       detailId,
-      registeredAt: idx === -1 ? saveTime : existing.registeredAt,
-      expiryTimestamp,
-      hourPrecision: idx === -1 ? true : (!!existing.hourPrecision || !!window.currentFormDataLib?.expiryHourTouched),
+      expiryTimestamp: expiryDate.getTime(),
       system,
       remote: isRemote,
       isRemote,
@@ -3804,10 +3682,6 @@ deleteItemConfirmLib = function(phone, idx) {
 };
 
 syncDetailIdHistoryFromData();
-setInterval(() => {
-  if (typeof renderMgmtGridLib === 'function') renderMgmtGridLib();
-  if (typeof renderMgmtGrid === 'function') renderMgmtGrid();
-}, 60000);
 })();
 </script>
 
