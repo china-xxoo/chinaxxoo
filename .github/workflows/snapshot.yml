@@ -27,7 +27,7 @@ jobs:
       - name: Install browser tools
         run: |
           set -euxo pipefail
-          python3 -m pip install --user --upgrade playwright
+          python3 -m pip install --user --upgrade playwright pillow
           python3 -m playwright install --with-deps chromium
 
       - name: Prepare GitHub Pages branch
@@ -58,7 +58,7 @@ jobs:
           if python3 scripts/capture_youtube_page.py \
             --url "$YOUTUBE_URL" \
             --out tmp/snapshot.jpg \
-            --timeout 90; then
+            --timeout 180; then
             echo "captured=true" >> "$GITHUB_OUTPUT"
           else
             echo "Live room is not ready. The next scheduled run will retry."
