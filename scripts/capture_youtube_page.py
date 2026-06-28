@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import asyncio
+import re
 import shutil
 import subprocess
 import sys
@@ -36,6 +37,8 @@ COOKIE_DOMAIN_ALLOWLIST = (
     "google.com",
     "google.co",
 )
+
+SENSITIVE_URL_PATTERN = re.compile(r"https://[^\s'\"]*googlevideo\.com/videoplayback[^\s'\"]*")
 
 
 def parse_args():
@@ -179,6 +182,10 @@ def run_command(command, timeout):
         )
 
 
+def redact_sensitive_urls(text):
+    return SENSITIVE_URL_PATTERN.sub("[redacted-googlevideo-url]", text or "")
+
+
 def is_browser_live_source_url(url, video_id):
     parsed = urlparse(url)
     host = parsed.hostname or ""
@@ -307,8 +314,8 @@ def capture_from_browser_sources(source_urls, video_id, out_path, debug_out, qr_
             result = capture_stream_candidate(source_url, candidate, 0)
             if result.returncode != 0 or not candidate.exists():
                 print(
-                    f"ffmpeg could not capture parsed browser source #{index}: "
-                    f"{result.stderr.strip()}",
+                    "ffmpeg could not capture parsed browser source "
+                    f"#{index}: {redact_sensitive_urls(result.stderr.strip())}",
                     flush=True,
                 )
                 continue
@@ -345,7 +352,8 @@ def capture_from_stream(page_url, cookies_path, out_path, debug_out, qr_threshol
             result = capture_stream_candidate(stream_url, candidate, wait_seconds)
             if result.returncode != 0 or not candidate.exists():
                 print(
-                    f"ffmpeg failed after wait={wait_seconds}: {result.stderr.strip()}",
+                    "ffmpeg failed after "
+                    f"wait={wait_seconds}: {redact_sensitive_urls(result.stderr.strip())}",
                     flush=True,
                 )
                 continue
