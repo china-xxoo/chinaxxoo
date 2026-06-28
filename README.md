@@ -52,6 +52,8 @@ export RETRY_INTERVAL="300"
 ./scripts/run_cloud_live_worker.sh
 ```
 
+长期运行时，可以把 `deploy/live-room-worker.service.example` 复制成 systemd 服务，并把环境变量放到服务器的 `/opt/chinaxxoo/.env`。这样云服务器重启后 worker 也会自动恢复。
+
 ## 修改配置
 
 云端 worker 支持这些配置：

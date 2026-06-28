@@ -1,0 +1,15 @@
+[Unit]
+Description=YouTube live room snapshot worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/chinaxxoo
+EnvironmentFile=/opt/chinaxxoo/.env
+ExecStart=/opt/chinaxxoo/scripts/run_cloud_live_worker.sh
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
