@@ -160,12 +160,69 @@ def qr_like_score(path):
 
 
 def run_command(command, timeout):
-    return subprocess.run(
-        command,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-        check=False,
+    try:
+        return subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        return subprocess.CompletedProcess(command, 127, "", str(exc))
+    except subprocess.TimeoutExpired as exc:
+        return subprocess.CompletedProcess(
+            command,
+            124,
+            exc.stdout or "",
+            exc.stderr or f"Command timed out after {timeout}s",
+        )
+
+
+def is_browser_live_source_url(url, video_id):
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    if "googlevideo.com" not in host or "/videoplayback" not in parsed.path:
+        return False
+
+    query = parse_qs(parsed.query)
+    source = query.get("source", [""])[0]
+    media_id = query.get("id", [""])[0]
+    is_live = query.get("live", [""])[0] == "1" or query.get("hang", [""])[0] == "1"
+
+    return (
+        source == "yt_live_broadcast"
+        or is_live
+        or bool(video_id and media_id.startswith(video_id))
+    )
+
+
+def rank_browser_live_source(url, video_id):
+    query = parse_qs(urlparse(url).query)
+    source = query.get("source", [""])[0]
+    media_id = query.get("id", [""])[0]
+    live = query.get("live", [""])[0]
+    mime = query.get("mime", [""])[0]
+    score = 0
+    if source == "yt_live_broadcast":
+        score += 100
+    if live == "1":
+        score += 40
+    if video_id and media_id.startswith(video_id):
+        score += 25
+    if "video" in mime:
+        score += 15
+    if "audio" in mime:
+        score -= 15
+    return score
+
+
+def ordered_live_sources(urls, video_id):
+    unique = list(dict.fromkeys(urls))
+    return sorted(
+        unique,
+        key=lambda url: rank_browser_live_source(url, video_id),
+        reverse=True,
     )
 
 
@@ -211,6 +268,14 @@ def capture_stream_candidate(stream_url, path, wait_seconds):
         "-hide_banner",
         "-loglevel",
         "warning",
+        "-user_agent",
+        (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/126.0.0.0 Safari/537.36"
+        ),
+        "-headers",
+        "Referer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n",
         "-rw_timeout",
         "15000000",
         "-reconnect",
@@ -226,6 +291,45 @@ def capture_stream_candidate(stream_url, path, wait_seconds):
         command += ["-ss", str(wait_seconds)]
     command += ["-frames:v", "1", "-q:v", "2", str(path)]
     return run_command(command, timeout=max(75, wait_seconds + 75))
+
+
+def capture_from_browser_sources(source_urls, video_id, out_path, debug_out, qr_threshold):
+    candidates = ordered_live_sources(source_urls, video_id)[:6]
+    if not candidates:
+        print("No parsed browser live source candidates yet.", flush=True)
+        return False
+
+    print(f"Parsed browser live source candidates: {len(candidates)}", flush=True)
+    temporary_dir = Path(tempfile.mkdtemp(prefix="youtube-browser-source-"))
+    try:
+        for index, source_url in enumerate(candidates, start=1):
+            candidate = temporary_dir / f"browser-source-{index}.jpg"
+            result = capture_stream_candidate(source_url, candidate, 0)
+            if result.returncode != 0 or not candidate.exists():
+                print(
+                    f"ffmpeg could not capture parsed browser source #{index}: "
+                    f"{result.stderr.strip()}",
+                    flush=True,
+                )
+                continue
+
+            if debug_out:
+                debug_out.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(candidate, debug_out)
+
+            score = qr_like_score(candidate)
+            print(
+                f"Parsed browser source #{index} QR-like score: {score:.3f}",
+                flush=True,
+            )
+            if score >= qr_threshold:
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(candidate, out_path)
+                print("Captured by parsed browser live source.", flush=True)
+                return True
+        return False
+    finally:
+        shutil.rmtree(temporary_dir, ignore_errors=True)
 
 
 def capture_from_stream(page_url, cookies_path, out_path, debug_out, qr_threshold):
@@ -320,7 +424,15 @@ async def screenshot_debug(page, path):
         await page.screenshot(path=str(path), type="jpeg", quality=82)
 
 
-async def wait_for_qr_live_frame(page, out_path, debug_out, timeout_seconds, qr_threshold):
+async def wait_for_qr_live_frame(
+    page,
+    video_id,
+    source_urls,
+    out_path,
+    debug_out,
+    timeout_seconds,
+    qr_threshold,
+):
     deadline = asyncio.get_running_loop().time() + timeout_seconds
     temporary_dir = Path(tempfile.mkdtemp(prefix="youtube-live-frame-"))
     try:
@@ -344,6 +456,15 @@ async def wait_for_qr_live_frame(page, out_path, debug_out, timeout_seconds, qr_
                 flush=True,
             )
             if state.get("ready") and not state.get("ad"):
+                if capture_from_browser_sources(
+                    source_urls,
+                    video_id,
+                    out_path,
+                    debug_out,
+                    qr_threshold,
+                ):
+                    return True
+
                 candidate = temporary_dir / f"candidate-{attempt}.jpg"
                 await screenshot_player(page, candidate)
                 score = qr_like_score(candidate)
@@ -397,10 +518,25 @@ async def main():
             print(f"Loaded {len(cookies)} browser cookies.", flush=True)
 
         page = await context.new_page()
+        source_urls = []
+
+        def remember_live_source(request):
+            url = request.url
+            if is_browser_live_source_url(url, video_id) and url not in source_urls:
+                source_urls.append(url)
+                print(
+                    f"Parsed browser live source #{len(source_urls)} "
+                    f"rank={rank_browser_live_source(url, video_id)}",
+                    flush=True,
+                )
+
+        page.on("request", remember_live_source)
         await page.goto(watch_url, wait_until="domcontentloaded", timeout=60_000)
         await page.wait_for_selector("#movie_player, video", timeout=60_000)
         ready = await wait_for_qr_live_frame(
             page,
+            video_id,
+            source_urls,
             args.out,
             args.debug_out,
             args.timeout,
