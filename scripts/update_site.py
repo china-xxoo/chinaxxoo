@@ -39,6 +39,9 @@ def main():
     snapshots_dir.mkdir(parents=True, exist_ok=True)
 
     shutil.copy2(args.public / "index.html", site_dir / "index.html")
+    public_assets = args.public / "assets"
+    if public_assets.exists():
+        shutil.copytree(public_assets, site_dir / "assets", dirs_exist_ok=True)
     (site_dir / ".nojekyll").touch()
 
     filename = snapshot_name(args.captured_at)
