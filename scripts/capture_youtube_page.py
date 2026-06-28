@@ -37,6 +37,7 @@ def parse_args():
     parser.add_argument("--url", required=True)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--debug-out", type=Path)
+    parser.add_argument("--cookies", type=Path)
     parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--qr-threshold", type=float, default=0.12)
     return parser.parse_args()
@@ -162,7 +163,7 @@ def run_command(command, timeout):
     )
 
 
-def extract_stream_url(page_url):
+def extract_stream_url(page_url, cookies_path=None):
     format_selector = "best[protocol^=m3u8][height<=1080]/best[height<=1080]/best"
     client_sets = ("android,ios,web", "android", "ios", "web")
 
@@ -179,8 +180,10 @@ def extract_stream_url(page_url):
             "-f",
             format_selector,
             "-g",
-            page_url,
         ]
+        if cookies_path and cookies_path.exists():
+            command += ["--cookies", str(cookies_path)]
+        command.append(page_url)
         result = run_command(command, timeout=75)
         if result.returncode != 0:
             print(f"yt-dlp failed for clients={clients}: {result.stderr.strip()}", flush=True)
@@ -219,8 +222,8 @@ def capture_stream_candidate(stream_url, path, wait_seconds):
     return run_command(command, timeout=max(75, wait_seconds + 75))
 
 
-def capture_from_stream(page_url, out_path, debug_out, qr_threshold):
-    stream_url = extract_stream_url(page_url)
+def capture_from_stream(page_url, cookies_path, out_path, debug_out, qr_threshold):
+    stream_url = extract_stream_url(page_url, cookies_path)
     if not stream_url:
         print("yt-dlp did not return a playable stream URL.", flush=True)
         return False
@@ -252,6 +255,39 @@ def capture_from_stream(page_url, out_path, debug_out, qr_threshold):
         return False
     finally:
         shutil.rmtree(temporary_dir, ignore_errors=True)
+
+
+def load_netscape_cookies(path):
+    if not path or not path.exists():
+        return []
+
+    cookies = []
+    for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        if not line or line.startswith("#HttpOnly_"):
+            line = line.removeprefix("#HttpOnly_")
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split("\t")
+        if len(parts) != 7:
+            continue
+        domain, _include_subdomains, cookie_path, secure, expires, name, value = parts
+        if not name:
+            continue
+        cookie = {
+            "name": name,
+            "value": value,
+            "domain": domain,
+            "path": cookie_path or "/",
+            "secure": secure.upper() == "TRUE",
+        }
+        try:
+            expires_value = int(float(expires))
+            if expires_value > 0:
+                cookie["expires"] = expires_value
+        except ValueError:
+            pass
+        cookies.append(cookie)
+    return cookies
 
 
 async def screenshot_player(page, path):
@@ -320,7 +356,7 @@ async def main():
     if not video_id:
         raise SystemExit("Could not parse YouTube video id.")
 
-    if capture_from_stream(args.url, args.out, args.debug_out, args.qr_threshold):
+    if capture_from_stream(args.url, args.cookies, args.out, args.debug_out, args.qr_threshold):
         return
 
     print("Direct stream capture did not produce a QR frame. Falling back to browser.", flush=True)
@@ -336,7 +372,7 @@ async def main():
                 "--lang=zh-CN",
             ],
         )
-        page = await browser.new_page(
+        context = await browser.new_context(
             viewport={"width": 1366, "height": 768},
             locale="zh-CN",
             user_agent=(
@@ -345,6 +381,12 @@ async def main():
                 "Chrome/126.0.0.0 Safari/537.36"
             ),
         )
+        cookies = load_netscape_cookies(args.cookies)
+        if cookies:
+            await context.add_cookies(cookies)
+            print(f"Loaded {len(cookies)} browser cookies.", flush=True)
+
+        page = await context.new_page()
         await page.goto(watch_url, wait_until="domcontentloaded", timeout=60_000)
         await page.wait_for_selector("#movie_player, video", timeout=60_000)
         ready = await wait_for_qr_live_frame(
@@ -355,10 +397,10 @@ async def main():
             args.qr_threshold,
         )
         if not ready:
-            await browser.close()
+            await context.close()
             raise SystemExit("No QR live room frame was ready before timeout.")
 
-        await browser.close()
+        await context.close()
 
 
 if __name__ == "__main__":
