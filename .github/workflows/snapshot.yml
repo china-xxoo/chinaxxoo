@@ -14,6 +14,7 @@ concurrency:
 
 env:
   YOUTUBE_URL: "https://www.youtube.com/watch?v=FS7IPxmfEms"
+  YOUTUBE_VIDEO_ID: "FS7IPxmfEms"
   MAX_SNAPSHOTS: "10"
   SITE_TIMEZONE: "Asia/Shanghai"
 
@@ -23,14 +24,6 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-
-      - name: Install capture tools
-        run: |
-          set -euxo pipefail
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python3 -m pip install --user --upgrade yt-dlp
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Prepare GitHub Pages branch
         env:
@@ -56,8 +49,14 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p tmp
-          stream_url="$(yt-dlp --no-warnings --no-playlist -f 'best[protocol^=m3u8][height<=1080]/best[height<=1080]/best' -g "$YOUTUBE_URL" | head -n 1)"
-          timeout 50s ffmpeg -hide_banner -loglevel error -y -i "$stream_url" -frames:v 1 -q:v 2 tmp/snapshot.jpg
+          for name in maxresdefault_live hqdefault_live maxresdefault hqdefault; do
+            if curl --fail --location --silent --show-error \
+              "https://img.youtube.com/vi/${YOUTUBE_VIDEO_ID}/${name}.jpg" \
+              --output tmp/snapshot.jpg; then
+              break
+            fi
+          done
+
           test -s tmp/snapshot.jpg
 
       - name: Update static site
