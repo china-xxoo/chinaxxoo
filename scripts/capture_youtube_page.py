@@ -31,6 +31,12 @@ CONSENT_SELECTORS = [
     "button:has-text('接受全部')",
 ]
 
+COOKIE_DOMAIN_ALLOWLIST = (
+    "youtube.com",
+    "google.com",
+    "google.co",
+)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Capture a real YouTube live player frame.")
@@ -271,6 +277,8 @@ def load_netscape_cookies(path):
         if len(parts) != 7:
             continue
         domain, _include_subdomains, cookie_path, secure, expires, name, value = parts
+        if not any(allowed in domain for allowed in COOKIE_DOMAIN_ALLOWLIST):
+            continue
         if not name:
             continue
         cookie = {
@@ -282,6 +290,8 @@ def load_netscape_cookies(path):
         }
         try:
             expires_value = int(float(expires))
+            if expires_value > 10_000_000_000_000:
+                expires_value = int(expires_value / 1_000_000 - 11_644_473_600)
             if expires_value > 0:
                 cookie["expires"] = expires_value
         except ValueError:
