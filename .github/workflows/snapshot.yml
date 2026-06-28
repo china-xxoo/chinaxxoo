@@ -16,6 +16,7 @@ env:
   YOUTUBE_URL: "https://www.youtube.com/watch?v=FS7IPxmfEms"
   MAX_SNAPSHOTS: "5"
   SITE_TIMEZONE: "Asia/Shanghai"
+  YOUTUBE_COOKIES_B64: ${{ secrets.YOUTUBE_COOKIES_B64 }}
 
 jobs:
   capture:
@@ -57,10 +58,16 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p tmp
+          cookies_args=()
+          if [ -n "${YOUTUBE_COOKIES_B64:-}" ]; then
+            printf '%s' "$YOUTUBE_COOKIES_B64" | base64 -d > tmp/youtube-cookies.txt
+            cookies_args=(--cookies tmp/youtube-cookies.txt)
+          fi
           if python3 scripts/capture_youtube_page.py \
             --url "$YOUTUBE_URL" \
             --out tmp/snapshot.jpg \
             --debug-out tmp/debug-player.jpg \
+            "${cookies_args[@]}" \
             --timeout 180; then
             echo "captured=true" >> "$GITHUB_OUTPUT"
           else
