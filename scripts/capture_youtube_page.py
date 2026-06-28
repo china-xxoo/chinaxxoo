@@ -2,6 +2,8 @@
 import argparse
 import asyncio
 import shutil
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -150,6 +152,108 @@ def qr_like_score(path):
     return best
 
 
+def run_command(command, timeout):
+    return subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
+    )
+
+
+def extract_stream_url(page_url):
+    format_selector = "best[protocol^=m3u8][height<=1080]/best[height<=1080]/best"
+    client_sets = ("android,ios,web", "android", "ios", "web")
+
+    for clients in client_sets:
+        command = [
+            sys.executable,
+            "-m",
+            "yt_dlp",
+            "--no-warnings",
+            "--no-playlist",
+            "--force-ipv4",
+            "--extractor-args",
+            f"youtube:player_client={clients}",
+            "-f",
+            format_selector,
+            "-g",
+            page_url,
+        ]
+        result = run_command(command, timeout=75)
+        if result.returncode != 0:
+            print(f"yt-dlp failed for clients={clients}: {result.stderr.strip()}", flush=True)
+            continue
+
+        urls = [line.strip() for line in result.stdout.splitlines() if line.strip().startswith("http")]
+        if urls:
+            stream_url = next((url for url in urls if ".m3u8" in url), urls[0])
+            print(f"yt-dlp extracted stream with clients={clients}", flush=True)
+            return stream_url
+
+    return None
+
+
+def capture_stream_candidate(stream_url, path, wait_seconds):
+    command = [
+        "ffmpeg",
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "warning",
+        "-rw_timeout",
+        "15000000",
+        "-reconnect",
+        "1",
+        "-reconnect_streamed",
+        "1",
+        "-reconnect_delay_max",
+        "5",
+        "-i",
+        stream_url,
+    ]
+    if wait_seconds:
+        command += ["-ss", str(wait_seconds)]
+    command += ["-frames:v", "1", "-q:v", "2", str(path)]
+    return run_command(command, timeout=max(75, wait_seconds + 75))
+
+
+def capture_from_stream(page_url, out_path, debug_out, qr_threshold):
+    stream_url = extract_stream_url(page_url)
+    if not stream_url:
+        print("yt-dlp did not return a playable stream URL.", flush=True)
+        return False
+
+    temporary_dir = Path(tempfile.mkdtemp(prefix="youtube-live-stream-"))
+    try:
+        for wait_seconds in (0, 20, 60, 95):
+            candidate = temporary_dir / f"stream-{wait_seconds}.jpg"
+            result = capture_stream_candidate(stream_url, candidate, wait_seconds)
+            if result.returncode != 0 or not candidate.exists():
+                print(
+                    f"ffmpeg failed after wait={wait_seconds}: {result.stderr.strip()}",
+                    flush=True,
+                )
+                continue
+
+            if debug_out:
+                debug_out.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(candidate, debug_out)
+
+            score = qr_like_score(candidate)
+            print(f"Stream QR-like score after wait={wait_seconds}: {score:.3f}", flush=True)
+            if score >= qr_threshold:
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(candidate, out_path)
+                print(f"Captured by direct stream after wait={wait_seconds}", flush=True)
+                return True
+
+        return False
+    finally:
+        shutil.rmtree(temporary_dir, ignore_errors=True)
+
+
 async def screenshot_player(page, path):
     player = page.locator("#movie_player").first
     if await player.count() > 0:
@@ -216,6 +320,10 @@ async def main():
     if not video_id:
         raise SystemExit("Could not parse YouTube video id.")
 
+    if capture_from_stream(args.url, args.out, args.debug_out, args.qr_threshold):
+        return
+
+    print("Direct stream capture did not produce a QR frame. Falling back to browser.", flush=True)
     watch_url = with_query(args.url, autoplay=1, mute=1)
 
     async with async_playwright() as playwright:
