@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>YouTube Live Snapshot</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f4ed;
+        --panel: #ffffff;
+        --ink: #202124;
+        --muted: #646a73;
+        --line: #d9d4c9;
+        --accent: #0f766e;
+        --accent-strong: #0b5f59;
+        --shadow: 0 16px 42px rgba(37, 42, 48, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      .page {
+        width: min(1160px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 36px;
+      }
+
+      header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 5vw, 56px);
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .pill,
+      .source {
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.56);
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .source {
+        color: var(--accent-strong);
+        font-weight: 700;
+      }
+
+      .latest {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .latest-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        background: #171717;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .status strong {
+        color: var(--ink);
+      }
+
+      .history-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 30px 0 12px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      .hint {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 12px;
+      }
+
+      .shot {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .shot img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        background: #171717;
+      }
+
+      .shot time {
+        display: block;
+        padding: 9px 10px;
+        color: var(--muted);
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          width: min(100% - 22px, 1160px);
+          padding-top: 18px;
+        }
+
+        header,
+        .status,
+        .history-head {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .meta {
+          justify-content: flex-start;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>Live Snapshot</h1>
+        <div class="meta">
+          <span class="pill">每 5 分钟更新</span>
+          <a class="source" id="sourceLink" href="#" rel="noreferrer">YouTube 直播</a>
+        </div>
+      </header>
+
+      <section class="latest" aria-label="最新截图">
+        <img class="latest-image" id="latestImage" src="latest.jpg" alt="YouTube 直播最新截图" />
+        <div class="status">
+          <span>最新截图：<strong id="latestTime">读取中</strong></span>
+          <span>页面会自动刷新图片缓存</span>
+        </div>
+      </section>
+
+      <div class="history-head">
+        <h2>最近 10 张</h2>
+        <p class="hint">新的截图会排在最前面。</p>
+      </div>
+      <section class="grid" id="historyGrid" aria-label="历史截图"></section>
+    </main>
+
+    <script>
+      const manifestUrl = `manifest.json?t=${Date.now()}`;
+      const latestImage = document.getElementById("latestImage");
+      const latestTime = document.getElementById("latestTime");
+      const historyGrid = document.getElementById("historyGrid");
+      const sourceLink = document.getElementById("sourceLink");
+
+      function formatTime(value) {
+        return new Intl.DateTimeFormat("zh-CN", {
+          dateStyle: "medium",
+          timeStyle: "medium",
+        }).format(new Date(value));
+      }
+
+      function imageUrl(file) {
+        return `${file}?t=${Date.now()}`;
+      }
+
+      async function loadManifest() {
+        const response = await fetch(manifestUrl, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`manifest load failed: ${response.status}`);
+        }
+        return response.json();
+      }
+
+      loadManifest()
+        .then((manifest) => {
+          if (manifest.sourceUrl) {
+            sourceLink.href = manifest.sourceUrl;
+          }
+
+          if (manifest.latest) {
+            latestImage.src = imageUrl(manifest.latest.file);
+            latestTime.textContent = formatTime(manifest.latest.capturedAt);
+          }
+
+          historyGrid.innerHTML = "";
+          for (const shot of manifest.snapshots || []) {
+            const item = document.createElement("article");
+            item.className = "shot";
+
+            const image = document.createElement("img");
+            image.src = imageUrl(shot.file);
+            image.alt = "历史直播截图";
+
+            const time = document.createElement("time");
+            time.dateTime = shot.capturedAt;
+            time.textContent = formatTime(shot.capturedAt);
+
+            item.append(image, time);
+            historyGrid.append(item);
+          }
+        })
+        .catch(() => {
+          latestTime.textContent = "等待第一次截图";
+        });
+    </script>
+  </body>
+</html>
