@@ -34,6 +34,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Capture a real YouTube live player frame.")
     parser.add_argument("--url", required=True)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--debug-out", type=Path)
     parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--qr-threshold", type=float, default=0.12)
     return parser.parse_args()
@@ -159,7 +160,17 @@ async def screenshot_player(page, path):
     await video.screenshot(path=str(path), type="jpeg", quality=90)
 
 
-async def wait_for_qr_live_frame(page, out_path, timeout_seconds, qr_threshold):
+async def screenshot_debug(page, path):
+    if path is None:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        await screenshot_player(page, path)
+    except Exception:
+        await page.screenshot(path=str(path), type="jpeg", quality=82)
+
+
+async def wait_for_qr_live_frame(page, out_path, debug_out, timeout_seconds, qr_threshold):
     deadline = asyncio.get_running_loop().time() + timeout_seconds
     temporary_dir = Path(tempfile.mkdtemp(prefix="youtube-live-frame-"))
     try:
@@ -174,15 +185,24 @@ async def wait_for_qr_live_frame(page, out_path, timeout_seconds, qr_threshold):
 
             await keep_video_playing(page)
             state = await current_video_state(page)
+            print(
+                "video state:",
+                f"ready={state.get('ready')}",
+                f"paused={state.get('paused')}",
+                f"ad={state.get('ad')}",
+                f"time={state.get('currentTime')}",
+                flush=True,
+            )
             if state.get("ready") and not state.get("ad"):
                 candidate = temporary_dir / f"candidate-{attempt}.jpg"
                 await screenshot_player(page, candidate)
                 score = qr_like_score(candidate)
-                print(f"QR-like score: {score:.3f}")
+                print(f"QR-like score: {score:.3f}", flush=True)
                 if score >= qr_threshold:
                     out_path.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(candidate, out_path)
                     return True
+            await screenshot_debug(page, debug_out)
 
             await page.wait_for_timeout(4000)
         return False
@@ -222,6 +242,7 @@ async def main():
         ready = await wait_for_qr_live_frame(
             page,
             args.out,
+            args.debug_out,
             args.timeout,
             args.qr_threshold,
         )
