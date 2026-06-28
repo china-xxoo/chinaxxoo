@@ -14,8 +14,7 @@ concurrency:
 
 env:
   YOUTUBE_URL: "https://www.youtube.com/watch?v=FS7IPxmfEms"
-  YOUTUBE_VIDEO_ID: "FS7IPxmfEms"
-  MAX_SNAPSHOTS: "10"
+  MAX_SNAPSHOTS: "5"
   SITE_TIMEZONE: "Asia/Shanghai"
 
 jobs:
@@ -24,6 +23,12 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+
+      - name: Install browser tools
+        run: |
+          set -euxo pipefail
+          python3 -m pip install --user --upgrade playwright
+          python3 -m playwright install --with-deps chromium
 
       - name: Prepare GitHub Pages branch
         env:
@@ -45,21 +50,23 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           fi
 
-      - name: Capture one frame
+      - name: Capture live room frame
+        id: capture
         run: |
           set -euxo pipefail
           mkdir -p tmp
-          for name in maxresdefault_live hqdefault_live maxresdefault hqdefault; do
-            if curl --fail --location --silent --show-error \
-              "https://img.youtube.com/vi/${YOUTUBE_VIDEO_ID}/${name}.jpg" \
-              --output tmp/snapshot.jpg; then
-              break
-            fi
-          done
-
-          test -s tmp/snapshot.jpg
+          if python3 scripts/capture_youtube_page.py \
+            --url "$YOUTUBE_URL" \
+            --out tmp/snapshot.jpg \
+            --timeout 90; then
+            echo "captured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Live room is not ready. The next scheduled run will retry."
+            echo "captured=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Update static site
+        if: steps.capture.outputs.captured == 'true'
         run: |
           set -euxo pipefail
           captured_at="$(TZ="$SITE_TIMEZONE" date -Iseconds)"
@@ -72,6 +79,7 @@ jobs:
             --max-snapshots "$MAX_SNAPSHOTS"
 
       - name: Publish to gh-pages
+        if: steps.capture.outputs.captured == 'true'
         run: |
           set -euxo pipefail
           cd site
