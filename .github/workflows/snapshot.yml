@@ -27,7 +27,9 @@ jobs:
       - name: Install browser tools
         run: |
           set -euxo pipefail
-          python3 -m pip install --user --upgrade playwright pillow
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python3 -m pip install --user --upgrade playwright pillow yt-dlp
           python3 -m playwright install --with-deps chromium
 
       - name: Prepare GitHub Pages branch
