@@ -28,7 +28,9 @@ jobs:
       - name: Install browser tools
         run: |
           set -euxo pipefail
-          python3 -m pip install --user --upgrade playwright pillow
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python3 -m pip install --user --upgrade playwright pillow yt-dlp
           python3 -m playwright install --with-deps chromium
 
       - name: Pick random start
@@ -48,14 +50,19 @@ jobs:
           for offset in $(seq 0 $((${#ids[@]} - 1))); do
             index=$(( (start_index + offset) % ${#ids[@]} ))
             video_id="${ids[$index]}"
-            capture_url="${CAPTURE_BASE}?v=${video_id}"
+            capture_url="https://www.youtube.com/watch?v=${video_id}"
             echo "Trying video_id=${video_id}"
-            python3 scripts/capture_page_region.py \
+            if python3 scripts/capture_youtube_page.py \
               --url "$capture_url" \
-              --out tmp/snapshot.jpg \
-              --selector "#playerFrame" \
-              --wait-ms "$CAPTURE_WAIT_MS" \
-              --quality "$IMAGE_QUALITY"
+              --out tmp/snapshot-raw.jpg \
+              --debug-out tmp/debug.jpg \
+              --timeout 140 \
+              --qr-threshold 0.05; then
+              python3 -c 'from PIL import Image; image = Image.open("tmp/snapshot-raw.jpg").convert("RGB"); image.save("tmp/snapshot.jpg", "JPEG", quality=72, optimize=True, progressive=True)'
+            else
+              echo "Capture failed for ${video_id}"
+              continue
+            fi
 
             size="$(stat -c '%s' tmp/snapshot.jpg)"
             echo "Captured size=${size}"
