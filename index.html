@@ -202,9 +202,11 @@
         background: rgba(0, 0, 0, 0.5);
       }
 
-      #player {
+      .video-frame iframe {
+        display: block;
         width: 100%;
         height: 100%;
+        border: 0;
       }
     </style>
   </head>
@@ -239,7 +241,13 @@
 
       <section class="video-panel" aria-label="YouTube 视频播放器">
         <div class="video-frame">
-          <div id="player"></div>
+          <iframe
+            src="https://www.youtube.com/embed/hWWFQd9aMvc?autoplay=1&mute=1&playsinline=1&rel=0&controls=1"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
         </div>
       </section>
     </main>
@@ -252,13 +260,9 @@
       const authError = document.getElementById("authError");
       const passwordInput = document.getElementById("passwordInput");
       const welcomeToast = document.getElementById("welcomeToast");
-      let youtubeApiLoading = false;
-      let youtubePlayerReady = false;
-      let player;
 
       function unlock() {
         document.body.classList.remove("locked");
-        loadYoutubePlayer();
       }
 
       function showWelcomeThenUnlock() {
@@ -267,63 +271,6 @@
           unlock();
           welcomeToast.classList.remove("show");
         }, 1400);
-      }
-
-      function loadYoutubePlayer() {
-        if (youtubePlayerReady && window.YT && window.YT.Player) {
-          createYoutubePlayer();
-          return;
-        }
-
-        if (youtubeApiLoading) {
-          return;
-        }
-
-        youtubeApiLoading = true;
-        window.onYouTubeIframeAPIReady = () => {
-          youtubePlayerReady = true;
-          createYoutubePlayer();
-        };
-
-        const script = document.createElement("script");
-        script.src = "https://www.youtube.com/iframe_api";
-        script.async = true;
-        document.head.append(script);
-      }
-
-      function createYoutubePlayer() {
-        if (player || !window.YT || !window.YT.Player) {
-          return;
-        }
-
-        player = new YT.Player("player", {
-          width: "100%",
-          height: "100%",
-          videoId: "hWWFQd9aMvc",
-          playerVars: {
-            autoplay: 1,
-            mute: 1,
-            playsinline: 1,
-            origin: window.location.origin,
-            rel: 0,
-            controls: 1,
-          },
-          events: {
-            onReady(event) {
-              event.target.mute();
-              event.target.playVideo();
-            },
-            onStateChange(event) {
-              if (
-                event.data === YT.PlayerState.CUED ||
-                event.data === YT.PlayerState.PAUSED
-              ) {
-                event.target.mute();
-                event.target.playVideo();
-              }
-            },
-          },
-        });
       }
 
       authForm.addEventListener("submit", (event) => {
