@@ -4,30 +4,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#050711" />
-    <title>欢迎来到赵公子的花花世界！</title>
+    <meta name="theme-color" content="#050505" />
+    <title>欢迎来到花花世界！</title>
     <style>
       :root {
         color-scheme: dark;
-        --bg: #050711;
-        --panel: rgba(8, 13, 31, 0.68);
-        --panel-strong: rgba(8, 13, 31, 0.86);
-        --ink: #f7fbff;
-        --muted: rgba(232, 242, 255, 0.72);
-        --line: rgba(105, 231, 255, 0.24);
-        --cyan: #45f3ff;
-        --pink: #ff49e1;
-        --violet: #9c6bff;
-        --shadow: 0 22px 60px rgba(0, 0, 0, 0.42);
+        --bg: #050505;
+        --panel: rgba(10, 10, 12, 0.7);
+        --ink: #ffffff;
+        --muted: rgba(255, 255, 255, 0.68);
+        --line: rgba(255, 255, 255, 0.18);
+        --hot: #ff4fd8;
+        --ice: #56e8ff;
       }
 
       * {
         box-sizing: border-box;
-      }
-
-      html {
-        min-height: 100%;
-        background: var(--bg);
       }
 
       body {
@@ -41,75 +33,21 @@
           "Segoe UI", sans-serif;
       }
 
-      .scene {
+      .login-bg {
         position: fixed;
         inset: 0;
         z-index: 0;
-        overflow: hidden;
-        pointer-events: none;
-        background: #050711;
-      }
-
-      .scene-image {
-        position: absolute;
-        inset: -5%;
         background:
-          linear-gradient(180deg, rgba(4, 6, 16, 0.16), rgba(4, 6, 16, 0.74)),
-          url("assets/sci-fi-woman.png") center top / cover no-repeat;
-        filter: saturate(1.2) contrast(1.06);
-        transform-origin: 55% 60%;
-        animation: bodyDance 5.6s ease-in-out infinite alternate;
+          linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.42)),
+          url("assets/login-bg.jpg") center center / cover no-repeat;
+        transform: scale(1.02);
       }
 
-      .scene::after {
+      .login-bg::after {
         content: "";
         position: absolute;
         inset: 0;
-        background:
-          radial-gradient(circle at 52% 40%, rgba(69, 243, 255, 0.14), transparent 23%),
-          radial-gradient(circle at 62% 62%, rgba(255, 73, 225, 0.16), transparent 22%),
-          linear-gradient(180deg, rgba(2, 5, 16, 0.04), rgba(2, 5, 16, 0.88) 76%);
-      }
-
-      .pulse-zone {
-        position: absolute;
-        left: 50%;
-        width: min(46vw, 180px);
-        height: min(24vw, 96px);
-        border: 1px solid rgba(69, 243, 255, 0.26);
-        border-radius: 999px;
-        background:
-          radial-gradient(circle, rgba(255, 73, 225, 0.38), transparent 58%),
-          radial-gradient(circle, rgba(69, 243, 255, 0.28), transparent 70%);
-        filter: blur(10px);
-        mix-blend-mode: screen;
-        opacity: 0.44;
-      }
-
-      .pulse-zone.chest {
-        top: 43%;
-        transform: translate(-4%, -50%) rotate(-14deg);
-        animation: neonPulseA 1.58s ease-in-out infinite;
-      }
-
-      .pulse-zone.hips {
-        top: 66%;
-        transform: translate(-10%, -50%) rotate(19deg);
-        animation: neonPulseB 1.82s ease-in-out infinite;
-      }
-
-      .scanline {
-        position: absolute;
-        inset: -20% 0 auto;
-        height: 38%;
-        background: linear-gradient(
-          180deg,
-          transparent,
-          rgba(69, 243, 255, 0.12),
-          transparent
-        );
-        opacity: 0.52;
-        animation: scan 4.8s linear infinite;
+        background: linear-gradient(180deg, transparent 45%, rgba(0, 0, 0, 0.66));
       }
 
       .gate,
@@ -118,75 +56,77 @@
         z-index: 1;
       }
 
-      .gate {
+      .gate,
+      .app {
         min-height: 100svh;
         display: grid;
-        place-items: center;
-        padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+        grid-template-rows: 1fr auto;
+        padding:
+          max(18px, env(safe-area-inset-top))
+          18px
+          max(22px, env(safe-area-inset-bottom));
       }
 
-      .gate-panel,
-      .live-card,
-      .history-card {
-        border: 1px solid var(--line);
-        background: linear-gradient(180deg, rgba(10, 16, 38, 0.78), rgba(6, 9, 24, 0.72));
-        box-shadow: var(--shadow), inset 0 0 28px rgba(69, 243, 255, 0.06);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
+      .login-title {
+        align-self: center;
+        margin: 0 auto;
+        width: min(100%, 360px);
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: clamp(40px, 11vw, 48px);
+        line-height: 1.15;
+        letter-spacing: 0;
+        text-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
       }
 
       .gate-panel {
-        width: min(390px, 100%);
+        width: min(100%, 360px);
+        margin: 0 auto;
+        border: 1px solid rgba(255, 255, 255, 0.24);
         border-radius: 22px;
-        padding: 22px;
-      }
-
-      .gate-title {
-        margin: 0 0 18px;
-        font-size: 30px;
-        line-height: 1.08;
-        letter-spacing: 0;
-        text-shadow:
-          0 0 18px rgba(69, 243, 255, 0.45),
-          0 0 34px rgba(255, 73, 225, 0.22);
+        background: rgba(5, 5, 8, 0.54);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 16px;
       }
 
       .gate-label {
         display: block;
         margin-bottom: 9px;
-        color: var(--muted);
+        color: rgba(255, 255, 255, 0.78);
         font-size: 14px;
       }
 
       .gate-row {
         display: grid;
-        grid-template-columns: 1fr 78px;
-        gap: 9px;
+        grid-template-columns: 1fr 72px;
+        gap: 8px;
       }
 
       .gate-input {
         min-width: 0;
         height: 46px;
-        border: 1px solid rgba(69, 243, 255, 0.38);
-        border-radius: 14px;
-        padding: 0 14px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 15px;
+        padding: 0 13px;
         outline: none;
-        background: rgba(3, 8, 20, 0.72);
+        background: rgba(0, 0, 0, 0.42);
         color: var(--ink);
         font: inherit;
       }
 
       .gate-input:focus {
-        border-color: rgba(255, 73, 225, 0.7);
-        box-shadow: 0 0 0 3px rgba(255, 73, 225, 0.14);
+        border-color: rgba(255, 79, 216, 0.82);
+        box-shadow: 0 0 0 3px rgba(255, 79, 216, 0.18);
       }
 
       .gate-button {
         height: 46px;
         border: 0;
-        border-radius: 14px;
-        background: linear-gradient(135deg, var(--cyan), var(--pink));
-        color: #06101c;
+        border-radius: 15px;
+        background: linear-gradient(135deg, var(--ice), var(--hot));
+        color: #08070b;
         cursor: pointer;
         font: inherit;
         font-weight: 800;
@@ -195,8 +135,37 @@
       .gate-error {
         min-height: 20px;
         margin: 10px 0 0;
-        color: #ffb8ed;
+        color: #ffd2f6;
         font-size: 14px;
+      }
+
+      .welcome-toast {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        z-index: 5;
+        transform: translate(-50%, -50%) scale(0.94);
+        opacity: 0;
+        pointer-events: none;
+        border: 1px solid rgba(255, 255, 255, 0.34);
+        border-radius: 22px;
+        background: rgba(0, 0, 0, 0.58);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.54);
+        color: #fff;
+        padding: 16px 22px;
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: 0;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        transition:
+          opacity 220ms ease,
+          transform 220ms ease;
+      }
+
+      .welcome-toast.show {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
       }
 
       body:not(.locked) .gate {
@@ -208,215 +177,43 @@
       }
 
       .app {
-        width: min(430px, 100%);
-        min-height: 100svh;
+        width: 100%;
+      }
+
+      .video-panel {
+        width: min(100%, 360px);
         margin: 0 auto;
-        padding:
-          max(18px, env(safe-area-inset-top))
-          14px
-          max(28px, env(safe-area-inset-bottom));
-      }
-
-      .hero {
-        min-height: 38svh;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        padding: 16px 2px 18px;
-      }
-
-      .signal {
-        width: fit-content;
-        margin: 0 0 10px;
-        border: 1px solid rgba(69, 243, 255, 0.32);
-        border-radius: 999px;
-        padding: 6px 10px;
-        background: rgba(7, 13, 30, 0.48);
-        color: var(--cyan);
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 0;
-      }
-
-      h1 {
-        margin: 0;
-        max-width: 9em;
-        font-size: clamp(34px, 11vw, 48px);
-        line-height: 1.03;
-        letter-spacing: 0;
-        text-shadow:
-          0 0 16px rgba(69, 243, 255, 0.54),
-          0 0 34px rgba(255, 73, 225, 0.32),
-          0 3px 16px rgba(0, 0, 0, 0.72);
-      }
-
-      .meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 14px;
-      }
-
-      .pill,
-      .source {
-        min-height: 32px;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 999px;
-        padding: 7px 10px;
-        background: rgba(4, 9, 22, 0.54);
-        color: rgba(247, 251, 255, 0.86);
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 800;
-      }
-
-      .source {
-        color: #fff;
-      }
-
-      .live-card {
-        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.24);
         border-radius: 22px;
+        background: rgba(5, 5, 8, 0.54);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 12px;
       }
 
-      .latest-image {
+      .video-frame {
         display: block;
         width: 100%;
         aspect-ratio: 16 / 9;
-        object-fit: cover;
-        background: rgba(0, 0, 0, 0.72);
-      }
-
-      .status {
-        display: grid;
-        gap: 5px;
-        padding: 13px 14px 14px;
-        color: var(--muted);
-        font-size: 12px;
-      }
-
-      .status strong {
-        display: block;
-        color: var(--ink);
-        font-size: 15px;
-      }
-
-      .history-card {
-        margin-top: 12px;
-        border-radius: 22px;
-        padding: 14px;
-      }
-
-      .history-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 10px;
-      }
-
-      h2 {
-        margin: 0;
-        font-size: 17px;
-        line-height: 1.2;
-      }
-
-      .hint {
-        margin: 0;
-        color: var(--muted);
-        font-size: 12px;
-      }
-
-      .grid {
-        display: grid;
-        gap: 9px;
-      }
-
-      .shot {
-        display: grid;
-        grid-template-columns: 92px 1fr;
-        gap: 10px;
-        align-items: center;
         overflow: hidden;
-        border: 1px solid rgba(69, 243, 255, 0.16);
-        border-radius: 16px;
-        background: rgba(4, 8, 21, 0.52);
-        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.5);
       }
 
-      .shot img {
-        display: block;
-        width: 92px;
-        aspect-ratio: 16 / 9;
-        border-radius: 11px;
-        object-fit: cover;
-        background: rgba(0, 0, 0, 0.7);
-      }
-
-      .shot time {
-        color: rgba(247, 251, 255, 0.82);
-        font-size: 13px;
-        line-height: 1.35;
-      }
-
-      @keyframes bodyDance {
-        0% {
-          transform: translate3d(-1.2%, -0.4%, 0) scale(1.05) rotate(-0.35deg);
-        }
-
-        100% {
-          transform: translate3d(1.1%, 0.9%, 0) scale(1.085) rotate(0.42deg);
-        }
-      }
-
-      @keyframes neonPulseA {
-        0%,
-        100% {
-          opacity: 0.28;
-          transform: translate(-4%, -50%) rotate(-14deg) scale(0.92);
-        }
-
-        48% {
-          opacity: 0.64;
-          transform: translate(-3%, -50%) rotate(-10deg) scale(1.12);
-        }
-      }
-
-      @keyframes neonPulseB {
-        0%,
-        100% {
-          opacity: 0.24;
-          transform: translate(-10%, -50%) rotate(19deg) scale(0.94);
-        }
-
-        52% {
-          opacity: 0.58;
-          transform: translate(-8%, -50%) rotate(23deg) scale(1.15);
-        }
-      }
-
-      @keyframes scan {
-        0% {
-          transform: translateY(-30%);
-        }
-
-        100% {
-          transform: translateY(330%);
-        }
+      #player {
+        width: 100%;
+        height: 100%;
       }
     </style>
   </head>
   <body class="locked">
-    <div class="scene" aria-hidden="true">
-      <div class="scene-image"></div>
-      <span class="pulse-zone chest"></span>
-      <span class="pulse-zone hips"></span>
-      <span class="scanline"></span>
-    </div>
+    <div class="login-bg" aria-hidden="true"></div>
 
     <section class="gate" id="authGate" aria-label="密码验证">
+      <h1 class="login-title">欢迎来到<br />花花世界！</h1>
       <form class="gate-panel" id="authForm">
-        <h1 class="gate-title">欢迎来到赵公子的花花世界！</h1>
         <label class="gate-label" for="passwordInput">请输入6位密码</label>
         <div class="gate-row">
           <input
@@ -426,7 +223,7 @@
             type="password"
             inputmode="numeric"
             maxlength="6"
-            autocomplete="current-password"
+            autocomplete="off"
             autofocus
           />
           <button class="gate-button" type="submit">进入</button>
@@ -435,115 +232,98 @@
       </form>
     </section>
 
+    <div class="welcome-toast" id="welcomeToast" role="status" aria-live="polite">欢迎赵公子！</div>
+
     <main class="app">
-      <section class="hero">
-        <p class="signal">LIVE SIGNAL</p>
-        <h1>欢迎来到赵公子的花花世界！</h1>
-        <div class="meta">
-          <span class="pill">5 MIN</span>
-          <span class="pill">LAST 10</span>
-          <a class="source" id="sourceLink" href="#" rel="noreferrer">YOUTUBE</a>
-        </div>
-      </section>
+      <h1 class="login-title">欢迎来到<br />花花世界！</h1>
 
-      <section class="live-card" aria-label="最新截图">
-        <img class="latest-image" id="latestImage" alt="YouTube 直播最新截图" />
-        <div class="status">
-          <span>最新截图</span>
-          <strong id="latestTime">读取中</strong>
+      <section class="video-panel" aria-label="YouTube 视频播放器">
+        <div class="video-frame">
+          <div id="player"></div>
         </div>
-      </section>
-
-      <section class="history-card" aria-label="历史截图">
-        <div class="history-head">
-          <h2>最近 10 张</h2>
-          <p class="hint">新的在最上面</p>
-        </div>
-        <div class="grid" id="historyGrid"></div>
       </section>
     </main>
 
     <script>
       const correctPassword = "1";
-      const loginKey = "liveSnapshotAuthorized";
-      const manifestCandidates = [
-        { manifest: `manifest.json?t=${Date.now()}`, base: "" },
-        {
-          manifest: `https://raw.githubusercontent.com/china-xxoo/chinaxxoo/gh-pages/manifest.json?t=${Date.now()}`,
-          base: "https://raw.githubusercontent.com/china-xxoo/chinaxxoo/gh-pages/",
-        },
-      ];
-      let imageBase = "";
       let forcedErrorShown = false;
 
       const authForm = document.getElementById("authForm");
       const authError = document.getElementById("authError");
       const passwordInput = document.getElementById("passwordInput");
-      const latestImage = document.getElementById("latestImage");
-      const latestTime = document.getElementById("latestTime");
-      const historyGrid = document.getElementById("historyGrid");
-      const sourceLink = document.getElementById("sourceLink");
-
-      function formatTime(value) {
-        return new Intl.DateTimeFormat("zh-CN", {
-          dateStyle: "medium",
-          timeStyle: "medium",
-        }).format(new Date(value));
-      }
-
-      function imageUrl(file) {
-        return `${imageBase}${file}?t=${Date.now()}`;
-      }
-
-      async function loadManifest() {
-        for (const candidate of manifestCandidates) {
-          const response = await fetch(candidate.manifest, { cache: "no-store" }).catch(() => null);
-          if (response && response.ok) {
-            imageBase = candidate.base;
-            return response.json();
-          }
-        }
-        throw new Error("manifest load failed");
-      }
+      const welcomeToast = document.getElementById("welcomeToast");
+      let youtubeApiLoading = false;
+      let youtubePlayerReady = false;
+      let player;
 
       function unlock() {
-        localStorage.setItem(loginKey, "1");
         document.body.classList.remove("locked");
-        loadPage();
+        loadYoutubePlayer();
       }
 
-      function loadPage() {
-        loadManifest()
-          .then((manifest) => {
-            if (manifest.sourceUrl) {
-              sourceLink.href = manifest.sourceUrl;
-            }
+      function showWelcomeThenUnlock() {
+        welcomeToast.classList.add("show");
+        setTimeout(() => {
+          unlock();
+          welcomeToast.classList.remove("show");
+        }, 1400);
+      }
 
-            if (manifest.latest) {
-              latestImage.src = imageUrl(manifest.latest.file);
-              latestTime.textContent = formatTime(manifest.latest.capturedAt);
-            }
+      function loadYoutubePlayer() {
+        if (youtubePlayerReady && window.YT && window.YT.Player) {
+          createYoutubePlayer();
+          return;
+        }
 
-            historyGrid.innerHTML = "";
-            for (const shot of manifest.snapshots || []) {
-              const item = document.createElement("article");
-              item.className = "shot";
+        if (youtubeApiLoading) {
+          return;
+        }
 
-              const image = document.createElement("img");
-              image.src = imageUrl(shot.file);
-              image.alt = "历史直播截图";
+        youtubeApiLoading = true;
+        window.onYouTubeIframeAPIReady = () => {
+          youtubePlayerReady = true;
+          createYoutubePlayer();
+        };
 
-              const time = document.createElement("time");
-              time.dateTime = shot.capturedAt;
-              time.textContent = formatTime(shot.capturedAt);
+        const script = document.createElement("script");
+        script.src = "https://www.youtube.com/iframe_api";
+        script.async = true;
+        document.head.append(script);
+      }
 
-              item.append(image, time);
-              historyGrid.append(item);
-            }
-          })
-          .catch(() => {
-            latestTime.textContent = "等待第一次截图";
-          });
+      function createYoutubePlayer() {
+        if (player || !window.YT || !window.YT.Player) {
+          return;
+        }
+
+        player = new YT.Player("player", {
+          width: "100%",
+          height: "100%",
+          videoId: "hWWFQd9aMvc",
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            playsinline: 1,
+            origin: window.location.origin,
+            rel: 0,
+            controls: 1,
+          },
+          events: {
+            onReady(event) {
+              event.target.mute();
+              event.target.playVideo();
+            },
+            onStateChange(event) {
+              if (
+                event.data === YT.PlayerState.CUED ||
+                event.data === YT.PlayerState.PAUSED
+              ) {
+                event.target.mute();
+                event.target.playVideo();
+              }
+            },
+          },
+        });
       }
 
       authForm.addEventListener("submit", (event) => {
@@ -560,7 +340,7 @@
 
         if (value === correctPassword) {
           authError.textContent = "";
-          unlock();
+          showWelcomeThenUnlock();
           return;
         }
 
@@ -569,12 +349,7 @@
         passwordInput.focus();
       });
 
-      if (localStorage.getItem(loginKey) === "1") {
-        document.body.classList.remove("locked");
-        loadPage();
-      } else {
-        passwordInput.focus();
-      }
+      passwordInput.focus();
     </script>
   </body>
 </html>
