@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  CAPTURE_URL: "https://china-xxoo.github.io/chinaxxoo/player-test.html"
-  CAPTURE_WAIT_MS: "12000"
+  CAPTURE_URL: "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/"
+  CAPTURE_WAIT_MS: "8000"
   MAX_SNAPSHOTS: "5"
   SITE_TIMEZONE: "Asia/Shanghai"
 
@@ -57,7 +57,7 @@ jobs:
           if python3 scripts/capture_page_region.py \
             --url "$CAPTURE_URL" \
             --out tmp/snapshot.jpg \
-            --selector "#playerShell" \
+            --selector "body" \
             --wait-ms "$CAPTURE_WAIT_MS"; then
             cp tmp/snapshot.jpg tmp/debug-player.jpg
             echo "captured=true" >> "$GITHUB_OUTPUT"
