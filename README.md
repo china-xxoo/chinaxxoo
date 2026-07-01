@@ -2,7 +2,7 @@
 
 这个仓库用于把 YouTube 直播画面截图发布到 GitHub Pages。
 
-最终运行方式是：在一台不会关机的云服务器上运行常驻 worker。worker 会打开一次直播间，跳过广告或等待广告结束，然后留在同一个播放器里每 5 分钟截图一次；只有直播断开或播放器失效时，才隔 5 分钟重连。
+推荐运行方式是：Cloudflare Worker 每 5 分钟在云端打开 YouTube，截取播放器画面，然后把 JPG 图片上传到 GitHub Pages。国内用户只加载 GitHub 上的图片，不直接访问 YouTube。
 
 当前直播地址：
 
@@ -12,9 +12,10 @@ https://www.youtube.com/watch?v=FS7IPxmfEms
 
 ## 文件说明
 
-- `.github/workflows/snapshot.yml`：手动备用截图流程，不再定时反复打开 YouTube。
-- `scripts/live_room_daemon.py`：云端常驻直播间截图 worker。
-- `scripts/run_cloud_live_worker.sh`：云服务器启动脚本。
+- `cloudflare-worker/`：Cloudflare 云端截图并上传 GitHub 的主方案。
+- `.github/workflows/snapshot.yml`：手动备用截图流程。
+- `scripts/live_room_daemon.py`：云服务器常驻直播间截图 worker，作为备用方案。
+- `scripts/run_cloud_live_worker.sh`：云服务器备用启动脚本。
 - `scripts/capture_youtube_page.py`：备用单次截图脚本，会解析真实直播源请求。
 - `scripts/update_site.py`：更新 `latest.jpg`、历史截图和 `manifest.json`。
 - `public/index.html`：GitHub Pages 页面。
@@ -32,38 +33,38 @@ https://www.youtube.com/watch?v=FS7IPxmfEms
 https://你的GitHub用户名.github.io/仓库名/
 ```
 
-## 云端常驻 worker
+## Cloudflare 云端截图
 
-在云服务器里设置这些环境变量：
-
-```bash
-export GITHUB_REPOSITORY="china-xxoo/chinaxxoo"
-export GITHUB_TOKEN="你的 GitHub token"
-export YOUTUBE_COOKIES_B64="你的 YouTube cookies base64"
-export YOUTUBE_URL="https://www.youtube.com/watch?v=FS7IPxmfEms"
-export MAX_SNAPSHOTS="5"
-export CAPTURE_INTERVAL="300"
-export RETRY_INTERVAL="300"
-```
-
-然后运行：
+进入 `cloudflare-worker/`，复制配置并部署：
 
 ```bash
-./scripts/run_cloud_live_worker.sh
+cp wrangler.toml.example wrangler.toml
+npm install
+npx wrangler login
+npx wrangler secret put GITHUB_TOKEN
+npm run deploy
 ```
 
-长期运行时，可以把 `deploy/live-room-worker.service.example` 复制成 systemd 服务，并把环境变量放到服务器的 `/opt/chinaxxoo/.env`。这样云服务器重启后 worker 也会自动恢复。
+部署后，Cloudflare Cron 会每 5 分钟截图一次，并更新：
+
+```text
+latest.jpg
+manifest.json
+snapshots/*.jpg
+```
+
+页面会自动读取 `manifest.json`，显示最新截图和最多 5 张历史缩略图。
+
+注意：Cloudflare 也是云端浏览器。如果 YouTube 对 Cloudflare IP 弹验证页，截图会失败；但只要 Cloudflare 能截图成功，国内用户就不需要 VPN。
 
 ## 修改配置
 
-云端 worker 支持这些配置：
+Cloudflare Worker 支持这些配置：
 
-```bash
-YOUTUBE_URL="https://www.youtube.com/watch?v=FS7IPxmfEms"
-MAX_SNAPSHOTS="5"
-SITE_TIMEZONE="Asia/Shanghai"
-CAPTURE_INTERVAL="300"
-RETRY_INTERVAL="300"
+```toml
+CAPTURE_URL = "https://www.youtube.com/embed/hWWFQd9aMvc?autoplay=1&mute=1&playsinline=1&rel=0&controls=0"
+MAX_SNAPSHOTS = "5"
+WAIT_MS = "55000"
 ```
 
 `MAX_SNAPSHOTS` 控制最多保留几张历史截图。

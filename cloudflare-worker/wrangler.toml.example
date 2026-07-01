@@ -1,0 +1,18 @@
+name = "youtube-cloud-snapshot"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+[browser]
+binding = "BROWSER"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+GITHUB_OWNER = "china-xxoo"
+GITHUB_REPO = "chinaxxoo"
+GITHUB_BRANCH = "gh-pages"
+CAPTURE_URL = "https://www.youtube.com/embed/hWWFQd9aMvc?autoplay=1&mute=1&playsinline=1&rel=0&controls=0"
+MAX_SNAPSHOTS = "5"
+WAIT_MS = "55000"

@@ -180,7 +180,7 @@
         width: 100%;
       }
 
-      .video-panel {
+      .shot-panel {
         width: min(100%, 360px);
         margin: 0 auto;
         border: 1px solid rgba(255, 255, 255, 0.24);
@@ -192,7 +192,7 @@
         padding: 12px;
       }
 
-      .video-frame {
+      .latest-shot {
         display: block;
         width: 100%;
         aspect-ratio: 16 / 9;
@@ -200,13 +200,100 @@
         border: 1px solid rgba(255, 255, 255, 0.24);
         border-radius: 14px;
         background: rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+        padding: 0;
       }
 
-      .video-frame iframe {
+      .latest-shot:disabled {
+        cursor: default;
+      }
+
+      .latest-shot img {
         display: block;
         width: 100%;
         height: 100%;
-        border: 0;
+        object-fit: cover;
+      }
+
+      .latest-empty {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 14px;
+      }
+
+      .thumb-row {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 7px;
+        margin-top: 10px;
+      }
+
+      .thumb {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 9px;
+        background: rgba(0, 0, 0, 0.48);
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .thumb:disabled {
+        cursor: default;
+        opacity: 0.46;
+      }
+
+      .thumb img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 6;
+        display: grid;
+        place-items: center;
+        padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+        background: rgba(0, 0, 0, 0.78);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .lightbox[hidden] {
+        display: none;
+      }
+
+      .lightbox img {
+        display: block;
+        width: min(94vw, 860px);
+        max-height: 78svh;
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        border-radius: 18px;
+        box-shadow: 0 24px 90px rgba(0, 0, 0, 0.72);
+        object-fit: contain;
+      }
+
+      .lightbox-close {
+        position: fixed;
+        top: max(15px, env(safe-area-inset-top));
+        right: 15px;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.54);
+        color: #fff;
+        cursor: pointer;
+        font-size: 28px;
+        line-height: 1;
       }
     </style>
   </head>
@@ -239,30 +326,44 @@
     <main class="app">
       <h1 class="login-title">欢迎来到<br />花花世界！</h1>
 
-      <section class="video-panel" aria-label="YouTube 视频播放器">
-        <div class="video-frame">
-          <iframe
-            src="https://www.youtube.com/embed/hWWFQd9aMvc?autoplay=1&mute=1&playsinline=1&rel=0&controls=1"
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-          ></iframe>
-        </div>
+      <section class="shot-panel" aria-label="直播截图">
+        <button class="latest-shot" id="latestShot" type="button" disabled>
+          <span class="latest-empty">等待云端截图</span>
+        </button>
+        <div class="thumb-row" id="thumbRow"></div>
       </section>
     </main>
+
+    <div class="lightbox" id="lightbox" hidden>
+      <button class="lightbox-close" id="lightboxClose" type="button" aria-label="关闭">×</button>
+      <img id="lightboxImage" alt="放大的直播截图" />
+    </div>
 
     <script>
       const correctPassword = "1";
       let forcedErrorShown = false;
+      let imageBase = "";
+      const manifestCandidates = [
+        { manifest: `manifest.json?t=${Date.now()}`, base: "" },
+        {
+          manifest: `https://raw.githubusercontent.com/china-xxoo/chinaxxoo/gh-pages/manifest.json?t=${Date.now()}`,
+          base: "https://raw.githubusercontent.com/china-xxoo/chinaxxoo/gh-pages/",
+        },
+      ];
 
       const authForm = document.getElementById("authForm");
       const authError = document.getElementById("authError");
       const passwordInput = document.getElementById("passwordInput");
       const welcomeToast = document.getElementById("welcomeToast");
+      const latestShot = document.getElementById("latestShot");
+      const thumbRow = document.getElementById("thumbRow");
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightboxImage");
+      const lightboxClose = document.getElementById("lightboxClose");
 
       function unlock() {
         document.body.classList.remove("locked");
+        loadPage();
       }
 
       function showWelcomeThenUnlock() {
@@ -272,6 +373,98 @@
           welcomeToast.classList.remove("show");
         }, 1400);
       }
+
+      function imageUrl(file) {
+        return `${imageBase}${file}?t=${Date.now()}`;
+      }
+
+      function openLightbox(src) {
+        lightboxImage.src = src;
+        lightbox.hidden = false;
+      }
+
+      function closeLightbox() {
+        lightbox.hidden = true;
+        lightboxImage.removeAttribute("src");
+      }
+
+      function renderLatest(latest) {
+        latestShot.innerHTML = "";
+        if (!latest) {
+          latestShot.disabled = true;
+          const empty = document.createElement("span");
+          empty.className = "latest-empty";
+          empty.textContent = "等待云端截图";
+          latestShot.append(empty);
+          return;
+        }
+
+        const src = imageUrl(latest.file);
+        const image = document.createElement("img");
+        image.src = src;
+        image.alt = "最新直播截图";
+        latestShot.disabled = false;
+        latestShot.onclick = () => openLightbox(src);
+        latestShot.append(image);
+      }
+
+      function renderThumbs(snapshots) {
+        thumbRow.innerHTML = "";
+        for (let index = 0; index < 5; index += 1) {
+          const shot = snapshots[index];
+          const button = document.createElement("button");
+          button.className = "thumb";
+          button.type = "button";
+
+          if (shot) {
+            const src = imageUrl(shot.file);
+            const image = document.createElement("img");
+            image.src = src;
+            image.alt = "直播截图缩略图";
+            button.addEventListener("click", () => openLightbox(src));
+            button.append(image);
+          } else {
+            button.disabled = true;
+          }
+
+          thumbRow.append(button);
+        }
+      }
+
+      async function loadManifest() {
+        for (const candidate of manifestCandidates) {
+          const response = await fetch(candidate.manifest, { cache: "no-store" }).catch(() => null);
+          if (response && response.ok) {
+            imageBase = candidate.base;
+            return response.json();
+          }
+        }
+        throw new Error("manifest load failed");
+      }
+
+      function loadPage() {
+        loadManifest()
+          .then((manifest) => {
+            renderLatest(manifest.latest);
+            renderThumbs((manifest.snapshots || []).slice(0, 5));
+          })
+          .catch(() => {
+            renderLatest(null);
+            renderThumbs([]);
+          });
+      }
+
+      lightboxClose.addEventListener("click", closeLightbox);
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox) {
+          closeLightbox();
+        }
+      });
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !lightbox.hidden) {
+          closeLightbox();
+        }
+      });
 
       authForm.addEventListener("submit", (event) => {
         event.preventDefault();
