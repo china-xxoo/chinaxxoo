@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  CAPTURE_URL: "https://www.youtube.com/embed/hWWFQd9aMvc?autoplay=1&mute=1&playsinline=1&rel=0&controls=0"
-  CAPTURE_WAIT_MS: "8000"
+  CAPTURE_URL: "https://china-xxoo.github.io/chinaxxoo/player-test.html"
+  CAPTURE_WAIT_MS: "12000"
   MAX_SNAPSHOTS: "5"
   SITE_TIMEZONE: "Asia/Shanghai"
 
@@ -54,14 +54,15 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p tmp
-          if python3 scripts/capture_youtube_embed.py \
+          if python3 scripts/capture_page_region.py \
             --url "$CAPTURE_URL" \
             --out tmp/snapshot.jpg \
-            --debug-out tmp/debug-player.jpg \
+            --selector "#playerShell" \
             --wait-ms "$CAPTURE_WAIT_MS"; then
+            cp tmp/snapshot.jpg tmp/debug-player.jpg
             echo "captured=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Embed player capture failed. Check the uploaded debug image."
+            echo "Code-based player capture failed. Check the uploaded debug image."
             echo "captured=false" >> "$GITHUB_OUTPUT"
           fi
 
