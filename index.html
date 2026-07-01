@@ -341,6 +341,7 @@
 
     <script>
       const correctPassword = "1";
+      const thumbCount = 20;
       let forcedErrorShown = false;
       let imageBase = "";
       const manifestCandidates = [
@@ -410,7 +411,7 @@
 
       function renderThumbs(snapshots) {
         thumbRow.innerHTML = "";
-        for (let index = 0; index < 5; index += 1) {
+        for (let index = 0; index < thumbCount; index += 1) {
           const shot = snapshots[index];
           const button = document.createElement("button");
           button.className = "thumb";
@@ -446,7 +447,7 @@
         loadManifest()
           .then((manifest) => {
             renderLatest(manifest.latest);
-            renderThumbs((manifest.streams || manifest.snapshots || []).slice(0, 5));
+            renderThumbs((manifest.snapshots || manifest.streams || []).slice(0, thumbCount));
           })
           .catch(() => {
             renderLatest(null);
