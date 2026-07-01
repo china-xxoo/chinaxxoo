@@ -2,9 +2,13 @@
   "sourceUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
   "latest": {
     "file": "latest.jpg",
-    "capturedAt": "2026-07-01T10:47:59.149Z"
+    "capturedAt": "2026-07-01T10:50:56.512Z"
   },
   "snapshots": [
+    {
+      "file": "snapshots/2026-07-01T10-50-56-512Z.jpg",
+      "capturedAt": "2026-07-01T10:50:56.512Z"
+    },
     {
       "file": "snapshots/2026-07-01T10-47-59-149Z.jpg",
       "capturedAt": "2026-07-01T10:47:59.149Z"
@@ -20,10 +24,6 @@
     {
       "file": "snapshots/2026-06-28_16-05-53.jpg",
       "capturedAt": "2026-06-28T16:05:53+08:00"
-    },
-    {
-      "file": "snapshots/2026-06-28_15-40-01.jpg",
-      "capturedAt": "2026-06-28T15:40:01+08:00"
     }
   ]
 }
