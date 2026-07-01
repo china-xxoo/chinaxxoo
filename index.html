@@ -416,7 +416,7 @@
           button.className = "thumb";
           button.type = "button";
 
-          if (shot) {
+          if (shot && shot.file) {
             const src = imageUrl(shot.file);
             const image = document.createElement("img");
             image.src = src;
