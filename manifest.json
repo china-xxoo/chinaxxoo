@@ -10,7 +10,7 @@
     "mode": "hourly",
     "intervalMinutes": 60,
     "streamCount": 5,
-    "activeVideoId": "UoAOBkGjFn0"
+    "activeVideoId": "u66ExGpIL-s"
   },
   "latest": {
     "file": "latest.jpg",
@@ -42,7 +42,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
       "file": null,
       "capturedAt": null,
-      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded"
+      "error": null
     },
     {
       "label": "直播4",
@@ -51,7 +51,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=u66ExGpIL-s",
       "file": null,
       "capturedAt": null,
-      "error": null
+      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded"
     },
     {
       "label": "直播5",
