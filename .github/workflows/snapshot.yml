@@ -11,16 +11,18 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  CAPTURE_URL: "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/"
-  CAPTURE_WAIT_MS: "8000"
-  MAX_SNAPSHOTS: "5"
+  CAPTURE_BASE: "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/"
+  CAPTURE_WAIT_MS: "65000"
+  IMAGE_QUALITY: "72"
+  MAX_SNAPSHOTS: "20"
   SITE_TIMEZONE: "Asia/Shanghai"
+  VIDEO_IDS: "FS7IPxmfEms hWWFQd9aMvc UoAOBkGjFn0 u66ExGpIL-s EJpzQp_FPPM"
 
 jobs:
   capture:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
+      - name: Checkout site
         uses: actions/checkout@v4
 
       - name: Install browser tools
@@ -29,76 +31,135 @@ jobs:
           python3 -m pip install --user --upgrade playwright pillow
           python3 -m playwright install --with-deps chromium
 
-      - name: Prepare GitHub Pages branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pick random live room
+        id: pick
         run: |
           set -euxo pipefail
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          read -ra ids <<< "$VIDEO_IDS"
+          index=$(( RANDOM % ${#ids[@]} ))
+          video_id="${ids[$index]}"
+          echo "index=$index" >> "$GITHUB_OUTPUT"
+          echo "video_id=$video_id" >> "$GITHUB_OUTPUT"
+          echo "capture_url=${CAPTURE_BASE}?v=${video_id}" >> "$GITHUB_OUTPUT"
 
-          if git ls-remote --exit-code --heads origin gh-pages; then
-            git clone --depth=1 --branch gh-pages "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" site
-          else
-            mkdir site
-            cd site
-            git init
-            git checkout --orphan gh-pages
-            git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          fi
-
-      - name: Capture live room frame
-        id: capture
+      - name: Capture live frame
         run: |
           set -euxo pipefail
           mkdir -p tmp
-          if python3 scripts/capture_page_region.py \
-            --url "$CAPTURE_URL" \
+          python3 scripts/capture_page_region.py \
+            --url "${{ steps.pick.outputs.capture_url }}" \
             --out tmp/snapshot.jpg \
-            --selector "body" \
-            --wait-ms "$CAPTURE_WAIT_MS"; then
-            cp tmp/snapshot.jpg tmp/debug-player.jpg
-            echo "captured=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "Code-based player capture failed. Check the uploaded debug image."
-            echo "captured=false" >> "$GITHUB_OUTPUT"
-          fi
+            --selector "#playerFrame" \
+            --wait-ms "$CAPTURE_WAIT_MS" \
+            --quality "$IMAGE_QUALITY"
 
-      - name: Upload debug player image
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-player
-          path: |
-            tmp/snapshot.jpg
-            tmp/debug-player.jpg
-          if-no-files-found: ignore
-          retention-days: 1
+          size="$(stat -c '%s' tmp/snapshot.jpg)"
+          test "$size" -ge 30000
 
-      - name: Update static site
-        if: steps.capture.outputs.captured == 'true'
+      - name: Update page files
         run: |
           set -euxo pipefail
-          captured_at="$(TZ="$SITE_TIMEZONE" date -Iseconds)"
-          python3 scripts/update_site.py \
-            --site site \
-            --public public \
-            --snapshot tmp/snapshot.jpg \
-            --captured-at "$captured_at" \
-            --source-url "$CAPTURE_URL" \
-            --max-snapshots "$MAX_SNAPSHOTS"
+          export captured_at="$(TZ="$SITE_TIMEZONE" date -Iseconds)"
+          python3 - <<'PY'
+          import json
+          import os
+          import shutil
+          from pathlib import Path
 
-      - name: Publish to gh-pages
-        if: steps.capture.outputs.captured == 'true'
+          captured_at = os.environ["captured_at"]
+          max_snapshots = int(os.environ["MAX_SNAPSHOTS"])
+          video_ids = os.environ["VIDEO_IDS"].split()
+          video_id = "${{ steps.pick.outputs.video_id }}"
+          index = int("${{ steps.pick.outputs.index }}")
+          snapshot = Path("tmp/snapshot.jpg")
+          manifest_path = Path("manifest.json")
+          snapshots_dir = Path("snapshots")
+          snapshots_dir.mkdir(exist_ok=True)
+
+          def safe_file_part(value):
+              return "".join(char for char in value if char.isalnum() or char in "_-")[:64] or "stream"
+
+          def history_name(iso_value, vid):
+              name = iso_value.replace(":", "-").replace(".", "-")
+              return f"snapshots/history-{name}-{safe_file_part(vid)}.jpg"
+
+          def load_manifest():
+              if not manifest_path.exists():
+                  return {"latest": None, "streams": [], "snapshots": []}
+              with manifest_path.open("r", encoding="utf-8") as handle:
+                  return json.load(handle)
+
+          manifest = load_manifest()
+          previous_by_video_id = {
+              item.get("videoId"): item
+              for item in [*manifest.get("snapshots", []), *manifest.get("streams", [])]
+              if item.get("videoId")
+          }
+
+          live_file = f"snapshots/live-{index + 1}-{safe_file_part(video_id)}.jpg"
+          history_file = history_name(captured_at, video_id)
+          shutil.copy2(snapshot, live_file)
+          shutil.copy2(snapshot, history_file)
+          shutil.copy2(snapshot, "latest.jpg")
+
+          streams = []
+          for stream_index, vid in enumerate(video_ids):
+              previous = previous_by_video_id.get(vid, {})
+              is_current = vid == video_id
+              streams.append({
+                  "label": f"直播{stream_index + 1}",
+                  "videoId": vid,
+                  "sourceUrl": f"https://www.youtube.com/watch?v={vid}",
+                  "captureUrl": f"https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v={vid}",
+                  "file": live_file if is_current else previous.get("file"),
+                  "capturedAt": captured_at if is_current else previous.get("capturedAt"),
+                  "error": None if is_current else previous.get("error"),
+              })
+
+          history_entry = next(item for item in streams if item["videoId"] == video_id).copy()
+          history_entry["file"] = history_file
+          snapshots = [
+              history_entry,
+              *[
+                  item
+                  for item in manifest.get("snapshots", [])
+                  if item.get("file") and item.get("file") != history_file
+              ],
+          ][:max_snapshots]
+
+          keep = {item["file"] for item in streams if item.get("file")}
+          keep.update(item["file"] for item in snapshots if item.get("file"))
+          for old_file in snapshots_dir.glob("*.jpg"):
+              path = f"snapshots/{old_file.name}"
+              if path not in keep:
+                  old_file.unlink()
+
+          next_manifest = {
+              "sourceUrls": [f"https://www.youtube.com/watch?v={vid}" for vid in video_ids],
+              "rotation": {
+                  "mode": "hourly",
+                  "intervalMinutes": 60,
+                  "streamCount": len(video_ids),
+                  "activeVideoId": video_id,
+              },
+              "latest": {**history_entry, "file": "latest.jpg"},
+              "streams": streams,
+              "snapshots": snapshots,
+          }
+          with manifest_path.open("w", encoding="utf-8") as handle:
+              json.dump(next_manifest, handle, ensure_ascii=False, indent=2)
+              handle.write("\n")
+          PY
+
+      - name: Publish to main
         run: |
           set -euxo pipefail
-          cd site
-          git add .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add latest.jpg manifest.json snapshots
           if git diff --cached --quiet; then
             echo "No page changes to publish."
             exit 0
           fi
-          git commit -m "Update live snapshot"
-          git push origin gh-pages
+          git commit -m "Update random live snapshot"
+          git push
