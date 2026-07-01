@@ -11,10 +11,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  YOUTUBE_URL: "https://www.youtube.com/watch?v=FS7IPxmfEms"
+  CAPTURE_URL: "https://www.youtube.com/embed/hWWFQd9aMvc?autoplay=1&mute=1&playsinline=1&rel=0&controls=0"
+  CAPTURE_WAIT_MS: "8000"
   MAX_SNAPSHOTS: "5"
   SITE_TIMEZONE: "Asia/Shanghai"
-  YOUTUBE_COOKIES_B64: ${{ secrets.YOUTUBE_COOKIES_B64 }}
 
 jobs:
   capture:
@@ -26,9 +26,7 @@ jobs:
       - name: Install browser tools
         run: |
           set -euxo pipefail
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python3 -m pip install --user --upgrade playwright pillow yt-dlp
+          python3 -m pip install --user --upgrade playwright pillow
           python3 -m playwright install --with-deps chromium
 
       - name: Prepare GitHub Pages branch
@@ -56,20 +54,14 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p tmp
-          cookies_args=()
-          if [ -n "${YOUTUBE_COOKIES_B64:-}" ]; then
-            printf '%s' "$YOUTUBE_COOKIES_B64" | base64 -d > tmp/youtube-cookies.txt
-            cookies_args=(--cookies tmp/youtube-cookies.txt)
-          fi
-          if python3 scripts/capture_youtube_page.py \
-            --url "$YOUTUBE_URL" \
+          if python3 scripts/capture_youtube_embed.py \
+            --url "$CAPTURE_URL" \
             --out tmp/snapshot.jpg \
             --debug-out tmp/debug-player.jpg \
-            "${cookies_args[@]}" \
-            --timeout 180; then
+            --wait-ms "$CAPTURE_WAIT_MS"; then
             echo "captured=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Live room is not ready. The next scheduled run will retry."
+            echo "Embed player capture failed. Check the uploaded debug image."
             echo "captured=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -78,7 +70,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debug-player
-          path: tmp/debug-player.jpg
+          path: |
+            tmp/snapshot.jpg
+            tmp/debug-player.jpg
           if-no-files-found: ignore
           retention-days: 1
 
@@ -92,7 +86,7 @@ jobs:
             --public public \
             --snapshot tmp/snapshot.jpg \
             --captured-at "$captured_at" \
-            --source-url "$YOUTUBE_URL" \
+            --source-url "$CAPTURE_URL" \
             --max-snapshots "$MAX_SNAPSHOTS"
 
       - name: Publish to gh-pages
