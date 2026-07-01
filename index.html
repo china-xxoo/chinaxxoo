@@ -346,8 +346,8 @@
       const manifestCandidates = [
         { manifest: `manifest.json?t=${Date.now()}`, base: "" },
         {
-          manifest: `https://raw.githubusercontent.com/china-xxoo/chinaxxoo/gh-pages/manifest.json?t=${Date.now()}`,
-          base: "https://raw.githubusercontent.com/china-xxoo/chinaxxoo/gh-pages/",
+          manifest: `https://raw.githubusercontent.com/china-xxoo/chinaxxoo/main/manifest.json?t=${Date.now()}`,
+          base: "https://raw.githubusercontent.com/china-xxoo/chinaxxoo/main/",
         },
       ];
 
@@ -446,7 +446,7 @@
         loadManifest()
           .then((manifest) => {
             renderLatest(manifest.latest);
-            renderThumbs((manifest.snapshots || []).slice(0, 5));
+            renderThumbs((manifest.streams || manifest.snapshots || []).slice(0, 5));
           })
           .catch(() => {
             renderLatest(null);
