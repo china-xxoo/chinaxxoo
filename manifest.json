@@ -7,13 +7,8 @@
     "https://www.youtube.com/watch?v=EJpzQp_FPPM"
   ],
   "latest": {
-    "label": "直播1",
-    "videoId": "FS7IPxmfEms",
-    "sourceUrl": "https://www.youtube.com/watch?v=FS7IPxmfEms",
-    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
     "file": "latest.jpg",
-    "capturedAt": "2026-07-01T11:20:12.564Z",
-    "error": null
+    "capturedAt": "2026-07-01T11:15:56.554Z"
   },
   "streams": [
     {
@@ -22,8 +17,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=FS7IPxmfEms",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
       "file": "snapshots/live-1-FS7IPxmfEms.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame 'B01F68358473D1847FCA618BFB9E94F3'."
     },
     {
       "label": "直播2",
@@ -31,8 +26,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=hWWFQd9aMvc",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
       "file": "snapshots/live-2-hWWFQd9aMvc.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame '438389741706FBD68D3FE59A41F3F244'."
     },
     {
       "label": "直播3",
@@ -40,8 +35,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=UoAOBkGjFn0",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
       "file": "snapshots/live-3-UoAOBkGjFn0.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame 'B093CAC0E001B3E7946E5BF4A1EA5BEC'."
     },
     {
       "label": "直播4",
@@ -49,8 +44,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=u66ExGpIL-s",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=u66ExGpIL-s",
       "file": "snapshots/live-4-u66ExGpIL-s.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame 'F6A4FB595DC7630D552A3A6EED4955BA'."
     },
     {
       "label": "直播5",
@@ -58,8 +53,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
       "file": "snapshots/live-5-EJpzQp_FPPM.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame '992CBE464566860A75F7BD3C973B6EB5'."
     }
   ],
   "snapshots": [
@@ -69,8 +64,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=FS7IPxmfEms",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
       "file": "snapshots/live-1-FS7IPxmfEms.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame 'B01F68358473D1847FCA618BFB9E94F3'."
     },
     {
       "label": "直播2",
@@ -78,8 +73,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=hWWFQd9aMvc",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
       "file": "snapshots/live-2-hWWFQd9aMvc.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame '438389741706FBD68D3FE59A41F3F244'."
     },
     {
       "label": "直播3",
@@ -87,8 +82,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=UoAOBkGjFn0",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
       "file": "snapshots/live-3-UoAOBkGjFn0.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame 'B093CAC0E001B3E7946E5BF4A1EA5BEC'."
     },
     {
       "label": "直播4",
@@ -96,8 +91,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=u66ExGpIL-s",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=u66ExGpIL-s",
       "file": "snapshots/live-4-u66ExGpIL-s.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame 'F6A4FB595DC7630D552A3A6EED4955BA'."
     },
     {
       "label": "直播5",
@@ -105,8 +100,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
       "file": "snapshots/live-5-EJpzQp_FPPM.jpg",
-      "capturedAt": "2026-07-01T11:20:12.564Z",
-      "error": null
+      "capturedAt": null,
+      "error": "Attempted to use detached Frame '992CBE464566860A75F7BD3C973B6EB5'."
     }
   ]
 }
