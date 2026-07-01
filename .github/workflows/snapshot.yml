@@ -31,30 +31,43 @@ jobs:
           python3 -m pip install --user --upgrade playwright pillow
           python3 -m playwright install --with-deps chromium
 
-      - name: Pick random live room
+      - name: Pick random start
         id: pick
         run: |
           set -euxo pipefail
           read -ra ids <<< "$VIDEO_IDS"
-          index=$(( RANDOM % ${#ids[@]} ))
-          video_id="${ids[$index]}"
-          echo "index=$index" >> "$GITHUB_OUTPUT"
-          echo "video_id=$video_id" >> "$GITHUB_OUTPUT"
-          echo "capture_url=${CAPTURE_BASE}?v=${video_id}" >> "$GITHUB_OUTPUT"
+          start_index=$(( RANDOM % ${#ids[@]} ))
+          echo "start_index=$start_index" >> "$GITHUB_OUTPUT"
 
       - name: Capture live frame
         run: |
           set -euxo pipefail
           mkdir -p tmp
-          python3 scripts/capture_page_region.py \
-            --url "${{ steps.pick.outputs.capture_url }}" \
-            --out tmp/snapshot.jpg \
-            --selector "#playerFrame" \
-            --wait-ms "$CAPTURE_WAIT_MS" \
-            --quality "$IMAGE_QUALITY"
+          read -ra ids <<< "$VIDEO_IDS"
+          start_index="${{ steps.pick.outputs.start_index }}"
+          for offset in $(seq 0 $((${#ids[@]} - 1))); do
+            index=$(( (start_index + offset) % ${#ids[@]} ))
+            video_id="${ids[$index]}"
+            capture_url="${CAPTURE_BASE}?v=${video_id}"
+            echo "Trying video_id=${video_id}"
+            python3 scripts/capture_page_region.py \
+              --url "$capture_url" \
+              --out tmp/snapshot.jpg \
+              --selector "#playerFrame" \
+              --wait-ms "$CAPTURE_WAIT_MS" \
+              --quality "$IMAGE_QUALITY"
 
-          size="$(stat -c '%s' tmp/snapshot.jpg)"
-          test "$size" -ge 30000
+            size="$(stat -c '%s' tmp/snapshot.jpg)"
+            echo "Captured size=${size}"
+            if [ "$size" -ge 30000 ]; then
+              echo "SELECTED_INDEX=$index" >> "$GITHUB_ENV"
+              echo "SELECTED_VIDEO_ID=$video_id" >> "$GITHUB_ENV"
+              echo "SELECTED_CAPTURE_URL=$capture_url" >> "$GITHUB_ENV"
+              exit 0
+            fi
+          done
+          echo "No usable screenshot was captured."
+          exit 1
 
       - name: Update page files
         run: |
@@ -69,8 +82,8 @@ jobs:
           captured_at = os.environ["captured_at"]
           max_snapshots = int(os.environ["MAX_SNAPSHOTS"])
           video_ids = os.environ["VIDEO_IDS"].split()
-          video_id = "${{ steps.pick.outputs.video_id }}"
-          index = int("${{ steps.pick.outputs.index }}")
+          video_id = os.environ["SELECTED_VIDEO_ID"]
+          index = int(os.environ["SELECTED_INDEX"])
           snapshot = Path("tmp/snapshot.jpg")
           manifest_path = Path("manifest.json")
           snapshots_dir = Path("snapshots")
