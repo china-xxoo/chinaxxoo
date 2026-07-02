@@ -10,11 +10,16 @@
     "mode": "hourly",
     "intervalMinutes": 60,
     "streamCount": 5,
-    "activeVideoId": "u66ExGpIL-s"
+    "activeVideoId": "EJpzQp_FPPM"
   },
   "latest": {
+    "label": "直播5",
+    "videoId": "EJpzQp_FPPM",
+    "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
+    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
     "file": "latest.jpg",
-    "capturedAt": "2026-07-01T11:10:56.347Z"
+    "capturedAt": "2026-07-02T05:00:54.125Z",
+    "error": null
   },
   "streams": [
     {
@@ -51,19 +56,28 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=u66ExGpIL-s",
       "file": null,
       "capturedAt": null,
-      "error": "captured image rejected: 16100 bytes"
+      "error": null
     },
     {
       "label": "直播5",
       "videoId": "EJpzQp_FPPM",
       "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
-      "file": null,
-      "capturedAt": null,
+      "file": "snapshots/live-5-EJpzQp_FPPM.jpg",
+      "capturedAt": "2026-07-02T05:00:54.125Z",
       "error": null
     }
   ],
   "snapshots": [
+    {
+      "label": "直播5",
+      "videoId": "EJpzQp_FPPM",
+      "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
+      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
+      "file": "snapshots/history-2026-07-02T05-00-54-125Z-EJpzQp_FPPM.jpg",
+      "capturedAt": "2026-07-02T05:00:54.125Z",
+      "error": null
+    },
     {
       "label": "直播1",
       "videoId": "FS7IPxmfEms",
@@ -71,42 +85,6 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
       "file": "snapshots/live-1-FS7IPxmfEms.jpg",
       "capturedAt": "2026-07-01T11:10:56.347Z",
-      "error": null
-    },
-    {
-      "label": "直播2",
-      "videoId": "hWWFQd9aMvc",
-      "sourceUrl": "https://www.youtube.com/watch?v=hWWFQd9aMvc",
-      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
-      "file": null,
-      "capturedAt": null,
-      "error": null
-    },
-    {
-      "label": "直播3",
-      "videoId": "UoAOBkGjFn0",
-      "sourceUrl": "https://www.youtube.com/watch?v=UoAOBkGjFn0",
-      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
-      "file": null,
-      "capturedAt": null,
-      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded"
-    },
-    {
-      "label": "直播4",
-      "videoId": "u66ExGpIL-s",
-      "sourceUrl": "https://www.youtube.com/watch?v=u66ExGpIL-s",
-      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=u66ExGpIL-s",
-      "file": null,
-      "capturedAt": null,
-      "error": null
-    },
-    {
-      "label": "直播5",
-      "videoId": "EJpzQp_FPPM",
-      "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
-      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
-      "file": null,
-      "capturedAt": null,
       "error": null
     }
   ]
