@@ -10,7 +10,7 @@
     "mode": "hourly",
     "intervalMinutes": 60,
     "streamCount": 5,
-    "activeVideoId": "FS7IPxmfEms"
+    "activeVideoId": "hWWFQd9aMvc"
   },
   "latest": {
     "label": "直播5",
@@ -38,7 +38,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
       "file": null,
       "capturedAt": null,
-      "error": null
+      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded"
     },
     {
       "label": "直播3",
