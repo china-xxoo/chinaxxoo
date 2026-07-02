@@ -224,6 +224,15 @@
         text-align: center;
       }
 
+      .capture-status {
+        min-height: 18px;
+        margin: 4px 2px 0;
+        color: rgba(255, 255, 255, 0.58);
+        font-size: 11px;
+        line-height: 1.35;
+        text-align: center;
+      }
+
       .latest-empty {
         display: grid;
         place-items: center;
@@ -354,6 +363,7 @@
           <span class="latest-empty">等待云端截图</span>
         </button>
         <div class="shot-time" id="latestTime">等待整点截图</div>
+        <div class="capture-status" id="captureStatus">等待状态更新</div>
         <div class="thumb-row" id="thumbRow"></div>
       </section>
     </main>
@@ -382,6 +392,7 @@
       const welcomeToast = document.getElementById("welcomeToast");
       const latestShot = document.getElementById("latestShot");
       const latestTime = document.getElementById("latestTime");
+      const captureStatus = document.getElementById("captureStatus");
       const thumbRow = document.getElementById("thumbRow");
       const lightbox = document.getElementById("lightbox");
       const lightboxImage = document.getElementById("lightboxImage");
@@ -463,6 +474,26 @@
         latestTime.textContent = formatShotTime(latest.capturedAt) || "时间待更新";
       }
 
+      function strategyName(value) {
+        return value === "watch" ? "备用方案" : "主方案";
+      }
+
+      function renderStatus(diagnostics) {
+        if (!diagnostics) {
+          captureStatus.textContent = "等待状态更新";
+          return;
+        }
+        const runTime = formatShotTime(diagnostics.lastRunAt, "short") || "--";
+        if (diagnostics.ok) {
+          captureStatus.textContent = `上次运行 ${runTime}：截图成功`;
+          return;
+        }
+        const failures = Number(diagnostics.consecutiveFailures || 0);
+        const next = strategyName(diagnostics.nextStrategy);
+        const message = diagnostics.message || "截图失败，已保留上次成功图片";
+        captureStatus.textContent = `上次运行 ${runTime}：${message}；连续失败 ${failures} 次，下次用${next}`;
+      }
+
       function renderThumbs(snapshots) {
         thumbRow.innerHTML = "";
         for (let index = 0; index < thumbCount; index += 1) {
@@ -508,10 +539,12 @@
         loadManifest()
           .then((manifest) => {
             renderLatest(manifest.latest);
+            renderStatus(manifest.diagnostics);
             renderThumbs((manifest.snapshots || manifest.streams || []).slice(0, thumbCount));
           })
           .catch(() => {
             renderLatest(null);
+            renderStatus(null);
             renderThumbs([]);
           });
       }
