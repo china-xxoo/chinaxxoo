@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "hWWFQd9aMvc",
+    "activeVideoId": "UoAOBkGjFn0",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2
   },
@@ -51,7 +51,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
       "file": null,
       "capturedAt": null,
-      "error": null
+      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded"
     },
     {
       "label": "直播4",
@@ -103,30 +103,17 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-03T15:00:39.000Z",
+    "lastRunAt": "2026-07-03T18:00:39.000Z",
     "lastSuccessAt": "2026-07-03T15:00:39.000Z",
-    "consecutiveFailures": 0,
+    "consecutiveFailures": 1,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "hWWFQd9aMvc",
-    "testedLabel": "直播2",
-    "ok": true,
-    "reason": "ok",
-    "message": "截图成功",
-    "lastError": null,
-    "attempts": [
-      {
-        "strategy": "watch",
-        "ok": false,
-        "imageSize": 12168,
-        "reason": "image_too_small_or_blank"
-      },
-      {
-        "strategy": "embed",
-        "ok": true,
-        "imageSize": 161210,
-        "reason": "ok"
-      }
-    ]
+    "testedVideoId": "UoAOBkGjFn0",
+    "testedLabel": "直播3",
+    "ok": false,
+    "reason": "cloudflare_rate_limited",
+    "message": "Cloudflare 浏览器额度或限流，未生成新图：Unable to create new browser: code: 429: message: Rate limit exceeded",
+    "lastError": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+    "attempts": []
   }
 }
