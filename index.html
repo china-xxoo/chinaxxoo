@@ -233,6 +233,16 @@
         text-align: center;
       }
 
+      .debug-link {
+        border: 0;
+        background: transparent;
+        color: rgba(86, 232, 255, 0.86);
+        cursor: pointer;
+        font: inherit;
+        padding: 0 0 0 6px;
+        text-decoration: underline;
+      }
+
       .latest-empty {
         display: grid;
         place-items: center;
@@ -475,23 +485,42 @@
       }
 
       function strategyName(value) {
+        if (value === "embed_retry") return "增强方案";
         return value === "watch" ? "备用方案" : "主方案";
+      }
+
+      function setCaptureStatus(text, debugFile) {
+        captureStatus.textContent = "";
+        const span = document.createElement("span");
+        span.textContent = text;
+        captureStatus.append(span);
+        if (debugFile) {
+          const button = document.createElement("button");
+          button.className = "debug-link";
+          button.type = "button";
+          button.textContent = "失败留样";
+          button.addEventListener("click", () => openLightbox(imageUrl(debugFile)));
+          captureStatus.append(button);
+        }
       }
 
       function renderStatus(diagnostics) {
         if (!diagnostics) {
-          captureStatus.textContent = "等待状态更新";
+          setCaptureStatus("等待状态更新");
           return;
         }
         const runTime = formatShotTime(diagnostics.lastRunAt, "short") || "--";
         if (diagnostics.ok) {
-          captureStatus.textContent = `上次运行 ${runTime}：截图成功`;
+          setCaptureStatus(`上次运行 ${runTime}：截图成功`);
           return;
         }
         const failures = Number(diagnostics.consecutiveFailures || 0);
         const next = strategyName(diagnostics.nextStrategy);
         const message = diagnostics.message || "截图失败，已保留上次成功图片";
-        captureStatus.textContent = `上次运行 ${runTime}：${message}；连续失败 ${failures} 次，下次用${next}`;
+        setCaptureStatus(
+          `上次运行 ${runTime}：${message}；连续失败 ${failures} 次，下次用${next}`,
+          diagnostics.debugFile,
+        );
       }
 
       function renderThumbs(snapshots) {
