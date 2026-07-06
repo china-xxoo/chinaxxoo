@@ -125,9 +125,9 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-06T00:00:39.000Z",
+    "lastRunAt": "2026-07-06T15:00:39.000Z",
     "lastSuccessAt": "2026-07-05T12:00:39.000Z",
-    "consecutiveFailures": 4,
+    "consecutiveFailures": 5,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
     "testedVideoId": "FS7IPxmfEms",
