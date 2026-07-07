@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "UoAOBkGjFn0",
+    "activeVideoId": "u66ExGpIL-s",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -63,7 +63,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=u66ExGpIL-s",
       "file": null,
       "capturedAt": null,
-      "error": null
+      "error": "captured image rejected: 16100 bytes"
     },
     {
       "label": "直播5",
@@ -146,29 +146,29 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-07T12:00:02.000Z",
+    "lastRunAt": "2026-07-07T15:00:02.000Z",
     "lastSuccessAt": "2026-07-07T12:00:02.000Z",
-    "consecutiveFailures": 0,
+    "consecutiveFailures": 1,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "UoAOBkGjFn0",
-    "testedLabel": "直播3",
-    "ok": true,
-    "reason": "ok",
-    "message": "截图成功",
-    "lastError": null,
-    "debugFile": null,
+    "testedVideoId": "u66ExGpIL-s",
+    "testedLabel": "直播4",
+    "ok": false,
+    "reason": "image_too_small_or_blank",
+    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 16100 bytes",
+    "lastError": "captured image rejected: 16100 bytes",
+    "debugFile": "debug/last-failed.jpg",
     "attempts": [
       {
         "strategy": "embed",
-        "ok": true,
-        "imageSize": 150737,
-        "reason": "ok",
+        "ok": false,
+        "imageSize": 16100,
+        "reason": "image_too_small_or_blank",
         "samples": [
           {
             "phase": "initial",
             "waitMs": 65000,
-            "imageSize": 150737
+            "imageSize": 16100
           }
         ]
       }
