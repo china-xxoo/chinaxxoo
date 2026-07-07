@@ -10,20 +10,20 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "hWWFQd9aMvc",
+    "activeVideoId": "UoAOBkGjFn0",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
   },
   "latest": {
-    "label": "直播1",
-    "videoId": "FS7IPxmfEms",
-    "sourceUrl": "https://www.youtube.com/watch?v=FS7IPxmfEms",
-    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
+    "label": "直播3",
+    "videoId": "UoAOBkGjFn0",
+    "sourceUrl": "https://www.youtube.com/watch?v=UoAOBkGjFn0",
+    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
     "file": "latest.jpg",
-    "capturedAt": "2026-07-07T06:00:02.000Z",
+    "capturedAt": "2026-07-07T12:00:02.000Z",
     "error": null,
-    "strategy": "embed_retry"
+    "strategy": "embed"
   },
   "streams": [
     {
@@ -52,8 +52,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=UoAOBkGjFn0",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
       "file": "snapshots/live-3-UoAOBkGjFn0.jpg",
-      "capturedAt": "2026-07-04T09:00:39.000Z",
-      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+      "capturedAt": "2026-07-07T12:00:02.000Z",
+      "error": null,
       "strategy": "embed"
     },
     {
@@ -76,6 +76,16 @@
     }
   ],
   "snapshots": [
+    {
+      "label": "直播3",
+      "videoId": "UoAOBkGjFn0",
+      "sourceUrl": "https://www.youtube.com/watch?v=UoAOBkGjFn0",
+      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
+      "file": "snapshots/history-2026-07-07T12-00-02-000Z-UoAOBkGjFn0.jpg",
+      "capturedAt": "2026-07-07T12:00:02.000Z",
+      "error": null,
+      "strategy": "embed"
+    },
     {
       "label": "直播1",
       "videoId": "FS7IPxmfEms",
@@ -136,29 +146,29 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-07T09:00:02.000Z",
-    "lastSuccessAt": "2026-07-07T06:00:02.000Z",
-    "consecutiveFailures": 1,
+    "lastRunAt": "2026-07-07T12:00:02.000Z",
+    "lastSuccessAt": "2026-07-07T12:00:02.000Z",
+    "consecutiveFailures": 0,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "hWWFQd9aMvc",
-    "testedLabel": "直播2",
-    "ok": false,
-    "reason": "image_too_small_or_blank",
-    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 6958 bytes",
-    "lastError": "captured image rejected: 6958 bytes",
-    "debugFile": "debug/last-failed.jpg",
+    "testedVideoId": "UoAOBkGjFn0",
+    "testedLabel": "直播3",
+    "ok": true,
+    "reason": "ok",
+    "message": "截图成功",
+    "lastError": null,
+    "debugFile": null,
     "attempts": [
       {
         "strategy": "embed",
-        "ok": false,
-        "imageSize": 6958,
-        "reason": "image_too_small_or_blank",
+        "ok": true,
+        "imageSize": 150737,
+        "reason": "ok",
         "samples": [
           {
             "phase": "initial",
             "waitMs": 65000,
-            "imageSize": 6958
+            "imageSize": 150737
           }
         ]
       }
