@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "EJpzQp_FPPM",
+    "activeVideoId": "FS7IPxmfEms",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -33,7 +33,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
       "file": "snapshots/live-1-FS7IPxmfEms.jpg",
       "capturedAt": "2026-07-07T06:00:02.000Z",
-      "error": "captured image rejected: 16100 bytes",
+      "error": "Unable to create new browser: code: 503: message: No browser available",
       "strategy": "embed_retry"
     },
     {
@@ -178,32 +178,18 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-08T09:00:35.000Z",
+    "lastRunAt": "2026-07-08T12:00:35.000Z",
     "lastSuccessAt": "2026-07-08T09:00:35.000Z",
-    "consecutiveFailures": 0,
+    "consecutiveFailures": 1,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "EJpzQp_FPPM",
-    "testedLabel": "直播5",
-    "ok": true,
-    "reason": "ok",
-    "message": "截图成功",
-    "lastError": null,
+    "testedVideoId": "FS7IPxmfEms",
+    "testedLabel": "直播1",
+    "ok": false,
+    "reason": "browser_launch_failed",
+    "message": "Cloudflare 浏览器启动失败，未生成新图：Unable to create new browser: code: 503: message: No browser available",
+    "lastError": "Unable to create new browser: code: 503: message: No browser available",
     "debugFile": null,
-    "attempts": [
-      {
-        "strategy": "embed",
-        "ok": true,
-        "imageSize": 105636,
-        "reason": "ok",
-        "samples": [
-          {
-            "phase": "initial",
-            "waitMs": 65000,
-            "imageSize": 105636
-          }
-        ]
-      }
-    ]
+    "attempts": []
   }
 }
