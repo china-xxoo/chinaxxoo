@@ -10,18 +10,18 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "UoAOBkGjFn0",
+    "activeVideoId": "EJpzQp_FPPM",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
   },
   "latest": {
-    "label": "直播3",
-    "videoId": "UoAOBkGjFn0",
-    "sourceUrl": "https://www.youtube.com/watch?v=UoAOBkGjFn0",
-    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
+    "label": "直播5",
+    "videoId": "EJpzQp_FPPM",
+    "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
+    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
     "file": "latest.jpg",
-    "capturedAt": "2026-07-10T00:00:25.000Z",
+    "capturedAt": "2026-07-10T06:00:25.000Z",
     "error": null,
     "strategy": "embed"
   },
@@ -72,12 +72,22 @@
       "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
       "file": "snapshots/live-5-EJpzQp_FPPM.jpg",
-      "capturedAt": "2026-07-09T15:00:25.000Z",
+      "capturedAt": "2026-07-10T06:00:25.000Z",
       "error": null,
       "strategy": "embed"
     }
   ],
   "snapshots": [
+    {
+      "label": "直播5",
+      "videoId": "EJpzQp_FPPM",
+      "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
+      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
+      "file": "snapshots/history-2026-07-10T06-00-25-000Z-EJpzQp_FPPM.jpg",
+      "capturedAt": "2026-07-10T06:00:25.000Z",
+      "error": null,
+      "strategy": "embed"
+    },
     {
       "label": "直播3",
       "videoId": "UoAOBkGjFn0",
@@ -268,13 +278,13 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-10T00:00:25.000Z",
-    "lastSuccessAt": "2026-07-10T00:00:25.000Z",
+    "lastRunAt": "2026-07-10T06:00:25.000Z",
+    "lastSuccessAt": "2026-07-10T06:00:25.000Z",
     "consecutiveFailures": 0,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "UoAOBkGjFn0",
-    "testedLabel": "直播3",
+    "testedVideoId": "EJpzQp_FPPM",
+    "testedLabel": "直播5",
     "ok": true,
     "reason": "ok",
     "message": "截图成功",
@@ -284,13 +294,13 @@
       {
         "strategy": "embed",
         "ok": true,
-        "imageSize": 150686,
+        "imageSize": 100833,
         "reason": "ok",
         "samples": [
           {
             "phase": "initial",
             "waitMs": 65000,
-            "imageSize": 150686
+            "imageSize": 100833
           }
         ]
       }
