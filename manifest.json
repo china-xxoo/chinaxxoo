@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "EJpzQp_FPPM",
+    "activeVideoId": "FS7IPxmfEms",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -33,7 +33,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
       "file": "snapshots/live-1-FS7IPxmfEms.jpg",
       "capturedAt": "2026-07-10T09:00:25.000Z",
-      "error": "captured image rejected: 16100 bytes",
+      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded",
       "strategy": "embed"
     },
     {
@@ -280,37 +280,18 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-11T12:00:37.000Z",
+    "lastRunAt": "2026-07-11T15:00:37.000Z",
     "lastSuccessAt": "2026-07-10T15:00:25.000Z",
-    "consecutiveFailures": 7,
+    "consecutiveFailures": 8,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "EJpzQp_FPPM",
-    "testedLabel": "直播5",
+    "testedVideoId": "FS7IPxmfEms",
+    "testedLabel": "直播1",
     "ok": false,
-    "reason": "image_too_small_or_blank",
-    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 16100 bytes",
-    "lastError": "captured image rejected: 16100 bytes",
-    "debugFile": "debug/last-failed.jpg",
-    "attempts": [
-      {
-        "strategy": "embed_retry",
-        "ok": false,
-        "imageSize": 16100,
-        "reason": "image_too_small_or_blank",
-        "samples": [
-          {
-            "phase": "initial",
-            "waitMs": 65000,
-            "imageSize": 16100
-          },
-          {
-            "phase": "retry",
-            "waitMs": 45000,
-            "imageSize": 16100
-          }
-        ]
-      }
-    ]
+    "reason": "cloudflare_rate_limited",
+    "message": "Cloudflare 浏览器额度或限流，未生成新图：Unable to create new browser: code: 429: message: Rate limit exceeded",
+    "lastError": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+    "debugFile": null,
+    "attempts": []
   }
 }
