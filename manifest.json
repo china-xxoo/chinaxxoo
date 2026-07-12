@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "FS7IPxmfEms",
+    "activeVideoId": "hWWFQd9aMvc",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -43,7 +43,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
       "file": "snapshots/live-2-hWWFQd9aMvc.jpg",
       "capturedAt": "2026-07-10T12:00:25.000Z",
-      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+      "error": "Attempted to use detached Frame '8DFABE3EB1D54FACBC6B4E680E2E044E'.",
       "strategy": "embed"
     },
     {
@@ -280,31 +280,24 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-12T06:00:41.000Z",
+    "lastRunAt": "2026-07-12T09:00:41.000Z",
     "lastSuccessAt": "2026-07-12T06:00:41.000Z",
-    "consecutiveFailures": 0,
+    "consecutiveFailures": 1,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "FS7IPxmfEms",
-    "testedLabel": "直播1",
-    "ok": true,
-    "reason": "ok",
-    "message": "截图成功",
-    "lastError": null,
+    "testedVideoId": "hWWFQd9aMvc",
+    "testedLabel": "直播2",
+    "ok": false,
+    "reason": "capture_failed",
+    "message": "截图失败，已保留上次成功图片：Attempted to use detached Frame '8DFABE3EB1D54FACBC6B4E680E2E044E'.",
+    "lastError": "Attempted to use detached Frame '8DFABE3EB1D54FACBC6B4E680E2E044E'.",
     "debugFile": null,
     "attempts": [
       {
         "strategy": "embed",
-        "ok": true,
-        "imageSize": 113439,
-        "reason": "ok",
-        "samples": [
-          {
-            "phase": "initial",
-            "waitMs": 65000,
-            "imageSize": 113439
-          }
-        ]
+        "ok": false,
+        "error": "Attempted to use detached Frame '8DFABE3EB1D54FACBC6B4E680E2E044E'.",
+        "reason": "capture_failed"
       }
     ]
   }
