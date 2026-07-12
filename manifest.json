@@ -10,18 +10,18 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "EJpzQp_FPPM",
+    "activeVideoId": "FS7IPxmfEms",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
   },
   "latest": {
-    "label": "直播5",
-    "videoId": "EJpzQp_FPPM",
-    "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
-    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
+    "label": "直播1",
+    "videoId": "FS7IPxmfEms",
+    "sourceUrl": "https://www.youtube.com/watch?v=FS7IPxmfEms",
+    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
     "file": "latest.jpg",
-    "capturedAt": "2026-07-12T03:00:41.000Z",
+    "capturedAt": "2026-07-12T06:00:41.000Z",
     "error": null,
     "strategy": "embed"
   },
@@ -32,8 +32,8 @@
       "sourceUrl": "https://www.youtube.com/watch?v=FS7IPxmfEms",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
       "file": "snapshots/live-1-FS7IPxmfEms.jpg",
-      "capturedAt": "2026-07-10T09:00:25.000Z",
-      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+      "capturedAt": "2026-07-12T06:00:41.000Z",
+      "error": null,
       "strategy": "embed"
     },
     {
@@ -78,6 +78,16 @@
     }
   ],
   "snapshots": [
+    {
+      "label": "直播1",
+      "videoId": "FS7IPxmfEms",
+      "sourceUrl": "https://www.youtube.com/watch?v=FS7IPxmfEms",
+      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
+      "file": "snapshots/history-2026-07-12T06-00-41-000Z-FS7IPxmfEms.jpg",
+      "capturedAt": "2026-07-12T06:00:41.000Z",
+      "error": null,
+      "strategy": "embed"
+    },
     {
       "label": "直播5",
       "videoId": "EJpzQp_FPPM",
@@ -267,26 +277,16 @@
       "capturedAt": "2026-07-07T12:00:02.000Z",
       "error": null,
       "strategy": "embed"
-    },
-    {
-      "label": "直播1",
-      "videoId": "FS7IPxmfEms",
-      "sourceUrl": "https://www.youtube.com/watch?v=FS7IPxmfEms",
-      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
-      "file": "snapshots/history-2026-07-07T06-00-02-000Z-FS7IPxmfEms.jpg",
-      "capturedAt": "2026-07-07T06:00:02.000Z",
-      "error": null,
-      "strategy": "embed_retry"
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-12T03:00:41.000Z",
-    "lastSuccessAt": "2026-07-12T03:00:41.000Z",
+    "lastRunAt": "2026-07-12T06:00:41.000Z",
+    "lastSuccessAt": "2026-07-12T06:00:41.000Z",
     "consecutiveFailures": 0,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "EJpzQp_FPPM",
-    "testedLabel": "直播5",
+    "testedVideoId": "FS7IPxmfEms",
+    "testedLabel": "直播1",
     "ok": true,
     "reason": "ok",
     "message": "截图成功",
@@ -296,13 +296,13 @@
       {
         "strategy": "embed",
         "ok": true,
-        "imageSize": 106171,
+        "imageSize": 113439,
         "reason": "ok",
         "samples": [
           {
             "phase": "initial",
             "waitMs": 65000,
-            "imageSize": 106171
+            "imageSize": 113439
           }
         ]
       }
