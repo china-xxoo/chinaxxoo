@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "FS7IPxmfEms",
+    "activeVideoId": "hWWFQd9aMvc",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -43,7 +43,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
       "file": "snapshots/live-2-hWWFQd9aMvc.jpg",
       "capturedAt": "2026-07-13T15:00:41.000Z",
-      "error": null,
+      "error": "Unable to create new browser: code: 500: message: Internal server error",
       "strategy": "embed"
     },
     {
@@ -280,32 +280,18 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-14T03:00:41.000Z",
+    "lastRunAt": "2026-07-14T06:00:06.000Z",
     "lastSuccessAt": "2026-07-14T03:00:41.000Z",
-    "consecutiveFailures": 0,
+    "consecutiveFailures": 1,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "FS7IPxmfEms",
-    "testedLabel": "直播1",
-    "ok": true,
-    "reason": "ok",
-    "message": "截图成功",
-    "lastError": null,
+    "testedVideoId": "hWWFQd9aMvc",
+    "testedLabel": "直播2",
+    "ok": false,
+    "reason": "browser_launch_failed",
+    "message": "Cloudflare 浏览器启动失败，未生成新图：Unable to create new browser: code: 500: message: Internal server error",
+    "lastError": "Unable to create new browser: code: 500: message: Internal server error",
     "debugFile": null,
-    "attempts": [
-      {
-        "strategy": "embed",
-        "ok": true,
-        "imageSize": 100181,
-        "reason": "ok",
-        "samples": [
-          {
-            "phase": "initial",
-            "waitMs": 65000,
-            "imageSize": 100181
-          }
-        ]
-      }
-    ]
+    "attempts": []
   }
 }
