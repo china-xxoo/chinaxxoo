@@ -10,18 +10,18 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "FS7IPxmfEms",
+    "activeVideoId": "hWWFQd9aMvc",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
   },
   "latest": {
-    "label": "直播5",
-    "videoId": "EJpzQp_FPPM",
-    "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
-    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
+    "label": "直播2",
+    "videoId": "hWWFQd9aMvc",
+    "sourceUrl": "https://www.youtube.com/watch?v=hWWFQd9aMvc",
+    "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
     "file": "latest.jpg",
-    "capturedAt": "2026-07-18T09:00:07.000Z",
+    "capturedAt": "2026-07-18T15:00:07.000Z",
     "error": null,
     "strategy": "embed"
   },
@@ -42,7 +42,7 @@
       "sourceUrl": "https://www.youtube.com/watch?v=hWWFQd9aMvc",
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
       "file": "snapshots/live-2-hWWFQd9aMvc.jpg",
-      "capturedAt": "2026-07-18T00:00:07.000Z",
+      "capturedAt": "2026-07-18T15:00:07.000Z",
       "error": null,
       "strategy": "embed"
     },
@@ -78,6 +78,16 @@
     }
   ],
   "snapshots": [
+    {
+      "label": "直播2",
+      "videoId": "hWWFQd9aMvc",
+      "sourceUrl": "https://www.youtube.com/watch?v=hWWFQd9aMvc",
+      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
+      "file": "snapshots/history-2026-07-18T15-00-07-000Z-hWWFQd9aMvc.jpg",
+      "capturedAt": "2026-07-18T15:00:07.000Z",
+      "error": null,
+      "strategy": "embed"
+    },
     {
       "label": "直播5",
       "videoId": "EJpzQp_FPPM",
@@ -267,42 +277,32 @@
       "capturedAt": "2026-07-16T00:00:14.000Z",
       "error": null,
       "strategy": "embed_retry"
-    },
-    {
-      "label": "直播5",
-      "videoId": "EJpzQp_FPPM",
-      "sourceUrl": "https://www.youtube.com/watch?v=EJpzQp_FPPM",
-      "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=EJpzQp_FPPM",
-      "file": "snapshots/history-2026-07-15T06-00-14-000Z-EJpzQp_FPPM.jpg",
-      "capturedAt": "2026-07-15T06:00:14.000Z",
-      "error": null,
-      "strategy": "embed"
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-18T12:00:07.000Z",
-    "lastSuccessAt": "2026-07-18T09:00:07.000Z",
-    "consecutiveFailures": 1,
+    "lastRunAt": "2026-07-18T15:00:07.000Z",
+    "lastSuccessAt": "2026-07-18T15:00:07.000Z",
+    "consecutiveFailures": 0,
     "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "FS7IPxmfEms",
-    "testedLabel": "直播1",
-    "ok": false,
-    "reason": "image_too_small_or_blank",
-    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 16100 bytes",
-    "lastError": "captured image rejected: 16100 bytes",
-    "debugFile": "debug/last-failed.jpg",
+    "testedVideoId": "hWWFQd9aMvc",
+    "testedLabel": "直播2",
+    "ok": true,
+    "reason": "ok",
+    "message": "截图成功",
+    "lastError": null,
+    "debugFile": null,
     "attempts": [
       {
         "strategy": "embed",
-        "ok": false,
-        "imageSize": 16100,
-        "reason": "image_too_small_or_blank",
+        "ok": true,
+        "imageSize": 161975,
+        "reason": "ok",
         "samples": [
           {
             "phase": "initial",
             "waitMs": 65000,
-            "imageSize": 16100
+            "imageSize": 161975
           }
         ]
       }
