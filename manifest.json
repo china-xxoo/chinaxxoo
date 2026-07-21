@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "hWWFQd9aMvc",
+    "activeVideoId": "UoAOBkGjFn0",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -53,7 +53,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
       "file": "snapshots/live-3-UoAOBkGjFn0.jpg",
       "capturedAt": "2026-07-21T06:00:55.000Z",
-      "error": null,
+      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded",
       "strategy": "embed_retry"
     },
     {
@@ -280,37 +280,18 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-21T18:00:55.000Z",
+    "lastRunAt": "2026-07-21T21:00:55.000Z",
     "lastSuccessAt": "2026-07-21T06:00:55.000Z",
-    "consecutiveFailures": 4,
+    "consecutiveFailures": 5,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "hWWFQd9aMvc",
-    "testedLabel": "直播2",
+    "testedVideoId": "UoAOBkGjFn0",
+    "testedLabel": "直播3",
     "ok": false,
-    "reason": "image_too_small_or_blank",
-    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 16100 bytes",
-    "lastError": "captured image rejected: 16100 bytes",
-    "debugFile": "debug/last-failed.jpg",
-    "attempts": [
-      {
-        "strategy": "embed_retry",
-        "ok": false,
-        "imageSize": 16100,
-        "reason": "image_too_small_or_blank",
-        "samples": [
-          {
-            "phase": "initial",
-            "waitMs": 65000,
-            "imageSize": 16100
-          },
-          {
-            "phase": "retry",
-            "waitMs": 45000,
-            "imageSize": 16100
-          }
-        ]
-      }
-    ]
+    "reason": "cloudflare_rate_limited",
+    "message": "Cloudflare 浏览器额度或限流，未生成新图：Unable to create new browser: code: 429: message: Rate limit exceeded",
+    "lastError": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+    "debugFile": null,
+    "attempts": []
   }
 }
