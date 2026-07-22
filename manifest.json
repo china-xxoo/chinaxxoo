@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "UoAOBkGjFn0",
+    "activeVideoId": "u66ExGpIL-s",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -63,7 +63,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=u66ExGpIL-s",
       "file": "snapshots/live-4-u66ExGpIL-s.jpg",
       "capturedAt": "2026-07-20T03:00:30.000Z",
-      "error": "captured image rejected: 16100 bytes",
+      "error": "Attempted to use detached Frame '1D38E05D3E4A55DCEFB4FC3B42312D84'.",
       "strategy": "embed"
     },
     {
@@ -280,18 +280,25 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-21T21:00:55.000Z",
+    "lastRunAt": "2026-07-22T00:00:55.000Z",
     "lastSuccessAt": "2026-07-21T06:00:55.000Z",
-    "consecutiveFailures": 5,
+    "consecutiveFailures": 6,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "UoAOBkGjFn0",
-    "testedLabel": "直播3",
+    "testedVideoId": "u66ExGpIL-s",
+    "testedLabel": "直播4",
     "ok": false,
-    "reason": "cloudflare_rate_limited",
-    "message": "Cloudflare 浏览器额度或限流，未生成新图：Unable to create new browser: code: 429: message: Rate limit exceeded",
-    "lastError": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+    "reason": "capture_failed",
+    "message": "截图失败，已保留上次成功图片：Attempted to use detached Frame '1D38E05D3E4A55DCEFB4FC3B42312D84'.",
+    "lastError": "Attempted to use detached Frame '1D38E05D3E4A55DCEFB4FC3B42312D84'.",
     "debugFile": null,
-    "attempts": []
+    "attempts": [
+      {
+        "strategy": "embed_retry",
+        "ok": false,
+        "error": "Attempted to use detached Frame '1D38E05D3E4A55DCEFB4FC3B42312D84'.",
+        "reason": "capture_failed"
+      }
+    ]
   }
 }
