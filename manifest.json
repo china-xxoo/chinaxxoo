@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "FS7IPxmfEms",
+    "activeVideoId": "hWWFQd9aMvc",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -43,7 +43,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=hWWFQd9aMvc",
       "file": "snapshots/live-2-hWWFQd9aMvc.jpg",
       "capturedAt": "2026-07-20T12:00:30.000Z",
-      "error": "captured image rejected: 16100 bytes",
+      "error": "captured image rejected: 18342 bytes",
       "strategy": "embed"
     },
     {
@@ -280,18 +280,37 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-22T21:00:55.000Z",
+    "lastRunAt": "2026-07-23T00:00:55.000Z",
     "lastSuccessAt": "2026-07-21T06:00:55.000Z",
-    "consecutiveFailures": 13,
+    "consecutiveFailures": 14,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "FS7IPxmfEms",
-    "testedLabel": "直播1",
+    "testedVideoId": "hWWFQd9aMvc",
+    "testedLabel": "直播2",
     "ok": false,
-    "reason": "cloudflare_rate_limited",
-    "message": "Cloudflare 浏览器额度或限流，未生成新图：Unable to create new browser: code: 429: message: Rate limit exceeded",
-    "lastError": "Unable to create new browser: code: 429: message: Rate limit exceeded",
-    "debugFile": null,
-    "attempts": []
+    "reason": "image_too_small_or_blank",
+    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 18342 bytes",
+    "lastError": "captured image rejected: 18342 bytes",
+    "debugFile": "debug/last-failed.jpg",
+    "attempts": [
+      {
+        "strategy": "embed_retry",
+        "ok": false,
+        "imageSize": 18342,
+        "reason": "image_too_small_or_blank",
+        "samples": [
+          {
+            "phase": "initial",
+            "waitMs": 65000,
+            "imageSize": 6949
+          },
+          {
+            "phase": "retry",
+            "waitMs": 45000,
+            "imageSize": 18342
+          }
+        ]
+      }
+    ]
   }
 }
