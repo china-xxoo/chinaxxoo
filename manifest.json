@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "EJpzQp_FPPM",
+    "activeVideoId": "FS7IPxmfEms",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -33,7 +33,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
       "file": "snapshots/live-1-FS7IPxmfEms.jpg",
       "capturedAt": "2026-07-20T09:00:30.000Z",
-      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+      "error": "Attempted to use detached Frame '801E495B0A8383B50CA1207E612F15B2'.",
       "strategy": "embed"
     },
     {
@@ -280,36 +280,24 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-23T09:00:55.000Z",
+    "lastRunAt": "2026-07-23T12:00:55.000Z",
     "lastSuccessAt": "2026-07-21T06:00:55.000Z",
-    "consecutiveFailures": 17,
+    "consecutiveFailures": 18,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "EJpzQp_FPPM",
-    "testedLabel": "直播5",
+    "testedVideoId": "FS7IPxmfEms",
+    "testedLabel": "直播1",
     "ok": false,
-    "reason": "image_too_small_or_blank",
-    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 16100 bytes",
-    "lastError": "captured image rejected: 16100 bytes",
-    "debugFile": "debug/last-failed.jpg",
+    "reason": "capture_failed",
+    "message": "截图失败，已保留上次成功图片：Attempted to use detached Frame '801E495B0A8383B50CA1207E612F15B2'.",
+    "lastError": "Attempted to use detached Frame '801E495B0A8383B50CA1207E612F15B2'.",
+    "debugFile": null,
     "attempts": [
       {
         "strategy": "embed_retry",
         "ok": false,
-        "imageSize": 16100,
-        "reason": "image_too_small_or_blank",
-        "samples": [
-          {
-            "phase": "initial",
-            "waitMs": 65000,
-            "imageSize": 16100
-          },
-          {
-            "phase": "retry",
-            "waitMs": 45000,
-            "imageSize": 16100
-          }
-        ]
+        "error": "Attempted to use detached Frame '801E495B0A8383B50CA1207E612F15B2'.",
+        "reason": "capture_failed"
       }
     ]
   }
