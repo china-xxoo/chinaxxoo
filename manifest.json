@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "UoAOBkGjFn0",
+    "activeVideoId": "u66ExGpIL-s",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -63,7 +63,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=u66ExGpIL-s",
       "file": "snapshots/live-4-u66ExGpIL-s.jpg",
       "capturedAt": "2026-07-20T03:00:30.000Z",
-      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded",
+      "error": "captured image rejected: 16100 bytes",
       "strategy": "embed"
     },
     {
@@ -280,13 +280,13 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-23T03:00:55.000Z",
+    "lastRunAt": "2026-07-23T06:00:55.000Z",
     "lastSuccessAt": "2026-07-21T06:00:55.000Z",
-    "consecutiveFailures": 15,
+    "consecutiveFailures": 16,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "UoAOBkGjFn0",
-    "testedLabel": "直播3",
+    "testedVideoId": "u66ExGpIL-s",
+    "testedLabel": "直播4",
     "ok": false,
     "reason": "image_too_small_or_blank",
     "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 16100 bytes",
