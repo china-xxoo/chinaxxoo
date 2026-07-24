@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "EJpzQp_FPPM",
+    "activeVideoId": "FS7IPxmfEms",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -280,13 +280,13 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-07-24T15:00:02.000Z",
+    "lastRunAt": "2026-07-24T18:00:02.000Z",
     "lastSuccessAt": "2026-07-24T06:00:55.000Z",
-    "consecutiveFailures": 3,
+    "consecutiveFailures": 4,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "EJpzQp_FPPM",
-    "testedLabel": "直播5",
+    "testedVideoId": "FS7IPxmfEms",
+    "testedLabel": "直播1",
     "ok": false,
     "reason": "image_too_small_or_blank",
     "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 16100 bytes",
