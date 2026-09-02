@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "EJpzQp_FPPM",
+    "activeVideoId": "FS7IPxmfEms",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -33,7 +33,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=FS7IPxmfEms",
       "file": "snapshots/live-1-FS7IPxmfEms.jpg",
       "capturedAt": "2026-09-02T03:00:46.000Z",
-      "error": null,
+      "error": "Attempted to use detached Frame 'F6AC773A2EBEE4B9B36764B1766919ED'.",
       "strategy": "embed_retry"
     },
     {
@@ -280,36 +280,24 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-09-02T15:00:34.000Z",
+    "lastRunAt": "2026-09-02T18:00:34.000Z",
     "lastSuccessAt": "2026-09-02T03:00:46.000Z",
-    "consecutiveFailures": 3,
+    "consecutiveFailures": 4,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "EJpzQp_FPPM",
-    "testedLabel": "直播5",
+    "testedVideoId": "FS7IPxmfEms",
+    "testedLabel": "直播1",
     "ok": false,
-    "reason": "image_too_small_or_blank",
-    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 14680 bytes",
-    "lastError": "captured image rejected: 14680 bytes",
-    "debugFile": "debug/last-failed.jpg",
+    "reason": "capture_failed",
+    "message": "截图失败，已保留上次成功图片：Attempted to use detached Frame 'F6AC773A2EBEE4B9B36764B1766919ED'.",
+    "lastError": "Attempted to use detached Frame 'F6AC773A2EBEE4B9B36764B1766919ED'.",
+    "debugFile": null,
     "attempts": [
       {
         "strategy": "embed_retry",
         "ok": false,
-        "imageSize": 14680,
-        "reason": "image_too_small_or_blank",
-        "samples": [
-          {
-            "phase": "initial",
-            "waitMs": 65000,
-            "imageSize": 14680
-          },
-          {
-            "phase": "retry",
-            "waitMs": 45000,
-            "imageSize": 14680
-          }
-        ]
+        "error": "Attempted to use detached Frame 'F6AC773A2EBEE4B9B36764B1766919ED'.",
+        "reason": "capture_failed"
       }
     ]
   }
