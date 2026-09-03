@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "u66ExGpIL-s",
+    "activeVideoId": "EJpzQp_FPPM",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -280,29 +280,29 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-09-03T03:00:33.000Z",
+    "lastRunAt": "2026-09-03T06:00:33.000Z",
     "lastSuccessAt": "2026-09-03T03:00:33.000Z",
-    "consecutiveFailures": 0,
-    "activeStrategy": "embed_retry",
+    "consecutiveFailures": 1,
+    "activeStrategy": "embed",
     "nextStrategy": "embed",
-    "testedVideoId": "u66ExGpIL-s",
-    "testedLabel": "直播4",
-    "ok": true,
-    "reason": "ok",
-    "message": "截图成功",
-    "lastError": null,
-    "debugFile": null,
+    "testedVideoId": "EJpzQp_FPPM",
+    "testedLabel": "直播5",
+    "ok": false,
+    "reason": "image_too_small_or_blank",
+    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 14680 bytes",
+    "lastError": "captured image rejected: 14680 bytes",
+    "debugFile": "debug/last-failed.jpg",
     "attempts": [
       {
-        "strategy": "embed_retry",
-        "ok": true,
-        "imageSize": 156555,
-        "reason": "ok",
+        "strategy": "embed",
+        "ok": false,
+        "imageSize": 14680,
+        "reason": "image_too_small_or_blank",
         "samples": [
           {
             "phase": "initial",
             "waitMs": 65000,
-            "imageSize": 156555
+            "imageSize": 14680
           }
         ]
       }
