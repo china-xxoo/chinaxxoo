@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "hWWFQd9aMvc",
+    "activeVideoId": "UoAOBkGjFn0",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -53,7 +53,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
       "file": "snapshots/live-3-UoAOBkGjFn0.jpg",
       "capturedAt": "2026-09-01T03:00:12.000Z",
-      "error": "captured image rejected: 17931 bytes",
+      "error": "Unable to create new browser: code: 429: message: Rate limit exceeded",
       "strategy": "embed"
     },
     {
@@ -280,13 +280,13 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-09-09T18:00:14.000Z",
+    "lastRunAt": "2026-09-09T21:00:39.000Z",
     "lastSuccessAt": "2026-09-04T00:00:10.000Z",
-    "consecutiveFailures": 38,
+    "consecutiveFailures": 39,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "hWWFQd9aMvc",
-    "testedLabel": "直播2",
+    "testedVideoId": "UoAOBkGjFn0",
+    "testedLabel": "直播3",
     "ok": false,
     "reason": "cloudflare_rate_limited",
     "message": "Cloudflare 浏览器额度或限流，未生成新图：Unable to create new browser: code: 429: message: Rate limit exceeded",
