@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "hWWFQd9aMvc",
+    "activeVideoId": "UoAOBkGjFn0",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -53,7 +53,7 @@
       "captureUrl": "https://china-xxoo.github.io/chinaxxoo/youtube-live-pages/?v=UoAOBkGjFn0",
       "file": "snapshots/live-3-UoAOBkGjFn0.jpg",
       "capturedAt": "2026-09-01T03:00:12.000Z",
-      "error": "captured image rejected: 14680 bytes",
+      "error": "Attempted to use detached Frame 'BF08EBF38ABE6C471A643806DBB1F033'.",
       "strategy": "embed"
     },
     {
@@ -280,36 +280,24 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-09-28T12:00:02.000Z",
+    "lastRunAt": "2026-09-28T15:00:02.000Z",
     "lastSuccessAt": "2026-09-04T00:00:10.000Z",
-    "consecutiveFailures": 188,
+    "consecutiveFailures": 189,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "hWWFQd9aMvc",
-    "testedLabel": "直播2",
+    "testedVideoId": "UoAOBkGjFn0",
+    "testedLabel": "直播3",
     "ok": false,
-    "reason": "image_too_small_or_blank",
-    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 18242 bytes",
-    "lastError": "captured image rejected: 18242 bytes",
-    "debugFile": "debug/last-failed.jpg",
+    "reason": "capture_failed",
+    "message": "截图失败，已保留上次成功图片：Attempted to use detached Frame 'BF08EBF38ABE6C471A643806DBB1F033'.",
+    "lastError": "Attempted to use detached Frame 'BF08EBF38ABE6C471A643806DBB1F033'.",
+    "debugFile": null,
     "attempts": [
       {
         "strategy": "embed_retry",
         "ok": false,
-        "imageSize": 18242,
-        "reason": "image_too_small_or_blank",
-        "samples": [
-          {
-            "phase": "initial",
-            "waitMs": 65000,
-            "imageSize": 18242
-          },
-          {
-            "phase": "retry",
-            "waitMs": 45000,
-            "imageSize": 18242
-          }
-        ]
+        "error": "Attempted to use detached Frame 'BF08EBF38ABE6C471A643806DBB1F033'.",
+        "reason": "capture_failed"
       }
     ]
   }
