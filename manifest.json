@@ -10,7 +10,7 @@
     "mode": "periodic",
     "intervalMinutes": 180,
     "streamCount": 5,
-    "activeVideoId": "EJpzQp_FPPM",
+    "activeVideoId": "FS7IPxmfEms",
     "startUtcDate": "2026-07-03",
     "fallbackAfterFailures": 2,
     "retryWaitMs": 45000
@@ -280,24 +280,36 @@
     }
   ],
   "diagnostics": {
-    "lastRunAt": "2026-11-16T00:00:43.000Z",
+    "lastRunAt": "2026-11-16T03:00:43.000Z",
     "lastSuccessAt": "2026-11-15T00:00:43.000Z",
-    "consecutiveFailures": 8,
+    "consecutiveFailures": 9,
     "activeStrategy": "embed_retry",
     "nextStrategy": "embed_retry",
-    "testedVideoId": "EJpzQp_FPPM",
-    "testedLabel": "直播5",
+    "testedVideoId": "FS7IPxmfEms",
+    "testedLabel": "直播1",
     "ok": false,
-    "reason": "capture_failed",
-    "message": "截图失败，已保留上次成功图片：Attempted to use detached Frame 'DF05A4E32AD76C39CE334561954FCFB5'.",
-    "lastError": "Attempted to use detached Frame 'DF05A4E32AD76C39CE334561954FCFB5'.",
-    "debugFile": null,
+    "reason": "image_too_small_or_blank",
+    "message": "截图太小或疑似黑屏，已保护不覆盖旧图：captured image rejected: 18625 bytes",
+    "lastError": "captured image rejected: 18625 bytes",
+    "debugFile": "debug/last-failed.jpg",
     "attempts": [
       {
         "strategy": "embed_retry",
         "ok": false,
-        "error": "Attempted to use detached Frame 'DF05A4E32AD76C39CE334561954FCFB5'.",
-        "reason": "capture_failed"
+        "imageSize": 18625,
+        "reason": "image_too_small_or_blank",
+        "samples": [
+          {
+            "phase": "initial",
+            "waitMs": 65000,
+            "imageSize": 18625
+          },
+          {
+            "phase": "retry",
+            "waitMs": 45000,
+            "imageSize": 18625
+          }
+        ]
       }
     ]
   }
